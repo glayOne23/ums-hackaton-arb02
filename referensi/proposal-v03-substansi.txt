@@ -1,0 +1,313 @@
+Proposal v03 SIGAP (4 Nov 2026) — kutipan substansi dan Lampiran C.
+Sumber: PRATINJAU_Proposal_AntechAsync_v03_SIGAP_2026-11-04.pdf di repo bahan tim. Lembar identitas, CV, dan pakta integritas sengaja tidak disalin.
+
+                         SUBSTANSI PROPOSAL
+                UMS HEALTH INNOVATION HACKATHON 2026
+1. Judul Proposal
+SIGAP: Sistem Integrasi Gudang, Aktivitas Sales, dan Pelanggan dengan Pelacakan Batch
+untuk Distribusi Produk Herbal ke Apotek dan Minimarket
+2. Tema Fokus Inovasi
+Bidang strategis      Kesehatan
+                      Tantangan: ARB-02 — Sistem CRM Terpadu: Integrasi Data
+                      Pelanggan B2B, Aktivitas Sales, dan Manajemen Stok
+3. Ringkasan Eksekutif (maksimal 250 kata)
+CV Arba’in Jaya Mandiri, produsen dan distributor produk herbal terdaftar BPOM di
+Surakarta, memasok apotek dan minimarket melalui sales lapangan. Data pelanggan,
+kunjungan dan pesanan sales, serta stok belum terhubung, sehingga manajemen sulit
+memantau kinerja sales, riwayat pesanan outlet, dan akurasi stok. Kami mengusulkan
+SIGAP, aplikasi web progresif (PWA) ringan yang menyatukan ketiganya. Sales membuka
+daftar kunjungan hari ini beserta alasannya, check-in, lalu mengulang pesanan terakhir
+dalam hitungan detik; tanpa sinyal pun pesanan tersimpan di ponsel dan terkirim otomatis
+tepat satu kali. Satu pesanan langsung mengurangi stok tersedia serta menambah riwayat
+outlet dan capaian target tanpa input ulang, sedangkan stok fisik baru berkurang saat
+gudang mengirim barang sehingga stock opname tetap akurat. Gudang mencatat batch dan
+kedaluwarsa, mengirim batch tertua lebih dulu, dan dapat menelusuri outlet penerima tiap
+batch untuk penanganan keluhan atau penarikan produk. Direktur memantau performa
+sales, outlet paling aktif, perputaran stok, dan stok menipis dari satu dashboard. Data lama
+dari Excel dipindahkan dengan pemeriksaan duplikat. Solusi berpotensi diadopsi UKM herbal
+lain dengan langganan berbiaya rendah. Kegiatan meliputi validasi bersama mitra,
+pengembangan MVP saat hackathon, uji kegunaan, dan uji coba terbatas hingga April 2027.
+TKT awal 3, target TKT 6.
+4. Deskripsi Inovasi (maksimal 2 halaman)
+Masalah dan pengguna. CV Arba’in Jaya Mandiri di Surakarta memasok produk herbal
+terdaftar BPOM ke apotek, toko obat, dan minimarket melalui sales lapangan. Data
+pelanggan, aktivitas sales, dan stok belum terintegrasi sehingga manajemen sulit
+memantau produktivitas sales, riwayat pesanan outlet, dan akurasi stok [1]. Pada sosialisasi
+7 Oktober 2026, perwakilan mitra menyebut catatan masih tersebar di buku dan pesan
+singkat, kunjungan sales tidak terpantau, dan data stok tidak sesuai dengan gudang [2].
+Jaringannya luas: 47 agen dan 1.027 outlet di Solo, Yogyakarta, dan Bandung (data 2014
+[3]; angka terbaru dikonfirmasi saat validasi). Kekosongan produk di apotek mengurangi
+akses masyarakat terhadap produk kesehatan. Pengguna: sales lapangan, admin penjualan,
+admin gudang, dan direktur. Target: input pesanan ulang ≤15 detik, nol input berulang, dan
+selisih stok sistem–fisik saat opname turun ≥50%. Peluang hilirisasi: UKM herbal dan jamu
+lain.
+Solusi awal. SIGAP adalah satu aplikasi web monolit (Django dan PostgreSQL) dengan
+halaman sales berbentuk Progressive Web App (PWA) [4] yang dipasang di layar utama
+ponsel dan tetap terbuka tanpa sinyal karena cangkang aplikasinya disimpan service worker,
+serta panel komputer untuk pengguna kantor. Sales membuka daftar kunjungan hari ini
+yang diurutkan beserta alasannya (jatuh tempo, waktunya order menurut median selang
+pesanan, atau lama tidak dikunjungi), check-in (GPS dan jam), lalu menekan “Ulangi
+pesanan terakhir”. Pesanan disimpan dulu di peramban ponsel (IndexedDB [4]) dengan
+kode unik sesuai prinsip local-first [5], lalu dikirim otomatis saat ada sinyal; server menolak
+kode ganda sehingga pesanan tercatat tepat sekali. Stok dicatat sebagai stok fisik dan stok
+dipesan: pesanan langsung mengurangi stok tersedia (fisik − dipesan) dalam satu transaksi
+dengan penguncian baris [6] sehingga stok tidak pernah minus, dan stok fisik baru
+berkurang saat gudang mengonfirmasi pengiriman sehingga opname bebas selisih palsu.
+Barang masuk dicatat per batch dan kedaluwarsa; pengiriman memakai batch tertua (FEFO)
+dan mencatat outlet penerima tiap batch, sejalan dengan CPOTB [7]. Semua perubahan
+stok tercatat di riwayat mutasi. Dashboard direktur menampilkan performa sales, outlet
+paling aktif, perputaran stok, stok menipis, barang mendekati kedaluwarsa, serta prediksi
+penjualan 4 minggu dan saran produksi; data lama diimpor dari Excel dengan cek duplikat
+nomor HP. Kebaruannya adalah gabungan keempat fungsi itu (satu input untuk semua data,
+andal tanpa sinyal, stok fisik terpisah dari stok dipesan, telusur batch) dalam satu aplikasi
+ringan, bukan paket CRM/ERP yang terpisah per modul. Kelayakan: teknologi sumber
+terbuka yang matang, satu server, tanpa API berbayar. Nomor BPOM disimpan per produk
+[8]; data PIC outlet dilindungi hak akses per peran dan log sesuai UU PDP [9].
+Dikembangkan tim, dapat di-hosting di Indonesia, dan didaftarkan sebagai hak cipta.
+Kondisi awal dan TKT. Telah tersedia rancangan alur, arsitektur, data, dan layar, serta
+purwarupa Django–PostgreSQL yang lulus 22 dari 22 uji otomatis: pesanan tanpa sinyal
+tercatat tepat sekali, stok fisik terpisah dari stok dipesan, FEFO, stok tidak minus pada
+pesanan bersamaan, dan prediksi penjualan yang pada data sintetis lebih akurat daripada
+ramalan naif (Lampiran C). Mode PWA (service worker dan pemasangan di layar utama),
+hak akses per peran, kunjungan hari ini, impor Excel, dan dashboard direktur lengkap belum
+dibuat. TKT awal 3 (pembuktian konsep); target TKT 6 pada April 2027 melalui uji bersama
+sales dan admin mitra.
+Rencana kegiatan. Prediksi penjualan per produk untuk saran produksi (exponential
+smoothing [10]) sudah berjalan di purwarupa dengan data sintetis; akurasinya pada data
+nyata diukur saat pilot (WAPE dibanding ramalan naif).
+Waktu                   Tahapan dan keluaran                      Ukuran keberhasilan
+Okt–Nov 2026            Validasi alur dan data dengan mitra       Alur disetujui mitra
+Nov 2026                Hackathon: MVP 5 fitur inti               Semua uji otomatis lulus
+Des 2026–Jan 2027       Migrasi data contoh; uji kegunaan         ≤15 detik; SUS ≥70 [11]
+Feb–Mar 2027            Uji coba terbatas 1 area (rencana)        Selisih stok −50%
+Apr 2027                Evaluasi, laporan, hak cipta              TKT 6
+Komposisi tim. Ketua dosen Teknik Industri (persediaan dan operasi), dua praktisi
+pengembang sistem informasi, dan satu mahasiswa; peran teknis, bisnis/hilirisasi, validasi
+pengguna, dan regulasi dirinci di bagian 5.
+Dukungan mitra. Dikonfirmasi [1, 2]: paparan kebutuhan oleh mitra, konsultasi alur
+distribusi, penjualan, dan stok, serta contoh data pelanggan dan produk (dummy).
+Direncanakan (perlu persetujuan mitra): wawancara ≥5 narasumber, uji kegunaan, dan uji
+coba terbatas bersama sales dan admin. Dampak: kinerja sales terpantau, riwayat outlet
+lengkap, stok akurat, dan kekosongan produk berkurang.
+5. Pembagian Tugas dan Tanggung Jawab (maksimal 1 halaman)
+ No Anggota        Peran dan tanggung jawab                         Keluaran
+ 1 Purwo Setiawan Ketua; operasional dan regulasi: koordinasi       Rencana, aturan
+                   mitra, aturan stok, batch, FEFO, CPOTB,          stok, laporan
+                   peramalan, evaluasi
+ 2 Reza Amin       Validasi pengguna: halaman sales,                Halaman sales,
+     Thohari       wawancara, uji tugas dan SUS, panduan            laporan uji
+                   pengguna
+ 3 Ridwan Renaldi Koordinator teknis: arsitektur Django–            Purwarupa,
+                   PostgreSQL, sinkron tanpa sinyal, stok, FEFO, dokumen teknis
+                   uji fungsi
+ 4 Muhammad        Bisnis dan hilirisasi: panel admin, impor Excel, Dashboard,
+     Hammam Islami dashboard, model langganan, pemetaan KI          rencana hilirisasi
+Pemantauan kemajuan. Rapat mingguan dipimpin ketua; tugas dan keputusan dicatat di
+papan tugas dan repositori Git dengan tinjauan kode; demo internal dua mingguan dan
+evaluasi bulanan bersama mitra. Dosen membimbing tanpa menggantikan peran
+mahasiswa dalam pengembangan purwarupa.
+ 6. Daftar Pustaka
+ 1. UMS Innovation Hub. Tantangan ARB-02: Sistem CRM Terpadu, UMS Health
+     Innovation Hackathon 2026. 2026. https://ihub.ums.ac.id/hackathon
+ 2. UMS Innovation Hub. Sosialisasi UMS Health Innovation Hackathon 2026: paparan
+     tantangan CV Arbain [rekaman Zoom]. 7 Oktober 2026.
+ 3. Muhtadi, Suhendi A, Triyono A, Ulinuha A. Introduksi teknologi tepat guna untuk
+     perbaikan proses produksi dan pengembangan usaha jamu herbal di CV. Arba’in Jaya
+     Mandiri Surakarta. Prosiding University Research Colloquium 2. 2015.
+ 4. Mozilla Developer Network. IndexedDB API; Progressive web apps [dokumentasi web].
+     2026. https://developer.mozilla.org/docs/Web
+ 5. Kleppmann M, Wiggins A, van Hardenberg P, McGranaghan M. Local-first software:
+     you own your data, in spite of the cloud. Onward! 2019. ACM; 2019:154–178.
+ 6. PostgreSQL Global Development Group. Explicit locking [dokumentasi web].
+     https://www.postgresql.org/docs/current/explicit-locking.html
+ 7. Badan POM RI. Peraturan Badan POM Nomor 25 Tahun 2021 tentang Penerapan Cara
+     Pembuatan Obat Tradisional yang Baik. 2021.
+ 8. Badan POM RI. Peraturan Badan POM Nomor 25 Tahun 2023 tentang registrasi obat
+     bahan alam. 2023.
+ 9. Republik Indonesia. Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data
+     Pribadi. 2022.
+ 10. Hyndman RJ, Athanasopoulos G. Forecasting: principles and practice. Ed. 3.
+     Melbourne: OTexts; 2021. https://otexts.com/fpp3/
+ 11. Brooke J. SUS: a “quick and dirty” usability scale. Dalam: Usability Evaluation in
+     Industry. Taylor & Francis; 1996:189–194.
+ 7. Lampiran (digabung dalam satu PDF proposal)
+● Lampiran A: CV ketua dan seluruh anggota tim.
+● Lampiran B: Pakta integritas bertanda tangan seluruh anggota.
+● Lampiran C: Bukti desain awal dan uji purwarupa.
+
+              LAMPIRAN C. BUKTI DESAIN AWAL DAN UJI PURWARUPA
+
+Kondisi karya: konsep, rancangan sistem, dan purwarupa awal (kategori Awal). Purwarupa
+Django dan PostgreSQL sudah menjalankan pesanan tanpa sinyal yang tercatat tepat satu
+kali, pemisahan stok fisik dan dipesan, batch dengan FEFO, pembatalan, penyesuaian stok,
+telusur batch, serta prediksi penjualan dengan saran produksi (C.5). Mode PWA, hak akses per
+peran, kunjungan hari ini, impor Excel, dan dashboard direktur lengkap belum dibuat (C.6).
+Sumber bahan: rancangan tim berdasarkan brief tantangan ARB-02 dan paparan mitra;
+seluruh diagram dan kode dibuat oleh tim; purwarupa memakai Django, PostgreSQL, dan
+pustaka sumber terbuka Dexie.js dengan data contoh fiktif; riwayat penjualan untuk prediksi
+adalah data sintetis, bukan data mitra.
+
+C.1 Arsitektur sistem
+
+
+
+
+  Gambar C.1. Arsitektur SIGAP: satu aplikasi Django (monolit) dan satu basis data PostgreSQL untuk empat
+   peran; halaman sales berupa PWA yang terpasang di ponsel dan menyimpan pesanan saat tanpa sinyal.
+C.2 Alur pesanan, pengiriman, dan stok
+
+
+
+
+  Gambar C.2. Alur pesanan dari sales sampai pengiriman: pesanan tanpa sinyal tercatat tepat satu kali, stok
+    tersedia berkurang saat pesanan diterima, dan stok fisik berkurang saat barang dikirim dengan FEFO.
+
+                       Tabel C.2. Aturan stok: stok tersedia = stok fisik − stok dipesan
+Kejadian                    Oleh             Stok fisik Stok          Stok         Batch dan keterangan
+                                                        dipesan       tersedia
+Barang masuk            Admin                +q         —             +q           Batch baru: nomor,
+                        gudang                                                     kedaluwarsa, jumlah
+Pesanan diterima server Sales                —           +q           −q           Riwayat outlet dan
+(stok tersedia cukup)                                                              capaian target
+                                                                                   bertambah
+Pesanan melebihi stok       Sales            —           —            —            Baris ditolak: “sisa stok
+tersedia                                                                           tersedia X”
+Pesanan dibatalkan          Admin            —           −q           +q           Alasan wajib
+sebelum kirim               penjualan
+Konfirmasi kirim            Admin            −q          −q           tetap        Batch kedaluwarsa
+                            gudang                                                 terdekat dipakai (FEFO);
+                                                                                   outlet penerima tercatat
+Penyesuaian (opname)        Admin            ± selisih   —            ± selisih    Batch dipilih (bawaan:
+                            gudang                                                 tertua); alasan wajib
+Opname membandingkan hitungan rak dengan stok fisik, sehingga barang yang sudah
+dipesan tetapi belum dikirim tidak menimbulkan selisih palsu. Bila stok fisik lebih kecil dari stok
+dipesan (misalnya barang rusak), pesanan terkait ditandai “perlu perhatian” untuk diputuskan
+admin penjualan. Semua perubahan berjalan dalam satu transaksi dengan penguncian baris
+dan tercatat di mutasi_stok.
+
+C.3 Rancangan layar (halaman sales: PWA satu halaman; panel admin: Django)
+Layar                    Pengguna             Isi utama
+1. Kunjungan hari ini    Sales (ponsel)       Capaian target bulan ini; outlet berurutan dengan
+                                              alasan: jatuh tempo, waktunya order, lama tidak
+                                              dikunjungi
+2. Halaman outlet        Sales (ponsel)       Check-in, tiga pesanan terakhir, jatuh tempo dan
+                                              status bayar, tombol buat pesanan
+3. Form pesanan          Sales (ponsel)       Ulangi pesanan terakhir, tombol +/−, stok tersedia
+                                              per jam sinkron, total, kirim
+4. Pesanan saya          Sales (ponsel)       Status menunggu sinyal, diterima, diterima
+                                              sebagian, atau ditolak; jumlah antrean; tombol kirim
+                                              sekarang
+5. Kelola outlet         Admin penjualan      Data outlet, impor Excel, daftar kemungkinan
+                                              duplikat
+6. Kelola pesanan        Admin penjualan      Pembatalan dengan alasan, status bayar, daftar
+                                              perlu perhatian
+7. Produk dan stok       Admin gudang         Barang masuk per batch dan tanggal kedaluwarsa;
+                                              stok fisik, dipesan, dan tersedia; penyesuaian;
+                                              riwayat mutasi
+8. Pengiriman dan        Admin gudang         Konfirmasi kirim dengan FEFO otomatis; cari nomor
+telusur batch                                 batch untuk melihat outlet penerima
+9. Dashboard             Direktur             Performa sales, outlet paling aktif, perputaran stok,
+                                              stok menipis, barang mendekati kedaluwarsa,
+                                              prediksi penjualan 4 minggu dan saran produksi
+
+C.4 Rancangan data (PostgreSQL)
+Tabel                   Isi utama
+users                   Pengguna dan peran: sales, admin penjualan, admin gudang, direktur
+target                  Target omzet bulanan per sales
+outlet                  Kode, nama, jenis, PIC, nomor HP, alamat, koordinat, sales penanggung
+                        jawab, tempo, siklus order (median selang pesanan)
+produk                  Kode, nama, satuan, harga, nomor registrasi BPOM, stok fisik, stok
+                        dipesan, stok minimum
+batch                   Produk, nomor batch, tanggal kedaluwarsa, jumlah masuk, sisa
+kunjungan               Sales, outlet, waktu check-in, lokasi, hasil kunjungan
+pesanan,                Kode unik dari ponsel, outlet, sales, status, jatuh tempo, status bayar,
+pesanan_item            jejak kirim dan batal; rincian produk diminta dan diterima
+pengiriman_batch        Baris pesanan, batch, jumlah (dasar telusur batch ke outlet)
+mutasi_stok             Jenis (masuk/pesan/batal/kirim/penyesuaian), perubahan stok fisik dan
+                        dipesan, stok sesudah, referensi, pengubah, alasan, waktu
+permintaan_mingguan     Produk, minggu, jumlah, sumber (impor rekap Excel atau data sintetis);
+                        dasar prediksi penjualan
+C.5 Bukti uji purwarupa (Django dan PostgreSQL)
+Purwarupa terdiri atas aplikasi Django dengan basis data PostgreSQL (model data, aturan
+stok, dan API), halaman sales satu halaman untuk ponsel (IndexedDB melalui Dexie.js;
+service worker PWA belum dipasang), dan panel uji admin. Uji otomatis dijalankan di Google
+Chrome dengan tampilan ponsel pada 20 Oktober 2026 (Python 3.12, Django 6.0, PostgreSQL
+16). Koneksi diputus selama ±10 detik melalui emulasi jaringan, setara mode pesawat, lalu
+dinyalakan kembali. Hasilnya 22 dari 22 pemeriksaan lulus (Tabel C.5), mencakup mode tanpa
+sinyal, pemisahan stok fisik dan dipesan, FEFO, pembatalan, opname, dua pesanan
+bersamaan, telusur batch, dan prediksi penjualan. Prediksi memakai riwayat permintaan 26
+minggu berupa data sintetis; 4 minggu terakhir disisihkan untuk mengukur akurasi (Gambar
+C.5d).
+
+
+
+
+Gambar C.5a. Uji mode tanpa sinyal: (1) pesanan yang dibuat saat tanpa sinyal tersimpan di HP dengan status
+  “Menunggu sinyal”; (2) saat sinyal kembali, pesanan terkirim otomatis tanpa input ulang dan stok tersedia
+                            berkurang (Kapsul 12 menjadi 9, ditandai menipis).
+ Gambar C.5b. Panel uji admin setelah uji: stok fisik, dipesan, dan tersedia per produk; batch dengan tanggal
+kedaluwarsa (JK-2612 ditandai ≤ 90 hari); telusur batch MP-2603 menampilkan outlet penerima. Data contoh;
+                                              nomor BPOM fiktif.
+Gambar C.5c. Dua ponsel tanpa sinyal sama-sama memesan 10 botol Sari Kurma saat stok tersedia 13. Setelah
+sinyal kembali, satu pesanan diterima dan yang lain ditolak dengan keterangan “sisa stok tersedia 3”; stok tidak
+                                                    minus.
+  Gambar C.5d. Prediksi penjualan di panel uji: riwayat permintaan 26 minggu (data sintetis) dan ramalan 4
+  minggu dengan exponential smoothing; tabel menampilkan stok cukup untuk berapa hari, saran produksi
+(perkiraan 4 minggu + stok minimum − stok tersedia), dan WAPE pada 4 minggu uji. WAPE gabungan model
+              23,0% dibanding ramalan naif 28,7%; model lebih akurat pada 4 dari 5 produk.
+
+Tabel C.5. Hasil uji otomatis purwarupa (Chrome tampilan ponsel; Django 6.0 dan PostgreSQL 16; 20 Oktober
+                                           2026): 22 dari 22 lulus
+No   Pemeriksaan                                                                                   Hasil
+1    Katalog produk dan outlet dimuat dari server Django                                           Lulus
+2    Saat tanpa sinyal, pesanan tersimpan di HP (IndexedDB) dengan status “menunggu”               Lulus
+3    Server belum menerima pesanan selama tanpa sinyal                                             Lulus
+4    Selama ±10 detik tanpa sinyal, pesanan tetap aman di HP                                       Lulus
+5    Sinyal kembali: pesanan terkirim otomatis tanpa input ulang (0,2 detik kemudian)              Lulus
+6    Pengiriman ulang dengan kode unik yang sama dijawab “duplikat”                                Lulus
+7    Server mencatat tepat satu pesanan (tidak ganda)                                              Lulus
+8    Pesanan diterima: stok tersedia berkurang tepat sekali, stok fisik tetap (Kapsul              Lulus
+     tersedia 12 menjadi 9, fisik 12)
+9    Setiap perubahan stok tercatat di riwayat mutasi                                              Lulus
+10   Peringatan stok menipis muncul (Kapsul tersedia 9 ≤ minimum 10)                               Lulus
+11   Pesanan melebihi stok tersedia ditolak (“sisa stok tersedia 9”), stok tidak minus             Lulus
+12   Konfirmasi kirim: stok fisik dan dipesan berkurang, stok tersedia tetap (Kapsul fisik 12      Lulus
+     menjadi 9)
+13   FEFO: batch MP-2603 (kedaluwarsa Mar 2027, masuk belakangan) terpakai lebih dulu              Lulus
+     daripada MP-2609 (Sep 2027)
+14   Pesanan dibatalkan sebelum kirim: stok dipesan kembali, stok fisik tetap                      Lulus
+15   Opname saat ada pesanan belum dikirim: hitungan rak sama dengan stok fisik, tanpa             Lulus
+     selisih palsu
+16   Penyesuaian stok (opname) mencatat selisih, batch, dan alasan (Jamu 24 menjadi 22,            Lulus
+     selisih −2)
+17   Dua pesanan bersamaan untuk 30 botol terakhir: satu diterima, satu ditolak, stok    Lulus
+     tidak minus
+18   Dua ponsel tanpa sinyal memesan 10 botol saat tersedia 13: satu diterima, satu      Lulus
+     ditolak
+19   Telusur batch MP-2603 menampilkan outlet penerima yang benar                        Lulus
+20   Prediksi penjualan tersedia untuk 5 produk: ramalan 4 minggu dan saran produksi     Lulus
+     sesuai rumus
+21   Permintaan minggu berjalan menghitung baris yang ditolak (Kapsul 3 + 15 = 18) dan   Lulus
+     mengabaikan pesanan batal
+22   Pada 4 minggu uji (data sintetis), WAPE gabungan model 23,0% lebih kecil daripada   Lulus
+     ramalan naif 28,7%
+C.6 Rencana uji dan skenario demo
+Fungsi berikut belum dibuat; pemeriksaannya akan ditambahkan ke uji otomatis saat
+hackathon. Skenario demo (±4 menit): membuka SIGAP yang terpasang di layar utama dalam
+mode pesawat; impor Excel dengan duplikat nomor HP; pesanan dari ponsel dengan
+stopwatch (target ≤15 detik); dua ponsel dalam mode pesawat memesan stok terakhir;
+konfirmasi kirim dengan FEFO; opname; telusur batch; dashboard direktur. Setelah
+hackathon: uji tugas dan kuesioner SUS bersama sales dan admin mitra (rencana).
+                             Tabel C.6. Pemeriksaan yang direncanakan
+No Pemeriksaan                                                                     Status
+23 Sales hanya melihat outlet miliknya; admin gudang tidak dapat mengubah status   Rencana
+   bayar
+24 Kunjungan hari ini menampilkan urutan dan alasan sesuai aturan                  Rencana
+25 Impor Excel merapikan nomor HP dan menandai kemungkinan duplikat                Rencana
+26 Dashboard direktur menampilkan performa sales, outlet paling aktif, dan         Rencana
+   perputaran stok
+27 Mode tanpa sinyal diuji di ponsel Android sungguhan dalam mode pesawat          Rencana
+   (bukan emulasi)
+28 PWA terpasang di layar utama dan tetap terbuka dari nol dalam mode pesawat      Rencana
+   (service worker); pesanan tersimpan lalu terkirim
+

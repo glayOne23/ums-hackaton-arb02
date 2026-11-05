@@ -1,0 +1,17 @@
+# Dependensi
+node_modules/
+.venv/
+static/vendor/
+
+# Hasil Python dan Django
+__pycache__/
+*.pyc
+staticfiles/
+db.sqlite3
+*.log
+
+# Rahasia lokal
+.env
+
+# Data mitra asli jangan di-commit
+data-mitra/
