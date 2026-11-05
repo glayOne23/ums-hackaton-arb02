@@ -18,9 +18,10 @@ Tugas, PIC, dan tenggat yang berjalan dilacak di database [**Tugas Tim** Notion]
 | 7 | Halaman outlet: tagihan, jatuh tempo, 3 pesanan terakhir | 4 | S2 |
 | 8 | Form pesanan: **Ulangi pesanan terakhir**, +/−, stok tersedia per jam sinkron, kirim | 2 | S3e, S3 |
 | 9 | Pesanan saya dengan status per baris dari server | 2 | S4, S4a |
+| 9a | **ACC pesanan** oleh admin penjualan (ketentuan bayar, jatuh tempo) sebelum antrean gudang. Bila waktu mepet: ACC otomatis untuk stok cukup, manual hanya untuk kekurangan | 2, 3 | S6j, S6f, S6n |
 | 10 | Kelola outlet + **impor Excel** + gabung duplikat nomor HP | 1 | S5, S5b, S5c |
 | 11 | Produk dan stok, barang masuk, opname di panel kantor | 3 | S7, S7a, S7b |
-| 12 | Pengiriman FEFO + telusur batch di panel kantor | 3 | S8, S8a |
+| 12 | Antrean kirim + proses kirim FEFO (batch bisa diubah) + telusur batch | 3 | S8, S8a, S8e |
 | 13 | **Dashboard direktur**: performa sales, outlet paling aktif, perputaran stok, menipis, mendekati kedaluwarsa | 5 | S9 |
 | 14 | Data contoh: ±100 outlet, 30 produk dengan 2–3 batch, 3 sales, 3 bulan riwayat pesanan | — | — |
 
@@ -29,7 +30,10 @@ Tugas, PIC, dan tenggat yang berjalan dilacak di database [**Tugas Tim** Notion]
 
 ## P1 — sebelum demo day 28–29 Nov
 
-- [ ] Kelola pesanan: batal dengan alasan, status bayar, bukti transfer, "perlu perhatian" (S6, S6a, S6c–e)
+- [ ] Kelola pesanan: batal dengan alasan, ubah pesanan, status bayar, pembayaran sebagian, bukti transfer, riwayat pembayaran, "perlu perhatian" (S6, S6a, S6c–e, S6k, S6m–q)
+- [ ] Kirim sebagian + karantina + daftar Belum lengkap + kirim susulan; tandai selesai (S8c, S8d, S6h, S6g, S6i)
+- [ ] Riwayat barang masuk dan detail penerimaan (S7e, S7f)
+- [ ] Manajemen akun dan hak akses peran (U1, U1a–c, U2, U2a)
 - [ ] Outlet baru dari sales dan validasinya (S1a, S5e)
 - [ ] Hasil kunjungan tidak order + alasan; alasan lewati check-in (S2c, S2d — usulan)
 - [ ] Pesanan tersimpan dan tindak lanjut ditolak (S4b, S4c — usulan)
@@ -42,7 +46,7 @@ Tugas, PIC, dan tenggat yang berjalan dilacak di database [**Tugas Tim** Notion]
 
 ## P2 — setelah hackathon
 
-Retur dan barang kedaluwarsa dari outlet, recall batch, pemusnahan, notifikasi antar-peran, log audit yang bisa dilihat, kelola akun dan penugasan outlet, ekspor laporan, jatah stok per sales, prediksi pada data nyata, integrasi akuntansi/WhatsApp resmi. Detail di [09-celah-dan-keputusan-terbuka.md](09-celah-dan-keputusan-terbuka.md).
+Retur dan barang kedaluwarsa dari outlet, recall batch, pemusnahan, notifikasi antar-peran, log audit yang bisa dilihat, ekspor laporan, jatah stok per sales, prediksi pada data nyata, integrasi akuntansi/WhatsApp resmi. Detail di [09-celah-dan-keputusan-terbuka.md](09-celah-dan-keputusan-terbuka.md).
 
 ## Skenario demo (±4 menit)
 

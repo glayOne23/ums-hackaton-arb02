@@ -42,17 +42,32 @@ Keterangan status: **Desain** = ada di Figma dan di proposal · **Usulan** = dit
 | S6 | Kelola pesanan | Admin penjualan | Desain |
 | S6a | Batalkan pesanan (alasan wajib) | Admin penjualan | Desain |
 | S6c / S6e / S6d | Catat pembayaran / bukti transfer / lunas | Admin penjualan | Desain |
+| S6j | Detail pesanan menunggu ACC (info stok kurang) | Admin penjualan | Desain |
+| S6q | Ubah isi pesanan sebelum ACC (alasan wajib, sales diberi tahu) | Admin penjualan | Desain |
+| S6f | ACC pesanan: ketentuan bayar tunai/tempo, jatuh tempo, catatan gudang | Admin penjualan | Desain |
+| S6n / S6o | Pesanan di-ACC siap bayar / catat pembayaran sebagian dengan bukti | Admin penjualan | Desain |
+| S6h / S6g / S6i | Dikirim sebagian (urgent) / tandai selesai dengan alasan / selesai, tagihan dihitung ulang | Admin penjualan | Desain |
+| S6k | Filter perlu perhatian | Admin penjualan | Desain |
+| S6p | Ubah pesanan setelah kirim (status, tempo, sales PJ) | Admin penjualan | Desain |
+| S6m | Riwayat pembayaran dan piutang | Admin penjualan | Desain |
 | S7 | Produk dan stok (fisik, dipesan, tersedia) | Admin gudang | Desain |
 | S7a | Barang masuk per batch | Admin gudang | Desain |
 | S7b | Penyesuaian / opname | Admin gudang | Desain |
 | S7c | Ubah data produk | Admin gudang | Desain |
 | S7d | Tambah produk baru (stok awal 0) | Admin gudang | Usulan |
+| S7e / S7f | Riwayat barang masuk / detail penerimaan (selisih surat jalan, terkunci) | Admin gudang | Desain |
 | S8 | Pengiriman dan telusur batch | Admin gudang | Desain |
-| S8a | Konfirmasi kirim FEFO | Admin gudang | Desain |
+| S8a | Proses kirim: batch FEFO terisi otomatis, bisa diubah | Admin gudang | Desain |
+| S8c | Kirim sebagian: alasan, karantina, dampak stok | Admin gudang | Desain |
+| S8d | Belum lengkap · urgent (kirim susulan) | Admin gudang | Desain |
+| S8e | Telusur batch (penjelasan, outlet penerima, hubungi PIC) | Admin gudang | Desain |
 | S9 | Dashboard direktur | Direktur | Desain |
 | S9a | Atur target sales | Direktur | Desain |
+| U1 | Manajemen akun | Direktur | Desain |
+| U1a / U1b / U1c | Tambah akun (undangan WA) / ubah akun (reset sandi, keluarkan perangkat) / nonaktifkan (pindah outlet binaan) | Direktur | Desain |
+| U2 / U2a | Role & hak akses per modul / ubah hak akses peran | Direktur | Desain |
 
-Layar lain di Figma (S6b, S8b, dan varian keadaan) dicek langsung di file Figma.
+Layar lain di Figma (S8b dan varian keadaan) dicek langsung di file Figma. Layar S6f–S6q, S7e–S7f, S8c–S8e, U1–U2a ditambahkan di Figma 5 Nov 2026 dan sudah tersambung di prototype.
 
 ## Catatan desain
 

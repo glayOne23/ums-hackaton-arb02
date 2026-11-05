@@ -13,7 +13,10 @@ Sebelum membangun fitur di daftar ini, pastikan keputusannya sudah diambil oleh 
 | FEFO otomatis penuh, atau admin gudang boleh memilih batch lain | Otomatis | Purwo + Ridwan |
 | Pustaka impor Excel | `django-import-export` | Ridwan |
 | Lingkup klien maklon (selain outlet) | Di luar MVP | Mitra |
-| Harga produk baru perlu persetujuan direktur? | Belum | Mitra |
+| Harga produk baru perlu persetujuan direktur? | Harga jual diatur admin penjualan (U2a) | Mitra |
+| ACC untuk semua pesanan, atau hanya yang stoknya kurang / outlet menunggak? | Figma: semua pesanan. Usul MVP: ACC otomatis bila stok cukup dan outlet tidak menunggak | Purwo (konfirmasi mitra) |
+| Stok kurang saat pesanan tiba: tolak baris otomatis, atau catat kekurangan untuk diputuskan saat ACC? | Catat kekurangan, tidak menahan stok, barang masuk dicadangkan dulu untuk kekurangan | Purwo + Ridwan |
+| Lama tempo bawaan saat ACC | Sama dengan siklus order outlet (mis. 14 hari) | Mitra |
 
 ## Pertanyaan untuk mitra (dibawa ke clinic 6 Nov)
 
@@ -34,11 +37,16 @@ Daftar lengkap ada di Notion, halaman ["1. Daftar Pertanyaan untuk Mitra"](https
 | Retur / barang kedaluwarsa dari outlet | Sales, gudang |
 | Edit atau batalkan pesanan yang masih di antrean HP | Sales |
 | Outlet baru ditolak: nasib pesanan yang tertahan | Admin penjualan |
-| Kelola akun pengguna dan penugasan outlet ke sales | Admin penjualan / direktur |
 | Recall batch setelah telusur (blokir dari FEFO, catat barang kembali) | Admin gudang |
 | Notifikasi antar-peran (pesanan ditolak, outlet baru masuk) | Semua |
 
 ## Masalah Figma yang masih terbuka
+
+Daftar lengkap (termasuk data yang bertentangan) ada di bagian "Perubahan Figma 5 Nov 2026 (malam)" pada [referensi/review-figma-hifi-v2.md](../referensi/review-figma-hifi-v2.md). Yang paling memengaruhi kode:
+
+- Sisi sales (S4, S4a) belum punya status menunggu ACC, dikirim sebagian, selesai, dan notifikasi perubahan dari admin.
+- Tolak pesanan, kirim susulan, dan penarikan batch belum punya layar.
+- S6q memakai harga yang berbeda dari S3/S7c; kolom harga masih ada di layar admin gudang padahal harga milik admin penjualan.
 
 - Outlet ke-2 di S1 langsung membuka S3b tanpa check-in (jalan pintas demo).
 - Outlet ke-3 dan ke-4 di S1 belum punya layar check-in/halaman outlet sendiri (tautannya dilepas 5 Nov 2026).
