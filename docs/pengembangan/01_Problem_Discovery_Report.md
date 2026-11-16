@@ -117,14 +117,14 @@ Aturan bisnis di bawah ini bisa berubah. Karena itu semuanya harus bisa diatur a
 ## 11. Batasan & asumsi
 
 - Bukti sah kunjungan tetap form fisik bercap; aplikasi hanya menyimpan fotonya.
-- Arti kolom **A-M-R-L-S** diasumsikan: A = titipan awal, M = isi ulang, R = sisa, L = laku, S = stok akhir (belum dikonfirmasi). Kolom rekap jmh-rt-lk sudah dikonfirmasi mitra: jmh = jumlah, rt = retur, lk = laku.
+- Arti kolom **A-M-R-L-S** disimpulkan dari data Oktober 2026: A = titipan awal, M = masuk (titipan baru), R = retur, L = laku, S = stok akhir. Berlaku S = A + M − R − L dan A = R + L, sama dengan jmh = rt + lk di rekap (jmh = jumlah, rt = retur, lk = laku; dikonfirmasi mitra). Jadi setiap kunjungan nota lama ditutup: yang laku ditagih, sisanya dicatat retur, lalu titipan baru dicatat ulang.
 - Sinyal di sebagian wilayah lemah, sehingga aplikasi sales wajib bisa offline. HP sales minimal RAM 4 GB dan kuota data tidak disediakan kantor, jadi aplikasi harus hemat data.
 - Keuangan cukup mencatat pembayaran dan tagihan yang belum lunas; pembukuan tetap di sistem/Excel keuangan yang sudah ada. Petugas penagihan tunda tidak memakai aplikasi: Admin Kantor mencetak/mengirim WA daftar tagihan untuknya, lalu mencatat hasil penagihan.
 
 ## 12. Pertanyaan terbuka & jawaban mitra (16 Nov 2026)
 
-1. Arti kolom jmh-rt-lk: terjawab (jumlah, retur, laku). Arti kolom A-M-R-L-S: masih perlu dikonfirmasi.
+1. Arti kolom jmh-rt-lk: terjawab (jumlah, retur, laku). Arti kolom A-M-R-L-S: disimpulkan dari data (A awal, M masuk, R retur, L laku, S stok akhir); cukup dicek sekilas oleh mitra.
 2. "> 2 item" per unit atau per jenis produk: terjawab, dibuat fleksibel dan dipilih admin di Pengaturan.
 3. Stok standar per outlet: terjawab, tidak ada standar (fleksibel). Saran isi ulang memakai titipan sebelumnya.
-4. Petugas penagihan tunda: terjawab, tidak memakai aplikasi sales. Masih perlu dikonfirmasi: siapa orangnya dan siapa yang mencatat hasil tagihannya (dirancang: Admin Kantor).
+4. Petugas penagihan tunda: terjawab, tidak memakai aplikasi sales. Hasil tagihannya dicatat Admin Kantor (dikonfirmasi mitra).
 5. HP sales: terjawab, RAM minimal 4 GB; kuota tidak disediakan kantor.
