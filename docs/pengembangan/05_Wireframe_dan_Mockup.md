@@ -292,7 +292,7 @@ Catatan: kalimat saran mengikuti angka di Pengaturan (mis. "lebih dari 3" bila d
 | Pengaturan                                                   [Simpan]     |
 +---------------------------------------------------------------------------+
 | Penagihan                                                                 |
-|  Sarankan tagih bila laku lebih dari  [ 2 ] item                          |
+|  Sarankan tagih bila laku lebih dari  [ 2 ] (o) unit ( ) jenis produk     |
 |  Tempo untuk outlet tempo             [ 30 ] hari                         |
 | Kedaluwarsa                                                               |
 |  Tandai untuk ditarik bila ED kurang dari [ 6 ] bulan                     |

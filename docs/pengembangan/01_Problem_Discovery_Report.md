@@ -93,7 +93,7 @@ Aturan bisnis di bawah ini bisa berubah. Karena itu semuanya harus bisa diatur a
 | Yang bisa berubah | Contoh |
 | --- | --- |
 | Cara jual per outlet | Titip jual, beli langsung, atau tempo (distributor) |
-| Batas tagih | Saat ini > 2 item, bisa diubah |
+| Batas tagih | Saat ini > 2; admin memilih dihitung per unit atau per jenis produk |
 | Batas tarik ED | Saat ini 6 bulan sebelum ED |
 | Potongan | Per jenis outlet, per produk, atau khusus per outlet |
 | Jumlah sales per outlet | Satu outlet bisa dipegang satu atau beberapa sales |
@@ -101,7 +101,7 @@ Aturan bisnis di bawah ini bisa berubah. Karena itu semuanya harus bisa diatur a
 | Siapa boleh melakukan apa | Hak akses dicentang per peran, peran baru bisa dibuat |
 | Persetujuan | Bisa dinyalakan/dimatikan per jenis transaksi |
 | Bukti kunjungan | Foto form wajib atau opsional |
-| Stok standar outlet | Jumlah ideal per produk per outlet, dipakai untuk saran isi ulang |
+| Stok standar outlet | Tidak ada standar baku (jawaban mitra); boleh diisi bila perlu. Bila kosong, saran isi ulang mengembalikan ke jumlah titipan sebelumnya |
 | Kesalahan input, status, atau data | Bisa diperbaiki sendiri (perbaiki, koreksi, batalkan, ubah status, pulihkan) tanpa programmer; jejak lama tetap tersimpan |
 | Kebutuhan baru di masa depan | Modul baru (maklon, marketplace, akuntansi), gudang/cabang tambahan, kolom data tambahan tanpa bongkar sistem |
 
@@ -117,14 +117,14 @@ Aturan bisnis di bawah ini bisa berubah. Karena itu semuanya harus bisa diatur a
 ## 11. Batasan & asumsi
 
 - Bukti sah kunjungan tetap form fisik bercap; aplikasi hanya menyimpan fotonya.
-- Arti kolom **A-M-R-L-S** diasumsikan: A = titipan awal, M = isi ulang, R = sisa, L = laku, S = stok akhir.
-- Sinyal di sebagian wilayah lemah, sehingga aplikasi sales wajib bisa offline.
-- Keuangan cukup mencatat pembayaran dan tagihan yang belum lunas; pembukuan tetap di sistem/Excel keuangan yang sudah ada.
+- Arti kolom **A-M-R-L-S** diasumsikan: A = titipan awal, M = isi ulang, R = sisa, L = laku, S = stok akhir (belum dikonfirmasi). Kolom rekap jmh-rt-lk sudah dikonfirmasi mitra: jmh = jumlah, rt = retur, lk = laku.
+- Sinyal di sebagian wilayah lemah, sehingga aplikasi sales wajib bisa offline. HP sales minimal RAM 4 GB dan kuota data tidak disediakan kantor, jadi aplikasi harus hemat data.
+- Keuangan cukup mencatat pembayaran dan tagihan yang belum lunas; pembukuan tetap di sistem/Excel keuangan yang sudah ada. Petugas penagihan tunda tidak memakai aplikasi: Admin Kantor mencetak/mengirim WA daftar tagihan untuknya, lalu mencatat hasil penagihan.
 
-## 12. Pertanyaan yang masih terbuka
+## 12. Pertanyaan terbuka & jawaban mitra (16 Nov 2026)
 
-1. Konfirmasi arti kolom A-M-R-L-S dan jmh-rt-lk.
-2. "> 2 item" dihitung per unit atau per jenis produk?
-3. Apakah setiap outlet punya jumlah titip standar per produk (stok ideal di rak)?
-4. Siapa petugas penagihan tunda, dan apakah ia juga memakai aplikasi sales?
-5. HP sales: merek/RAM dan apakah kuota data disediakan kantor?
+1. Arti kolom jmh-rt-lk: terjawab (jumlah, retur, laku). Arti kolom A-M-R-L-S: masih perlu dikonfirmasi.
+2. "> 2 item" per unit atau per jenis produk: terjawab, dibuat fleksibel dan dipilih admin di Pengaturan.
+3. Stok standar per outlet: terjawab, tidak ada standar (fleksibel). Saran isi ulang memakai titipan sebelumnya.
+4. Petugas penagihan tunda: terjawab, tidak memakai aplikasi sales. Masih perlu dikonfirmasi: siapa orangnya dan siapa yang mencatat hasil tagihannya (dirancang: Admin Kantor).
+5. HP sales: terjawab, RAM minimal 4 GB; kuota tidak disediakan kantor.

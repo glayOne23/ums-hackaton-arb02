@@ -21,14 +21,14 @@ SIGAP adalah aplikasi **CRM & Inventory** untuk CV Arba'in Jaya Mandiri. Semua p
 
 ## 2. Peran pengguna
 
-Ada 4 peran bawaan. Hak akses setiap peran bisa dicentang ulang, dan peran baru bisa dibuat (mis. "Kepala Gudang" atau "Petugas Penagihan") tanpa programmer.
+Ada 4 peran bawaan. Hak akses setiap peran bisa dicentang ulang, dan peran baru bisa dibuat (mis. "Kepala Gudang") tanpa programmer.
 
 | Peran bawaan | Perangkat utama (semua bisa dipakai di HP, tablet, laptop, PC) | Yang bisa dilakukan | Bisa merangkap |
 | --- | --- | --- | --- |
 | Pimpinan | HP atau laptop | Lihat ringkasan & semua laporan, setujui perubahan potongan | Direktur |
 | Admin Kantor | Laptop/PC; HP/tablet saat di luar kantor | Outlet, produk, harga & potongan, penugasan sales, target, tagihan & pembayaran, laporan, pengaturan | Admin Penjualan, Keuangan, Manager Marketing |
 | Admin Gudang | PC atau tablet di gudang | Barang masuk, siapkan barang untuk sales, retur, opname; menyetujui bila diberi hak | Kepala Gudang |
-| Sales | HP (tablet bila ada) | Kunjungan, nota, minta barang, catat pembayaran, setor uang | Petugas Penagihan |
+| Sales | HP (tablet bila ada) | Kunjungan, nota, minta barang, catat pembayaran, setor uang | — (petugas penagihan tunda tidak memakai aplikasi; daftar tagihannya disiapkan Admin Kantor) |
 
 ## 3. Kebutuhan fungsional
 
@@ -42,7 +42,7 @@ Ada 4 peran bawaan. Hak akses setiap peran bisa dicentang ulang, dan peran baru 
 | OT-04 | Tugaskan outlet ke satu atau beberapa sales; riwayat pindah tercatat beserta alasan | M |
 | OT-05 | Sales mengusulkan outlet baru dari lapangan; aktif setelah dicek admin | S |
 | OT-06 | Gabungkan dua outlet yang ternyata sama (riwayat ikut digabung) | S |
-| OT-07 | Stok standar per produk per outlet (jumlah ideal di rak) | S |
+| OT-07 | Stok standar per produk per outlet, opsional (mitra tidak punya standar; boleh dikosongkan) | S |
 
 ### 3.2 Produk & harga (PR)
 
@@ -74,7 +74,7 @@ Ada 4 peran bawaan. Hak akses setiap peran bisa dicentang ulang, dan peran baru 
 | KS-02 | **Outlet titip jual**: kolom "sisa di rak" sudah terisi sama dengan titipan; sales hanya mengubah yang berkurang | M |
 | KS-03 | Tombol cepat "Tidak ada yang laku" untuk menyimpan kunjungan tanpa perubahan | M |
 | KS-04 | Laku, nilai tagihan (setelah potongan), dan stok akhir dihitung otomatis | M |
-| KS-05 | Saran isi ulang otomatis = stok standar − sisa (atau mengembalikan ke jumlah titipan sebelumnya); sales bisa mengubah | M |
+| KS-05 | Saran isi ulang otomatis = mengembalikan ke jumlah titipan sebelumnya; bila stok standar outlet diisi, dipakai stok standar − sisa; sales bisa mengubah | M |
 | KS-06 | Produk yang mendekati ED (sesuai Pengaturan) diberi tanda dan langsung disarankan untuk ditarik | M |
 | KS-07 | **Outlet beli langsung / tempo**: sales memilih produk dan jumlah yang dibeli; tagihan dibuat dengan jatuh tempo sesuai Pengaturan | M |
 | KS-08 | Pembayaran: "Dibayar" / "Sebagian" / "Belum"; saran tagih mengikuti batas tagih di Pengaturan | M |
@@ -89,7 +89,7 @@ Ada 4 peran bawaan. Hak akses setiap peran bisa dicentang ulang, dan peran baru 
 
 | ID | Kebutuhan | Prioritas |
 | --- | --- | --- |
-| TG-01 | Daftar tagihan belum dibayar per outlet dan per sales, dengan lama hari | M |
+| TG-01 | Daftar tagihan belum dibayar per outlet dan per sales, dengan lama hari; bisa dicetak atau dikirim WA untuk petugas penagihan yang tidak memakai aplikasi, lalu hasilnya dicatat Admin Kantor | M |
 | TG-02 | Catat pembayaran (tanggal, jumlah, tunai/transfer) oleh sales atau admin | M |
 | TG-03 | Setoran harian sales: admin cukup menandai "Uang diterima"; bila kurang, catat selisihnya | M |
 | TG-04 | Pengingat jatuh tempo untuk outlet tempo/distributor | S |
@@ -105,7 +105,7 @@ Setiap laporan bisa difilter per bulan, sales, kabupaten, dan jenis outlet, lalu
 | LP-03 | **Outlet paling aktif**: urutan outlet berdasarkan laku/omzet dan frekuensi kunjungan | M |
 | LP-04 | **Perputaran stok**: % laku (L ÷ J) per produk, produk lambat laku, lama stok di outlet | M |
 | LP-05 | Kunjungan per bulan | M |
-| LP-06 | Penjualan per produk J / R / L | M |
+| LP-06 | Penjualan per produk jmh / rt / lk (jumlah / retur / laku) | M |
 | LP-07 | Setor outlet (outlet × produk) | M |
 | LP-08 | Stok di outlet per kabupaten | M |
 | LP-09 | Opname harian & barang keluar-masuk sales per hari | M |
@@ -117,7 +117,7 @@ Setiap laporan bisa difilter per bulan, sales, kabupaten, dan jenis outlet, lalu
 
 | ID | Pengaturan | Nilai awal (dari mitra) | Prioritas |
 | --- | --- | --- | --- |
-| PG-01 | Batas tagih (dihitung per unit) | Tagih bila laku > 2 | M |
+| PG-01 | Batas tagih: angka batas dan cara hitung (per unit atau per jenis produk) dipilih admin | Tagih bila laku > 2, dihitung per unit | M |
 | PG-02 | Peringatan tarik ED | 6 bulan sebelum ED | M |
 | PG-03 | Siklus kunjungan ideal (bisa beda per outlet) | 30 hari | M |
 | PG-04 | Tempo pembayaran untuk cara jual tempo | 30 hari | M |
@@ -219,8 +219,8 @@ Prinsip: **setiap kesalahan bisa diperbaiki oleh pengguna sendiri, tanpa program
 | ID | Kategori | Kebutuhan |
 | --- | --- | --- |
 | NF-01 | Offline | ≥ 30 kunjungan tersimpan di HP tanpa sinyal, terkirim tanpa dobel |
-| NF-02 | Ringan | Aplikasi sales ≤ 2 MB unduhan awal; data per kunjungan ≤ 10 KB (foto dikompres ≤ 200 KB) |
-| NF-03 | Kecepatan | Layar terbuka ≤ 2 detik di HP Android kelas menengah |
+| NF-02 | Ringan | Aplikasi sales ≤ 2 MB unduhan awal; data per kunjungan ≤ 10 KB (foto dikompres ≤ 200 KB); kuota ditanggung sales sendiri, jadi sinkron hanya mengirim data yang berubah dan target pemakaian ≤ 5 MB per hari kerja; opsi Hemat Data menunda kiriman foto sampai tersambung Wi-Fi |
+| NF-03 | Kecepatan | Layar terbuka ≤ 2 detik di HP Android dengan RAM 4 GB (spesifikasi minimal HP sales) |
 | NF-04 | Perangkat | HP & tablet Android 9+ (Chrome) dan iPhone/iPad iOS 16.4+ (Safari); laptop/PC Windows, macOS, Linux (Chrome, Edge, Firefox, Safari); lebar layar 360 px sampai 1920 px |
 | NF-05 | Keamanan | HTTPS, kata sandi terenkripsi, akses sesuai peran |
 | NF-06 | Data | Backup harian; setiap perubahan stok punya catatan asal |

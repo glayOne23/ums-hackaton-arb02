@@ -116,7 +116,7 @@ flowchart LR
   t1["Tagihan dari P3/P4"] --> t2{"Dibayar saat itu?"}
   t2 -- ya --> t3["[SIGAP] Sales catat bayar"]
   t2 -- tidak --> t4["[SIGAP] Masuk daftar<br/>tagihan belum dibayar"]
-  t4 --> t5["Ditagih di kunjungan berikut<br/>atau oleh petugas penagihan"]
+  t4 --> t5["Ditagih di kunjungan berikut<br/>atau petugas penagihan<br/>(daftar cetak/WA dari admin,<br/>hasilnya dicatat admin)"]
   t5 --> t3
   t3 --> t6["Akhir hari: sales setor uang"]
   t6 --> t7{"[SIGAP] Admin:<br/>jumlah sesuai?"}
@@ -207,7 +207,7 @@ Alur maklon dari QnA (spesifikasi → sampel Rp500.000 → perizinan Rp7.500.000
 | Titipan per outlet | Nota kertas di tangan sales | Tampil otomatis saat outlet dibuka |
 | Hitung laku & tagihan | Manual | Otomatis |
 | Kunjungan tanpa perubahan | Tetap menulis nota | Satu tombol |
-| Isi ulang | Kira-kira | Saran dari stok standar |
+| Isi ulang | Kira-kira | Saran = titipan sebelumnya (stok standar opsional) |
 | ED di outlet | Tidak terpantau | Ditandai di layar sales |
 | Aturan bisnis berubah | Diberitahu lisan | Diubah sekali di Pengaturan |
 | Rekap bulanan | 4–5 file | Sekali klik ekspor |

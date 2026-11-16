@@ -220,11 +220,11 @@ erDiagram
 
 | Tabel | Isi | Contoh |
 | --- | --- | --- |
-| `pengaturan` | Aturan bisnis sebagai pasangan kunci–nilai, dibaca saat transaksi, perubahan tercatat di audit | `batas_tagih=2`, `batas_tarik_ed_bulan=6`, `siklus_kunjungan_hari=30`, `tempo_hari=30`, `foto_form_wajib=false`, `setujui_barang_keluar=true`, `setujui_potongan=true`, `setujui_opname=false` |
+| `pengaturan` | Aturan bisnis sebagai pasangan kunci–nilai, dibaca saat transaksi, perubahan tercatat di audit | `batas_tagih=2`, batas\_tagih\_satuan=unit (atau jenis), `batas_tarik_ed_bulan=6`, `siklus_kunjungan_hari=30`, `tempo_hari=30`, `foto_form_wajib=false`, `setujui_barang_keluar=true`, `setujui_potongan=true`, `setujui_opname=false` |
 | `jenis_outlet`, `wilayah`, `kategori_produk` | Daftar yang bisa ditambah admin | Jenis baru "Klinik" tanpa ubah program |
 | `peran`, `izin`, `peran_izin` | Hak akses per menu dan per aksi | Peran "Kepala Gudang" = Admin Gudang + izin `barang_keluar.setujui` |
 | `potongan` | Persen per (jenis outlet, produk, outlet), berlaku mulai tanggal, status | Yang paling khusus menang: outlet > produk+jenis > jenis |
-| `stok_standar` | Jumlah ideal per outlet per produk | Dasar saran isi ulang |
+| `stok_standar` | Jumlah ideal per outlet per produk, opsional (mitra tidak punya standar) | Dasar saran isi ulang |
 | `persetujuan` | Satu tabel untuk semua jenis persetujuan: jenis, ref\_id, status, oleh, catatan | Dipakai barang keluar, potongan, opname; dilewati otomatis bila pengaturan mati |
 | `audit_log` | Siapa, kapan, tabel, nilai lama/baru | Perbaikan kunjungan, perubahan aturan |
 
@@ -238,7 +238,7 @@ erDiagram
 | `transaksi` + `transaksi_detail` | Satu bentuk untuk kunjungan titip dan penjualan langsung; kolom yang tidak relevan dibiarkan kosong |
 | `tagihan`, `pembayaran`, `setoran` | Tagihan per transaksi, pembayaran (bisa beberapa kali), setoran harian sales |
 
-Kolom Excel mitra dipetakan ke `transaksi_detail`: A = `titipan_awal`, M = `isi_ulang`, R = `sisa`, L = `laku_atau_beli`, S = `stok_akhir`.
+Kolom rekap jmh-rt-lk sudah dikonfirmasi mitra: jmh = jumlah, rt = retur, lk = laku. Kolom A-M-R-L-S (asumsi, belum dikonfirmasi) dipetakan ke `transaksi_detail`: A = `titipan_awal`, M = `isi_ulang`, R = `sisa`, L = `laku_atau_beli`, S = `stok_akhir`.
 
 ## 4. Logika bisnis
 
@@ -248,10 +248,10 @@ Kolom Excel mitra dipetakan ke `transaksi_detail`: A = `titipan_awal`, M = `isi_
 2. Sales mengubah `sisa` yang berkurang (atau menekan "Tidak ada yang laku").
 3. `laku` = `titipan_awal` − `sisa` (tidak boleh negatif).
 4. `tarik` disarankan untuk batch dengan ED ≤ hari ini + `batas_tarik_ed_bulan`.
-5. `isi_ulang` disarankan = max(0, `stok_standar` − (`sisa` − `tarik`)); bila stok standar kosong, kembali ke `titipan_awal`; dibatasi stok bawaan.
+5. `isi_ulang` disarankan = max(0, `stok_standar` − (`sisa` − `tarik`)) hanya bila stok standar outlet diisi; bila kosong (bawaan, karena mitra tidak punya standar), kembali ke `titipan_awal`; dibatasi stok bawaan.
 6. `stok_akhir` = `sisa` − `tarik` + `isi_ulang`.
 7. Harga = `harga_jual` × (1 − potongan paling khusus); `total` = Σ `laku` × harga.
-8. Saran tagih bila Σ `laku` > `batas_tagih`; tagihan lama yang belum dibayar ditampilkan bersama.
+8. Saran tagih bila Σ `laku` > `batas_tagih`, dihitung per unit (Σ laku) atau per jenis produk (jumlah produk yang laku) sesuai batas\_tagih\_satuan; tagihan lama yang belum dibayar ditampilkan bersama.
 
 ### 4.2 Penjualan beli langsung / tempo
 
@@ -330,8 +330,8 @@ sequenceDiagram
   end
 ```
 
-- Paket kerja dikompres dan hanya berisi outlet tugas sales; target ≤ 300 KB untuk ±150 outlet.
-- Foto form dikompres di HP (≤ 200 KB) dan dikirim terpisah setelah data angka, supaya angka cepat sampai.
+- Paket kerja dikompres dan hanya berisi outlet tugas sales; target ≤ 300 KB untuk ±150 outlet. Kuota data ditanggung sales sendiri, jadi unduhan berikutnya hanya berisi data yang berubah sejak sinkron terakhir; target total ≤ 5 MB per hari kerja. Spesifikasi minimal HP sales: RAM 4 GB.
+- Foto form dikompres di HP (≤ 200 KB) dan dikirim terpisah setelah data angka, supaya angka cepat sampai. Opsi Hemat Data di Pengaturan menunda kiriman foto sampai HP tersambung Wi-Fi (terdeteksi di Chrome Android) atau sampai sales menekan "Kirim foto".
 - Bila saldo di server berbeda dari `titipan_awal` di HP (mis. outlet dikunjungi dua sales), transaksi tetap disimpan dan diberi tanda "perlu dicek" untuk admin. Sales tidak diganggu.
 
 ## 6. API (ringkas)
