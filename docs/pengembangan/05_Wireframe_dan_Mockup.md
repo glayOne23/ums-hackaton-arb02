@@ -100,7 +100,7 @@ Semua peran memakai satu aplikasi PWA. Setiap layar punya tiga susunan dari komp
 | W3 | Daftar outlet + penugasan | Admin Kantor | Ada (SL1–SL7) — revisi data |
 | W4 | Produk & potongan | Admin Kantor | Ada (S7) — tambah potongan |
 | W5 | Gudang: barang masuk, permintaan sales, retur, opname | Admin Gudang | Ada (S8) — **revisi** + opname baru |
-| W6 | Tagihan & setoran | Admin Kantor | Ada (S6) — **revisi** |
+| W6 | Tagihan & setoran | Admin Kantor | Ada (S6) — **revisi**; tambah cetak/kirim WA daftar tagihan untuk petugas penagihan |
 | W7 | Laporan | Pimpinan, Admin Kantor | **Baru** |
 | W8 | Pengaturan aturan | Admin Kantor | **Baru** |
 | W9 | Peran & izin | Admin Kantor | Ada (U1/U2) — ubah ke centang izin |
@@ -279,7 +279,7 @@ Catatan: kalimat saran mengikuti angka di Pengaturan (mis. "lebih dari 3" bila d
 | Sales: Endri . Kunjungan terakhir 05/10 . Siklus 30 hari                  |
 +---------------------------------------------------------------------------+
 | [Stok titipan] [Riwayat kunjungan] [Tagihan] [Catatan]                    |
-| Produk               | Titipan | Stok standar | ED terdekat | Laku 3 bln  |
+| Produk               | Titipan | Std opsional | ED terdekat | Laku 3 bln  |
 | Madu Hitam Pahit 470 |    5    |      5       | 11/2028     |     9       |
 | Sari Kurma Alief 470 |    3    |      3       | 03/2027 !   |     4       |
 +---------------------------------------------------------------------------+
@@ -299,6 +299,7 @@ Catatan: kalimat saran mengikuti angka di Pengaturan (mis. "lebih dari 3" bila d
 | Kunjungan                                                                 |
 |  Outlet perlu dikunjungi setiap       [ 30 ] hari                         |
 |  Foto form bercap                     ( ) Wajib  (o) Opsional             |
+|  Hemat data (foto hanya lewat Wi-Fi)  [ ] aktif                           |
 | Persetujuan                                                               |
 |  Barang keluar gudang                 [x] perlu disetujui                 |
 |  Perubahan potongan                   [x] perlu disetujui Pimpinan        |
