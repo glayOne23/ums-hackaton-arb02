@@ -10,33 +10,87 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KantorRouteRouteImport } from './routes/kantor/route'
+import { Route as LapanganRouteRouteImport } from './routes/lapangan/route'
+import { Route as MasukRouteImport } from './routes/masuk'
+import { Route as KantorIndexRouteImport } from './routes/kantor/index'
+import { Route as LapanganIndexRouteImport } from './routes/lapangan/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KantorRouteRoute = KantorRouteRouteImport.update({
+  id: '/kantor',
+  path: '/kantor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LapanganRouteRoute = LapanganRouteRouteImport.update({
+  id: '/lapangan',
+  path: '/lapangan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasukRoute = MasukRouteImport.update({
+  id: '/masuk',
+  path: '/masuk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KantorIndexRoute = KantorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => KantorRouteRoute,
+} as any)
+const LapanganIndexRoute = LapanganIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LapanganRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/kantor': typeof KantorRouteRouteWithChildren
+  '/lapangan': typeof LapanganRouteRouteWithChildren
+  '/masuk': typeof MasukRoute
+  '/kantor/': typeof KantorIndexRoute
+  '/lapangan/': typeof LapanganIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/masuk': typeof MasukRoute
+  '/kantor': typeof KantorIndexRoute
+  '/lapangan': typeof LapanganIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/kantor': typeof KantorRouteRouteWithChildren
+  '/lapangan': typeof LapanganRouteRouteWithChildren
+  '/masuk': typeof MasukRoute
+  '/kantor/': typeof KantorIndexRoute
+  '/lapangan/': typeof LapanganIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/kantor' | '/lapangan' | '/masuk' | '/kantor/' | '/lapangan/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/masuk' | '/kantor' | '/lapangan'
+  id:
+    | '__root__'
+    | '/'
+    | '/kantor'
+    | '/lapangan'
+    | '/masuk'
+    | '/kantor/'
+    | '/lapangan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  KantorRouteRoute: typeof KantorRouteRouteWithChildren
+  LapanganRouteRoute: typeof LapanganRouteRouteWithChildren
+  MasukRoute: typeof MasukRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +102,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kantor': {
+      id: '/kantor'
+      path: '/kantor'
+      fullPath: '/kantor'
+      preLoaderRoute: typeof KantorRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lapangan': {
+      id: '/lapangan'
+      path: '/lapangan'
+      fullPath: '/lapangan'
+      preLoaderRoute: typeof LapanganRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/masuk': {
+      id: '/masuk'
+      path: '/masuk'
+      fullPath: '/masuk'
+      preLoaderRoute: typeof MasukRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kantor/': {
+      id: '/kantor/'
+      path: '/'
+      fullPath: '/kantor/'
+      preLoaderRoute: typeof KantorIndexRouteImport
+      parentRoute: typeof KantorRouteRoute
+    }
+    '/lapangan/': {
+      id: '/lapangan/'
+      path: '/'
+      fullPath: '/lapangan/'
+      preLoaderRoute: typeof LapanganIndexRouteImport
+      parentRoute: typeof LapanganRouteRoute
+    }
   }
 }
 
+interface KantorRouteRouteChildren {
+  KantorIndexRoute: typeof KantorIndexRoute
+}
+
+const KantorRouteRouteChildren: KantorRouteRouteChildren = {
+  KantorIndexRoute: KantorIndexRoute,
+}
+
+const KantorRouteRouteWithChildren = KantorRouteRoute._addFileChildren(
+  KantorRouteRouteChildren,
+)
+
+interface LapanganRouteRouteChildren {
+  LapanganIndexRoute: typeof LapanganIndexRoute
+}
+
+const LapanganRouteRouteChildren: LapanganRouteRouteChildren = {
+  LapanganIndexRoute: LapanganIndexRoute,
+}
+
+const LapanganRouteRouteWithChildren = LapanganRouteRoute._addFileChildren(
+  LapanganRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  KantorRouteRoute: KantorRouteRouteWithChildren,
+  LapanganRouteRoute: LapanganRouteRouteWithChildren,
+  MasukRoute: MasukRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
