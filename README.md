@@ -116,7 +116,7 @@ cd backend
 composer install
 cp .env.example .env        # sesuaikan DB_* dengan MySQL lokal, buat database "sigap"
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed   # tabel + peran/izin + akun contoh
 php artisan serve
 
 # Frontend → http://localhost:5173 (permintaan /api diteruskan ke backend)
@@ -124,6 +124,16 @@ cd frontend
 npm install
 npm run dev
 ```
+
+**Akun contoh** (data fiktif, hanya dibuat di luar produksi). Kata sandi semuanya `sigap123`. Masuk bisa dengan username atau nomor HP.
+
+| Username | Nomor HP | Peran | Setelah masuk |
+| --- | --- | --- | --- |
+| `pimpinan` | 081100000001 | Pimpinan | Area kantor |
+| `kantor` | 081100000002 | Admin Kantor | Area kantor |
+| `gudang` | 081100000003 | Admin Gudang | Area kantor |
+| `sales1` | 081100000004 | Sales | Area lapangan (HP) |
+| `sales2` | 081100000005 | Sales | Area lapangan (HP) |
 
 Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), dan [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md).
 

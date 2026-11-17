@@ -150,6 +150,8 @@ Scaffold sudah dijalankan; anggota tim cukup mengikuti "Menjalankan secara lokal
 
 Perbedaan dari SDD (oxlint, TanStack Table v9, MySQL 8.4, GitHub) dicatat di [ADR 0001](../adr/0001-penyesuaian-versi-saat-scaffold.md). Komponen shadcn/ui ditambah per kebutuhan dengan `npx shadcn@latest add <nama>`.
 
+> **Periksa setelah `shadcn add`.** Generator kadang gagal membaca alias `@/lib/utils` (TypeScript 7), lalu menulis `import { cn } from "cn"` **dan memasang paket npm `cn` milik pihak lain**. Bila itu terjadi: `npm uninstall cn`, ganti impornya menjadi `@/lib/utils`, lalu sesuaikan ukuran komponen dengan Pedoman UI §7 (tombol & input 48 px di HP).
+
 Perintah yang dipakai, sebagai catatan:
 
 ```bash

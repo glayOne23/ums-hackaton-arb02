@@ -106,7 +106,10 @@ npm run lint        # oxlint
 npm run typecheck   # TypeScript
 npm run test        # Vitest
 npm run build       # memastikan bisa di-build
+npm run test:e2e    # Playwright di lebar HP 360 px & desktop 1280 px
 ```
+
+Tes e2e butuh backend berjalan dengan data contoh (`php artisan migrate:fresh --seed` lalu `php artisan serve`). Sekali saja per laptop, unduh browsernya dengan `npx playwright install chromium`.
 
 ## 6. Definisi selesai (Definition of Done)
 
