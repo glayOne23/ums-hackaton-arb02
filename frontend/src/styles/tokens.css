@@ -1,0 +1,164 @@
+/* Token desain SIGAP — aturan pemakaian: docs/pengembangan/07_Pedoman_UI_UX.md */
+
+@theme {
+  /* --- Palet merek: hijau daun --- */
+  --color-daun-50: #f0fdf4;
+  --color-daun-100: #dcfce7;
+  --color-daun-200: #bbf7d0;
+  --color-daun-500: #22c55e; /* grafik & ikon besar saja, bukan teks */
+  --color-daun-600: #15803d; /* primary — 5,0:1 thd putih */
+  --color-daun-700: #166534; /* primary ditekan / kontras tinggi — 7,1:1 */
+  --color-daun-800: #14532d;
+
+  /* --- Aksen merek: madu (logo & layar masuk saja, bukan UI kerja) --- */
+  --color-madu-400: #fbbf24;
+  --color-madu-700: #b45309;
+
+  /* --- Netral hangat --- */
+  --color-tanah-50: #fafaf9;
+  --color-tanah-100: #f5f5f4;
+  --color-tanah-200: #e7e5e4;
+  --color-tanah-300: #d6d3d1;
+  --color-tanah-500: #78716c; /* garis input — 4,8:1 */
+  --color-tanah-600: #57534e; /* teks sekunder — 7,6:1 */
+  --color-tanah-900: #1c1917; /* teks utama — 16,7:1 */
+
+  /* --- Huruf --- */
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* --- Bentuk --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* --- Gerak --- */
+  --ease-masuk: cubic-bezier(0, 0, 0.2, 1);
+  --ease-keluar: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Variabel semantik (format shadcn/ui). Komponen membaca ini, bukan palet mentah. */
+:root {
+  --radius: 10px;
+
+  --background: var(--color-tanah-50);
+  --foreground: var(--color-tanah-900);
+  --card: #ffffff;
+  --card-foreground: var(--color-tanah-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-tanah-900);
+
+  --primary: var(--color-daun-600);
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: var(--color-tanah-900);
+  --muted: var(--color-tanah-100);
+  --muted-foreground: var(--color-tanah-600);
+  --accent: var(--color-daun-50);
+  --accent-foreground: var(--color-daun-800);
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: var(--color-tanah-300);
+  --input: var(--color-tanah-500);
+  --ring: var(--color-daun-600);
+
+  /* Status: lembut (latar chip/banner), teks (di atas latar lembut), tegas (ikon/tombol) */
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-text: #991b1b;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --warning-text: #92400e;
+  --success: #15803d;
+  --success-soft: #f0fdf4;
+  --success-text: #166534;
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --info-text: #1e40af;
+
+  /* Grafik: seri kategori. Merah/kuning/oranye sengaja tidak ada (sudah bermakna status). */
+  --chart-1: #15803d;
+  --chart-2: #1d4ed8;
+  --chart-3: #7c3aed;
+  --chart-4: #0e7490;
+  --chart-5: #be185d;
+  --chart-target: var(--color-tanah-500);
+}
+
+/* Mode kontras tinggi (UX-08): <html data-contrast="high"> — semua teks ≥ 7:1 */
+:root[data-contrast="high"] {
+  --background: #ffffff;
+  --primary: var(--color-daun-700);
+  --muted-foreground: var(--color-tanah-900);
+  --border: var(--color-tanah-600);
+  --input: var(--color-tanah-900);
+  --ring: var(--color-daun-700);
+  --warning-text: #78350f;
+}
+
+/* Ukuran huruf pilihan pengguna (UX-08): <html data-ukuran="besar|sangat-besar"> */
+:root[data-ukuran="besar"] { font-size: 112.5%; }
+:root[data-ukuran="sangat-besar"] { font-size: 125%; }
+
+/* Petakan variabel semantik ke kelas Tailwind (bg-primary, text-danger-text, dst.) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,0 +1,8 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+    # Naikkan bertahap (maks. 9) setelah modul inti stabil
+    level: 5
