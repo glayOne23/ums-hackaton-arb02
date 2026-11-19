@@ -1,69 +1,69 @@
-/* Token desain SIGAP — aturan pemakaian: docs/pengembangan/07_Pedoman_UI_UX.md */
+/* SIGAP design tokens — usage rules: docs/pengembangan/07_Pedoman_UI_UX.md */
 
 @theme {
-  /* --- Palet merek: hijau daun --- */
-  --color-daun-50: #f0fdf4;
-  --color-daun-100: #dcfce7;
-  --color-daun-200: #bbf7d0;
-  --color-daun-500: #22c55e; /* grafik & ikon besar saja, bukan teks */
-  --color-daun-600: #15803d; /* primary — 5,0:1 thd putih */
-  --color-daun-700: #166534; /* primary ditekan / kontras tinggi — 7,1:1 */
-  --color-daun-800: #14532d;
+  /* --- Brand palette: leaf green --- */
+  --color-leaf-50: #f0fdf4;
+  --color-leaf-100: #dcfce7;
+  --color-leaf-200: #bbf7d0;
+  --color-leaf-500: #22c55e; /* charts & large icons only, never text */
+  --color-leaf-600: #15803d; /* primary — 5.0:1 on white */
+  --color-leaf-700: #166534; /* primary pressed / high contrast — 7.1:1 */
+  --color-leaf-800: #14532d;
 
-  /* --- Aksen merek: madu (logo & layar masuk saja, bukan UI kerja) --- */
-  --color-madu-400: #fbbf24;
-  --color-madu-700: #b45309;
+  /* --- Brand accent: honey (logo & login screen only, not working UI) --- */
+  --color-honey-400: #fbbf24;
+  --color-honey-700: #b45309;
 
-  /* --- Netral hangat --- */
-  --color-tanah-50: #fafaf9;
-  --color-tanah-100: #f5f5f4;
-  --color-tanah-200: #e7e5e4;
-  --color-tanah-300: #d6d3d1;
-  --color-tanah-500: #78716c; /* garis input — 4,8:1 */
-  --color-tanah-600: #57534e; /* teks sekunder — 7,6:1 */
-  --color-tanah-900: #1c1917; /* teks utama — 16,7:1 */
+  /* --- Warm neutrals (earth) --- */
+  --color-earth-50: #fafaf9;
+  --color-earth-100: #f5f5f4;
+  --color-earth-200: #e7e5e4;
+  --color-earth-300: #d6d3d1;
+  --color-earth-500: #78716c; /* input border — 4.8:1 */
+  --color-earth-600: #57534e; /* secondary text — 7.6:1 */
+  --color-earth-900: #1c1917; /* primary text — 16.7:1 */
 
-  /* --- Huruf --- */
+  /* --- Typography --- */
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* --- Bentuk --- */
+  /* --- Shape --- */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
 
-  /* --- Gerak --- */
-  --ease-masuk: cubic-bezier(0, 0, 0.2, 1);
-  --ease-keluar: cubic-bezier(0.4, 0, 1, 1);
+  /* --- Motion --- */
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* Variabel semantik (format shadcn/ui). Komponen membaca ini, bukan palet mentah. */
+/* Semantic variables (shadcn/ui format). Components read these, never the raw palette. */
 :root {
   --radius: 10px;
 
-  --background: var(--color-tanah-50);
-  --foreground: var(--color-tanah-900);
+  --background: var(--color-earth-50);
+  --foreground: var(--color-earth-900);
   --card: #ffffff;
-  --card-foreground: var(--color-tanah-900);
+  --card-foreground: var(--color-earth-900);
   --popover: #ffffff;
-  --popover-foreground: var(--color-tanah-900);
+  --popover-foreground: var(--color-earth-900);
 
-  --primary: var(--color-daun-600);
+  --primary: var(--color-leaf-600);
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
-  --secondary-foreground: var(--color-tanah-900);
-  --muted: var(--color-tanah-100);
-  --muted-foreground: var(--color-tanah-600);
-  --accent: var(--color-daun-50);
-  --accent-foreground: var(--color-daun-800);
+  --secondary-foreground: var(--color-earth-900);
+  --muted: var(--color-earth-100);
+  --muted-foreground: var(--color-earth-600);
+  --accent: var(--color-leaf-50);
+  --accent-foreground: var(--color-leaf-800);
 
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: var(--color-tanah-300);
-  --input: var(--color-tanah-500);
-  --ring: var(--color-daun-600);
+  --border: var(--color-earth-300);
+  --input: var(--color-earth-500);
+  --ring: var(--color-leaf-600);
 
-  /* Status: lembut (latar chip/banner), teks (di atas latar lembut), tegas (ikon/tombol) */
+  /* Status: soft (chip/banner background), text (on soft background), strong (icon/button) */
   --danger: #b91c1c;
   --danger-soft: #fef2f2;
   --danger-text: #991b1b;
@@ -77,31 +77,31 @@
   --info-soft: #eff6ff;
   --info-text: #1e40af;
 
-  /* Grafik: seri kategori. Merah/kuning/oranye sengaja tidak ada (sudah bermakna status). */
+  /* Charts: categorical series. Red/yellow/orange are left out on purpose (they already mean status). */
   --chart-1: #15803d;
   --chart-2: #1d4ed8;
   --chart-3: #7c3aed;
   --chart-4: #0e7490;
   --chart-5: #be185d;
-  --chart-target: var(--color-tanah-500);
+  --chart-target: var(--color-earth-500);
 }
 
-/* Mode kontras tinggi (UX-08): <html data-contrast="high"> — semua teks ≥ 7:1 */
+/* High-contrast mode (UX-08): <html data-contrast="high"> — all text ≥ 7:1 */
 :root[data-contrast="high"] {
   --background: #ffffff;
-  --primary: var(--color-daun-700);
-  --muted-foreground: var(--color-tanah-900);
-  --border: var(--color-tanah-600);
-  --input: var(--color-tanah-900);
-  --ring: var(--color-daun-700);
+  --primary: var(--color-leaf-700);
+  --muted-foreground: var(--color-earth-900);
+  --border: var(--color-earth-600);
+  --input: var(--color-earth-900);
+  --ring: var(--color-leaf-700);
   --warning-text: #78350f;
 }
 
-/* Ukuran huruf pilihan pengguna (UX-08): <html data-ukuran="besar|sangat-besar"> */
-:root[data-ukuran="besar"] { font-size: 112.5%; }
-:root[data-ukuran="sangat-besar"] { font-size: 125%; }
+/* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
+:root[data-font-size="large"] { font-size: 112.5%; }
+:root[data-font-size="x-large"] { font-size: 125%; }
 
-/* Petakan variabel semantik ke kelas Tailwind (bg-primary, text-danger-text, dst.) */
+/* Map semantic variables to Tailwind classes (bg-primary, text-danger-text, etc.) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

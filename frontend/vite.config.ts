@@ -8,15 +8,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    // Harus sebelum react(): membuat routeTree.gen.ts dan memecah kode per rute
+    // Must come before react(): generates routeTree.gen.ts and splits code per route
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt', // PW-09: tampilkan "Muat ulang" saat versi baru tersedia
+      registerType: 'prompt', // PW-09: show "Muat ulang" (reload) when a new version is available
       includeAssets: ['favicon.svg'],
       workbox: {
-        // Font Inter subset latin ikut disimpan agar tampilan tetap sama tanpa sinyal (pedoman UI §3)
+        // Cache the Inter latin subset too so screens look the same without a signal (UI guide §3)
         globPatterns: ['**/*.{js,css,html,svg}', '**/inter-latin-wght-normal-*.woff2'],
       },
       manifest: {
@@ -28,7 +28,7 @@ export default defineConfig({
         display: 'standalone',
         theme_color: '#15803d',
         background_color: '#fafaf9',
-        // Ikon PNG 192/512/maskable ditambahkan di public/icons saat logo final tersedia
+        // PNG icons 192/512/maskable go into public/icons once the final logo is ready
         icons: [],
       },
     }),
@@ -40,7 +40,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Backend Laravel: php artisan serve (port 8000)
+      // Laravel backend: php artisan serve (port 8000)
       '/api': 'http://127.0.0.1:8000',
     },
   },

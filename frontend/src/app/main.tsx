@@ -9,7 +9,7 @@ import { routeTree } from '@/routeTree.gen'
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    // Data terakhir tetap tampil saat tanpa sinyal (PW-07); refetch saat online kembali
+    // Last data stays visible without a signal (PW-07); refetches when back online
     queries: { staleTime: 60_000, networkMode: 'offlineFirst' },
   },
 })

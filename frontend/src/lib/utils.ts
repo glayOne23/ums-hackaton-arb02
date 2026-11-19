@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-/** Gabungkan kelas Tailwind tanpa bentrok (dipakai komponen shadcn/ui). */
+/** Merge Tailwind classes without conflicts (used by shadcn/ui components). */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

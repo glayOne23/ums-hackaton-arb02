@@ -10,87 +10,87 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as KantorRouteRouteImport } from './routes/kantor/route'
-import { Route as LapanganRouteRouteImport } from './routes/lapangan/route'
-import { Route as MasukRouteImport } from './routes/masuk'
-import { Route as KantorIndexRouteImport } from './routes/kantor/index'
-import { Route as LapanganIndexRouteImport } from './routes/lapangan/index'
+import { Route as OfficeRouteRouteImport } from './routes/office/route'
+import { Route as FieldRouteRouteImport } from './routes/field/route'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as FieldIndexRouteImport } from './routes/field/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KantorRouteRoute = KantorRouteRouteImport.update({
-  id: '/kantor',
-  path: '/kantor',
+const OfficeRouteRoute = OfficeRouteRouteImport.update({
+  id: '/office',
+  path: '/office',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LapanganRouteRoute = LapanganRouteRouteImport.update({
-  id: '/lapangan',
-  path: '/lapangan',
+const FieldRouteRoute = FieldRouteRouteImport.update({
+  id: '/field',
+  path: '/field',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MasukRoute = MasukRouteImport.update({
-  id: '/masuk',
-  path: '/masuk',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KantorIndexRoute = KantorIndexRouteImport.update({
+const OfficeIndexRoute = OfficeIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => KantorRouteRoute,
+  getParentRoute: () => OfficeRouteRoute,
 } as any)
-const LapanganIndexRoute = LapanganIndexRouteImport.update({
+const FieldIndexRoute = FieldIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LapanganRouteRoute,
+  getParentRoute: () => FieldRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/kantor': typeof KantorRouteRouteWithChildren
-  '/lapangan': typeof LapanganRouteRouteWithChildren
-  '/masuk': typeof MasukRoute
-  '/kantor/': typeof KantorIndexRoute
-  '/lapangan/': typeof LapanganIndexRoute
+  '/office': typeof OfficeRouteRouteWithChildren
+  '/field': typeof FieldRouteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/office/': typeof OfficeIndexRoute
+  '/field/': typeof FieldIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/masuk': typeof MasukRoute
-  '/kantor': typeof KantorIndexRoute
-  '/lapangan': typeof LapanganIndexRoute
+  '/login': typeof LoginRoute
+  '/office': typeof OfficeIndexRoute
+  '/field': typeof FieldIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/kantor': typeof KantorRouteRouteWithChildren
-  '/lapangan': typeof LapanganRouteRouteWithChildren
-  '/masuk': typeof MasukRoute
-  '/kantor/': typeof KantorIndexRoute
-  '/lapangan/': typeof LapanganIndexRoute
+  '/office': typeof OfficeRouteRouteWithChildren
+  '/field': typeof FieldRouteRouteWithChildren
+  '/login': typeof LoginRoute
+  '/office/': typeof OfficeIndexRoute
+  '/field/': typeof FieldIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/kantor' | '/lapangan' | '/masuk' | '/kantor/' | '/lapangan/'
+    '/' | '/office' | '/field' | '/login' | '/office/' | '/field/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/masuk' | '/kantor' | '/lapangan'
+  to: '/' | '/login' | '/office' | '/field'
   id:
     | '__root__'
     | '/'
-    | '/kantor'
-    | '/lapangan'
-    | '/masuk'
-    | '/kantor/'
-    | '/lapangan/'
+    | '/office'
+    | '/field'
+    | '/login'
+    | '/office/'
+    | '/field/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  KantorRouteRoute: typeof KantorRouteRouteWithChildren
-  LapanganRouteRoute: typeof LapanganRouteRouteWithChildren
-  MasukRoute: typeof MasukRoute
+  OfficeRouteRoute: typeof OfficeRouteRouteWithChildren
+  FieldRouteRoute: typeof FieldRouteRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,73 +102,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/kantor': {
-      id: '/kantor'
-      path: '/kantor'
-      fullPath: '/kantor'
-      preLoaderRoute: typeof KantorRouteRouteImport
+    '/office': {
+      id: '/office'
+      path: '/office'
+      fullPath: '/office'
+      preLoaderRoute: typeof OfficeRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lapangan': {
-      id: '/lapangan'
-      path: '/lapangan'
-      fullPath: '/lapangan'
-      preLoaderRoute: typeof LapanganRouteRouteImport
+    '/field': {
+      id: '/field'
+      path: '/field'
+      fullPath: '/field'
+      preLoaderRoute: typeof FieldRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/masuk': {
-      id: '/masuk'
-      path: '/masuk'
-      fullPath: '/masuk'
-      preLoaderRoute: typeof MasukRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/kantor/': {
-      id: '/kantor/'
+    '/office/': {
+      id: '/office/'
       path: '/'
-      fullPath: '/kantor/'
-      preLoaderRoute: typeof KantorIndexRouteImport
-      parentRoute: typeof KantorRouteRoute
+      fullPath: '/office/'
+      preLoaderRoute: typeof OfficeIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
     }
-    '/lapangan/': {
-      id: '/lapangan/'
+    '/field/': {
+      id: '/field/'
       path: '/'
-      fullPath: '/lapangan/'
-      preLoaderRoute: typeof LapanganIndexRouteImport
-      parentRoute: typeof LapanganRouteRoute
+      fullPath: '/field/'
+      preLoaderRoute: typeof FieldIndexRouteImport
+      parentRoute: typeof FieldRouteRoute
     }
   }
 }
 
-interface KantorRouteRouteChildren {
-  KantorIndexRoute: typeof KantorIndexRoute
+interface OfficeRouteRouteChildren {
+  OfficeIndexRoute: typeof OfficeIndexRoute
 }
 
-const KantorRouteRouteChildren: KantorRouteRouteChildren = {
-  KantorIndexRoute: KantorIndexRoute,
+const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
+  OfficeIndexRoute: OfficeIndexRoute,
 }
 
-const KantorRouteRouteWithChildren = KantorRouteRoute._addFileChildren(
-  KantorRouteRouteChildren,
+const OfficeRouteRouteWithChildren = OfficeRouteRoute._addFileChildren(
+  OfficeRouteRouteChildren,
 )
 
-interface LapanganRouteRouteChildren {
-  LapanganIndexRoute: typeof LapanganIndexRoute
+interface FieldRouteRouteChildren {
+  FieldIndexRoute: typeof FieldIndexRoute
 }
 
-const LapanganRouteRouteChildren: LapanganRouteRouteChildren = {
-  LapanganIndexRoute: LapanganIndexRoute,
+const FieldRouteRouteChildren: FieldRouteRouteChildren = {
+  FieldIndexRoute: FieldIndexRoute,
 }
 
-const LapanganRouteRouteWithChildren = LapanganRouteRoute._addFileChildren(
-  LapanganRouteRouteChildren,
+const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
+  FieldRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  KantorRouteRoute: KantorRouteRouteWithChildren,
-  LapanganRouteRoute: LapanganRouteRouteWithChildren,
-  MasukRoute: MasukRoute,
+  OfficeRouteRoute: OfficeRouteRouteWithChildren,
+  FieldRouteRoute: FieldRouteRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

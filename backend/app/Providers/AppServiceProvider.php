@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Modules\Auth\Models\PersonalAccessToken;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,10 +18,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Batas percobaan masuk dihitung per akun + IP, bukan per IP saja:
-        // staf kantor biasanya berbagi satu IP, jadi salah sandi satu orang
-        // tidak boleh menghalangi rekannya masuk.
-        RateLimiter::for('masuk', fn (Request $request) => Limit::perMinute(6)->by(
+        // Tokens live in the prefixed table auth_personal_access_tokens
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Login attempts are limited per account + IP, not per IP only:
+        // office staff usually share one IP, so one person's wrong password
+        // must not lock their colleagues out.
+        RateLimiter::for('login', fn (Request $request) => Limit::perMinute(6)->by(
             mb_strtolower(trim((string) $request->input('login'))).'|'.$request->ip()
         ));
     }

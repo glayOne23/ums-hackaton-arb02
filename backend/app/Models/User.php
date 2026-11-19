@@ -12,15 +12,17 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * Pengguna SIGAP (semua peran). Model tetap di App\Models agar sesuai bawaan
- * Laravel, Sanctum, dan spatie/laravel-permission; logikanya ada di Modules/Akses.
+ * SIGAP user (all roles). The model stays in App\Models to match the Laravel,
+ * Sanctum, and spatie/laravel-permission defaults; its logic lives in Modules/Auth.
  */
-#[Fillable(['name', 'username', 'no_hp', 'email', 'password', 'aktif'])]
+#[Fillable(['name', 'username', 'phone', 'email', 'password', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
+
+    protected $table = 'auth_users';
 
     /**
      * @return array<string, string>
@@ -29,8 +31,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'terakhir_masuk_at' => 'datetime',
-            'aktif' => 'boolean',
+            'last_login_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
     }
