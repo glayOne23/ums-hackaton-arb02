@@ -10,6 +10,8 @@ export interface User {
   username: string
   phone: string | null
   roles: string[]
+  /** UI labels for `roles`, sent by the API. Optional: sessions saved before it existed lack it. */
+  role_labels?: string[]
   permissions: string[]
   area: Area
 }

@@ -27,7 +27,7 @@ it('logs in with a username and returns a token and the field area', function ()
     ]);
 
     $response->assertOk()
-        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'roles', 'permissions', 'area']])
+        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'roles', 'role_labels', 'permissions', 'area']])
         ->assertJsonPath('user.area', 'field')
         ->assertJsonPath('user.roles.0', Roles::SALES);
 
@@ -102,7 +102,49 @@ it('throttles login attempts per account without blocking other accounts on the 
     $this->postJson('/api/v1/auth/login', ['login' => 'sales1', 'password' => 'salah'])->assertTooManyRequests();
 
     $other = User::factory()->create(['username' => 'sales2', 'password' => 'rahasia123']);
+    $other->assignRole(Roles::SALES);
     $this->postJson('/api/v1/auth/login', ['login' => $other->username, 'password' => 'rahasia123'])->assertOk();
+});
+
+it('counts every phone format of one account against the same login limit', function () {
+    $formats = ['081234567890', '+62 812-3456-7890', '6281234567890', '81234567890', '0812 3456 7890', '+6281234567890'];
+
+    foreach ($formats as $login) {
+        $this->postJson('/api/v1/auth/login', ['login' => $login, 'password' => 'salah'])->assertUnprocessable();
+    }
+
+    $this->postJson('/api/v1/auth/login', ['login' => '0812-3456-7890', 'password' => 'salah'])->assertTooManyRequests();
+});
+
+it('rejects an account without any role', function () {
+    $user = User::factory()->create(['password' => 'rahasia123']);
+
+    $this->postJson('/api/v1/auth/login', ['login' => $user->username, 'password' => 'rahasia123'])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.login.0', 'Akun ini belum diberi peran. Hubungi admin kantor.');
+
+    expect($user->fresh()->last_login_at)->toBeNull();
+});
+
+it('prefers an exact username match over a phone match', function () {
+    $owner = User::factory()->create(['username' => 'u081299990000', 'phone' => '081299990000', 'password' => 'rahasia123']);
+    $owner->assignRole(Roles::SALES);
+
+    // A legacy account whose username looks like the other account's phone number
+    $legacy = User::factory()->create(['username' => '081299990000', 'phone' => null, 'password' => 'lainnya123']);
+    $legacy->assignRole(Roles::OFFICE_ADMIN);
+
+    $this->postJson('/api/v1/auth/login', ['login' => '081299990000', 'password' => 'lainnya123'])
+        ->assertOk()
+        ->assertJsonPath('user.id', $legacy->id);
+});
+
+it('returns UI labels for the roles', function () {
+    $token = $this->sales->createToken('test')->plainTextToken;
+
+    $this->withToken($token)->getJson('/api/v1/auth/me')
+        ->assertOk()
+        ->assertJsonPath('data.role_labels', ['Sales']);
 });
 
 it('sends office roles to the office area', function (string $role) {

@@ -31,6 +31,13 @@ final class Login
             ]);
         }
 
+        // Without a role the user has no area or permissions to work with
+        if ($user->roles()->doesntExist()) {
+            throw ValidationException::withMessages([
+                'login' => 'Akun ini belum diberi peran. Hubungi admin kantor.',
+            ]);
+        }
+
         $user->forceFill(['last_login_at' => now()])->save();
 
         return [
@@ -39,15 +46,40 @@ final class Login
         ];
     }
 
+    /**
+     * Username rule for the future user management form: 3–50 characters of
+     * letters, digits, "." or "_", with at least one letter. Requiring a letter
+     * keeps usernames from ever looking like a phone number.
+     */
+    public const USERNAME_PATTERN = '/^(?=.*[a-z])[a-z0-9._]{3,50}$/i';
+
+    /**
+     * An exact username match always wins over a phone match, so one input
+     * can never resolve to two different accounts.
+     */
     private function findUser(string $login): ?User
     {
         $login = trim($login);
+
+        $user = User::query()->where('username', $login)->first();
+        if ($user) {
+            return $user;
+        }
+
         $phone = self::normalizePhone($login);
 
-        return User::query()
-            ->where('username', $login)
-            ->when($phone !== null, fn ($query) => $query->orWhere('phone', $phone))
-            ->first();
+        return $phone === null ? null : User::query()->where('phone', $phone)->first();
+    }
+
+    /**
+     * Rate-limit key for a login input: the normalized phone number when the
+     * input is one, otherwise the lowercased username.
+     */
+    public static function throttleKey(string $login): string
+    {
+        $login = trim($login);
+
+        return self::normalizePhone($login) ?? mb_strtolower($login);
     }
 
     /**

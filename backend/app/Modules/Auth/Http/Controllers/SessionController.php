@@ -45,6 +45,9 @@ class SessionController extends Controller
         $user = $request->user();
         $token = $user->currentAccessToken();
 
+        // Sanctum's PHPDoc says this is always a PersonalAccessToken, but a cookie
+        // session yields a TransientToken (no delete()), so the check stays.
+        /** @phpstan-ignore instanceof.alwaysTrue */
         if ($token instanceof PersonalAccessToken) {
             $token->delete();
         }
