@@ -149,6 +149,8 @@ Prinsip memilih library: (1) utamakan paket resmi Laravel atau pengelola besar y
 
 ## 3. Model data
 
+> Nama di bagian ini adalah **nama konsep** dalam Bahasa Indonesia. Nama tabel dan kolom yang dipakai di kode (Bahasa Inggris, dengan prefix kelompok seperti `crm_outlets` dan `sls_transactions`) ada di [10_Arsitektur_Basis_Data](10_Arsitektur_Basis_Data.md).
+
 ```mermaid
 erDiagram
   WILAYAH ||--o{ OUTLET : "berada di"

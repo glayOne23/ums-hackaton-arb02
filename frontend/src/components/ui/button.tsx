@@ -20,13 +20,13 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        // Pedoman UI §7.1: 48 px di HP, 40 px di desktop
+        // UI guide §7.1: 48 px on phones, 40 px on desktop
         default: "h-12 px-5 text-base has-[>svg]:px-4 sm:h-10 sm:px-4 sm:text-sm",
         xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
         lg: "h-12 rounded-md px-6 text-base has-[>svg]:px-4",
-        // Tombol utama yang menempel di bawah layar HP (56 px)
-        utama: "h-14 w-full rounded-md px-6 text-base font-semibold",
+        // Full-width call-to-action pinned to the bottom of phone screens (56 px)
+        cta: "h-14 w-full rounded-md px-6 text-base font-semibold",
         icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8",

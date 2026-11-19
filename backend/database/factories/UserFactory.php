@@ -22,16 +22,16 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'username' => fake()->unique()->userName(),
-            'no_hp' => '08'.fake()->unique()->numerify('##########'),
+            'phone' => '08'.fake()->unique()->numerify('##########'),
             'email' => null,
-            'aktif' => true,
+            'is_active' => true,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
     }
 
-    public function nonaktif(): static
+    public function inactive(): static
     {
-        return $this->state(fn () => ['aktif' => false]);
+        return $this->state(fn () => ['is_active' => false]);
     }
 }

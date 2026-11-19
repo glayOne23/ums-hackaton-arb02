@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useSesi } from '@/stores/sesi'
+import { areaHome, useSession } from '@/stores/session'
 
-// "/" hanya mengarahkan: belum masuk → /masuk; sales → /lapangan; peran lain → /kantor
+// "/" only redirects: not signed in → /login; sales → /field; other roles → /office
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
-    const { pengguna } = useSesi.getState()
-    if (!pengguna) throw redirect({ to: '/masuk' })
-    throw redirect({ to: pengguna.area === 'lapangan' ? '/lapangan' : '/kantor' })
+    const { user } = useSession.getState()
+    if (!user) throw redirect({ to: '/login' })
+    throw redirect({ to: areaHome(user.area) })
   },
 })

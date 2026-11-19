@@ -58,7 +58,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'engine' => 'InnoDB', // wajib: transaksi & foreign key untuk stok (SDD §3). Server lokal bisa default MyISAM
+            'engine' => 'InnoDB', // required: transactions & foreign keys for stock (SDD §3). Local servers may default to MyISAM
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
@@ -128,7 +128,7 @@ return [
     */
 
     'migrations' => [
-        'table' => 'migrations',
+        'table' => 'sys_migrations',
         'update_date_on_publish' => true,
     ],
 

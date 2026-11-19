@@ -2,19 +2,19 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\contoh\PenggunaContohSeeder;
+use Database\Seeders\Samples\SampleUserSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Wajib di semua lingkungan
-        $this->call(PeranDanIzinSeeder::class);
+        // Required in every environment
+        $this->call(RolePermissionSeeder::class);
 
-        // Data contoh hanya untuk pengembangan & demo, tidak di produksi
+        // Sample data for development and demos only, never in production
         if (! app()->isProduction()) {
-            $this->call(PenggunaContohSeeder::class);
+            $this->call(SampleUserSeeder::class);
         }
     }
 }

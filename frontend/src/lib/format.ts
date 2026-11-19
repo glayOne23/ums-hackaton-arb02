@@ -1,6 +1,6 @@
 /**
- * Format angka, uang, dan tanggal untuk layar SIGAP.
- * Aturan: docs/pengembangan/07_Pedoman_UI_UX.md §9.2. Jangan memformat manual di komponen.
+ * Number, money, and date formatting for SIGAP screens (output is Indonesian).
+ * Rules: docs/pengembangan/07_Pedoman_UI_UX.md §9.2. Never format by hand inside components.
  */
 import { differenceInCalendarDays, format, isThisYear } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -10,57 +10,57 @@ const rupiah = new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   maximumFractionDigits: 0,
 })
-const angka = new Intl.NumberFormat('id-ID')
-const desimal1 = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 })
+const integer = new Intl.NumberFormat('id-ID')
+const oneDecimal = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 })
 
 /** Rp 196.560 */
-export function formatRupiah(nilai: number): string {
-  return rupiah.format(nilai)
+export function formatCurrency(value: number): string {
+  return rupiah.format(value)
 }
 
-/** Rp 12,4 jt · Rp 950 rb — untuk angka KPI ringkasan */
-export function formatRupiahRingkas(nilai: number): string {
-  const mutlak = Math.abs(nilai)
-  if (mutlak >= 1_000_000_000) return `Rp ${desimal1.format(nilai / 1_000_000_000)} M`
-  if (mutlak >= 1_000_000) return `Rp ${desimal1.format(nilai / 1_000_000)} jt`
-  if (mutlak >= 1_000) return `Rp ${desimal1.format(nilai / 1_000)} rb`
-  return formatRupiah(nilai)
+/** Rp 12,4 jt · Rp 950 rb — for dashboard KPI figures */
+export function formatCurrencyCompact(value: number): string {
+  const abs = Math.abs(value)
+  if (abs >= 1_000_000_000) return `Rp ${oneDecimal.format(value / 1_000_000_000)} M`
+  if (abs >= 1_000_000) return `Rp ${oneDecimal.format(value / 1_000_000)} jt`
+  if (abs >= 1_000) return `Rp ${oneDecimal.format(value / 1_000)} rb`
+  return formatCurrency(value)
 }
 
 /** 1.240 */
-export function formatAngka(nilai: number): string {
-  return angka.format(nilai)
+export function formatNumber(value: number): string {
+  return integer.format(value)
 }
 
-/** 62% · 4,5% (desimal hanya bila di bawah 10%) */
-export function formatPersen(nilai: number): string {
-  return `${Math.abs(nilai) < 10 ? desimal1.format(nilai) : Math.round(nilai)}%`
+/** 62% · 4,5% (decimals only below 10%) */
+export function formatPercent(value: number): string {
+  return `${Math.abs(value) < 10 ? oneDecimal.format(value) : Math.round(value)}%`
 }
 
-/** 16 Nov · 3 Mar 2027 (tahun hanya bila bukan tahun ini) */
-export function formatTanggal(tanggal: Date): string {
-  return format(tanggal, isThisYear(tanggal) ? 'd MMM' : 'd MMM yyyy', { locale: id })
+/** 16 Nov · 3 Mar 2027 (year only when not this year) */
+export function formatDate(date: Date): string {
+  return format(date, isThisYear(date) ? 'd MMM' : 'd MMM yyyy', { locale: id })
 }
 
-/** 16/11/2026 — untuk kolom tabel */
-export function formatTanggalTabel(tanggal: Date): string {
-  return format(tanggal, 'dd/MM/yyyy')
+/** 16/11/2026 — for table columns */
+export function formatTableDate(date: Date): string {
+  return format(date, 'dd/MM/yyyy')
 }
 
 /** 09.12 */
-export function formatJam(tanggal: Date): string {
-  return format(tanggal, 'HH.mm')
+export function formatTime(date: Date): string {
+  return format(date, 'HH.mm')
 }
 
-/** ED 03/2027 */
-export function formatED(tanggal: Date): string {
-  return `ED ${format(tanggal, 'MM/yyyy')}`
+/** ED 03/2027 (expiry date) */
+export function formatExpiry(date: Date): string {
+  return `ED ${format(date, 'MM/yyyy')}`
 }
 
 /** hari ini · kemarin · 42 hari lalu */
-export function formatRelatif(tanggal: Date, sekarang: Date = new Date()): string {
-  const selisih = differenceInCalendarDays(sekarang, tanggal)
-  if (selisih <= 0) return 'hari ini'
-  if (selisih === 1) return 'kemarin'
-  return `${selisih} hari lalu`
+export function formatRelativeDay(date: Date, now: Date = new Date()): string {
+  const days = differenceInCalendarDays(now, date)
+  if (days <= 0) return 'hari ini'
+  if (days === 1) return 'kemarin'
+  return `${days} hari lalu`
 }

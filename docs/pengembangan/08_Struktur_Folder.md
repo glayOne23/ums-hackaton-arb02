@@ -29,33 +29,33 @@ Kode dibagi **per domain bisnis**, sesuai SDD §12. Satu modul memiliki model, a
 ```text
 backend/
 ├── app/
-│   ├── Core/                   Mekanisme lintas modul (dipakai semua domain)
-│   │   ├── Persetujuan/        Persetujuan umum (SDD §4.4): tabel persetujuan, PerluPersetujuan trait
-│   │   ├── Koreksi/            Perbaiki, koreksi, batalkan, mesin status (SDD §4.5)
-│   │   ├── Sinkron/            Terima transaksi offline idempoten (client_uuid), paket kerja
-│   │   ├── Audit/              Konfigurasi activitylog, halaman riwayat
+│   ├── Core/                   Mekanisme lintas modul (dipakai semua domain) — tabel core_
+│   │   ├── Approval/           Persetujuan umum (SDD §4.4): core_approvals, trait RequiresApproval
+│   │   ├── Correction/         Perbaiki, koreksi, batalkan, mesin status (SDD §4.5)
+│   │   ├── Sync/               Terima transaksi offline idempoten (client_uuid), paket kerja
+│   │   ├── Audit/              Konfigurasi activitylog (sys_activity_log), halaman riwayat
 │   │   └── Support/            Helper umum: Rupiah, nomor dokumen, ULID, base classes
-│   ├── Modules/
-│   │   ├── Outlet/             OT  — outlet, penugasan, gabung outlet, stok standar
-│   │   ├── Produk/             PR  — produk, kategori, potongan, daftar harga
-│   │   ├── Gudang/             GD  — lokasi stok, batch, saldo, mutasi, barang masuk, opname, retur
-│   │   ├── Kunjungan/          KS  — transaksi titip & penjualan, nota
-│   │   ├── Tagihan/            TG  — tagihan, pembayaran, setoran
-│   │   ├── Laporan/            LP  — ringkasan pimpinan + laporan Excel/PDF
-│   │   ├── Pengaturan/         PG  — kunci–nilai aturan, daftar pilihan, impor/ekspor (IE)
-│   │   ├── Akses/              AK  — pengguna, peran, izin, perangkat
-│   │   └── Maklon/             Fase 4 (dokumen 06); folder disiapkan, belum dikerjakan
+│   ├── Modules/                Kode SRS — prefix tabel (lihat dokumen 10)
+│   │   ├── Outlet/             OT — crm_   outlet, penugasan, gabung outlet, stok standar
+│   │   ├── Product/            PR — prd_   produk, kategori, potongan
+│   │   ├── Inventory/          GD — inv_   lokasi stok, batch, saldo, mutasi, barang masuk, opname, retur
+│   │   ├── Sales/              KS — sls_   transaksi titip & penjualan, nota
+│   │   ├── Billing/            TG — bil_   tagihan, pembayaran, setoran
+│   │   ├── Report/             LP — (rpt_) ringkasan pimpinan + laporan Excel/PDF
+│   │   ├── Setting/            PG — cfg_   kunci–nilai aturan, field kustom, impor/ekspor (IE)
+│   │   ├── Auth/               AK — auth_  pengguna, peran, izin, token perangkat
+│   │   └── Manufacturing/      Maklon, fase 4 (dokumen 06) — mfg_; dibuat saat dikerjakan
 │   ├── Http/                   (bawaan Laravel) middleware global saja
-│   ├── Models/User.php         (bawaan Laravel) dipindah/diwariskan ke Modules/Akses
+│   ├── Models/User.php         (bawaan Laravel) tabel auth_users; logikanya di Modules/Auth
 │   └── Providers/              Mendaftarkan ServiceProvider tiap modul
 ├── database/
-│   ├── migrations/             Satu folder, nama file diawali modul: 2026_11_20_000100_gudang_buat_tabel_batch.php
+│   ├── migrations/             Satu folder, nama file memuat tabel berprefix: 2026_11_20_000100_create_inv_batches_table.php
 │   ├── factories/
 │   └── seeders/
-│       └── contoh/             Data contoh anonim (BPOM "TR-CONTOH-…"), bukan data mitra
+│       └── Samples/            Data contoh anonim (BPOM "TR-CONTOH-…"), bukan data mitra
 ├── routes/
 │   ├── api.php                 Hanya memuat routes/api/v1/*.php dengan prefiks /api/v1
-│   └── api/v1/                 Satu file per modul: outlet.php, gudang.php, sinkron.php, …
+│   └── api/v1/                 Satu file per modul: auth.php, outlet.php, inventory.php, sync.php, …
 └── tests/
     ├── Feature/<Modul>/        Tes Pest per endpoint/alur
     └── Unit/<Modul>/           Tes aturan bisnis murni (FEFO, saran isi ulang, potongan)
@@ -63,32 +63,33 @@ backend/
 
 ### 2.1 Isi satu modul
 
-Buat subfolder hanya saat dibutuhkan. Contoh lengkap untuk `Modules/Kunjungan/`:
+Buat subfolder hanya saat dibutuhkan. Contoh lengkap untuk `Modules/Sales/`:
 
 ```text
-Kunjungan/
-├── Models/                 Transaksi.php, TransaksiDetail.php
-├── Actions/                SimpanKunjunganTitip.php, HitungSaranIsiUlang.php   ← logika bisnis di sini
+Sales/
+├── Models/                 Transaction.php, TransactionItem.php   ($table = 'sls_transactions', …)
+├── Actions/                SaveConsignmentVisit.php, SuggestRefill.php   ← logika bisnis di sini
 ├── Data/                   DTO masukan/keluaran (array bertipe / readonly class)
-├── Events/                 KunjunganDisimpan.php
+├── Events/                 VisitSaved.php
 ├── Listeners/
-├── Enums/                  JenisTransaksi.php, StatusTransaksi.php
+├── Enums/                  TransactionType.php, TransactionStatus.php (nilai Inggris + label() Indonesia)
 ├── Http/
 │   ├── Controllers/        Tipis: validasi → panggil Action → kembalikan Resource
 │   ├── Requests/           FormRequest (validasi + otorisasi izin)
 │   └── Resources/          API Resource (bentuk JSON untuk Scramble/Orval)
 ├── Policies/
 ├── Exports/  Imports/      Laravel Excel (bila modul punya impor/ekspor)
-└── KunjunganServiceProvider.php
+└── SalesServiceProvider.php
 ```
 
 Aturan:
 
 1. **Controller tidak berisi logika bisnis.** Semua hitungan (laku, isi ulang, tagihan, mutasi stok) ada di Action dan dites di `tests/Unit`.
-2. **Angka aturan dibaca dari Pengaturan**, tidak ditulis mati (SDD prinsip 2). Gunakan `Pengaturan::nilai('batas_tagih')`.
-3. **Mutasi stok hanya lewat** `Modules/Gudang/Actions/CatatMutasi` dalam satu transaksi DB.
-4. Nama domain memakai **Bahasa Indonesia** sama dengan nama tabel (`Outlet`, `Tagihan`, `SimpanKunjunganTitip`); istilah teknis framework tetap Inggris (`Controller`, `Request`, `Resource`, `Policy`).
-5. Setiap endpoint ada di bawah `/api/v1` (SDD §12).
+2. **Angka aturan dibaca dari Pengaturan**, tidak ditulis mati (SDD prinsip 2). Gunakan `Setting::value('billing_threshold')`; daftar kunci ada di dokumen 10 §6.
+3. **Mutasi stok hanya lewat** `Modules/Inventory/Actions/RecordStockMovement` dalam satu transaksi DB.
+4. **Kode berbahasa Inggris, tampilan berbahasa Indonesia** ([ADR 0002](../adr/0002-kode-inggris-dan-prefix-tabel.md)). Nama kelas, method, variabel, kolom, dan komentar memakai Bahasa Inggris (`Invoice`, `SaveConsignmentVisit`, `sold_qty`). Teks untuk pengguna (pesan validasi, label) tetap berbahasa Indonesia. Padanan istilah ada di glosarium dokumen 10 §7.
+5. **Nama tabel memakai prefix kelompok** (`crm_`, `inv_`, `sls_`, …) sesuai [10_Arsitektur_Basis_Data](10_Arsitektur_Basis_Data.md). Model wajib menulis `protected $table`.
+6. Setiap endpoint ada di bawah `/api/v1` (SDD §12), dengan path dan field JSON berbahasa Inggris (`/api/v1/auth/me`, `device_name`).
 
 ## 3. Frontend (`frontend/`)
 
@@ -101,25 +102,25 @@ frontend/
 ├── src/
 │   ├── app/                    main.tsx, providers (QueryClient, Router, Toaster), pendaftaran service worker
 │   ├── routes/                 TanStack Router (file-based)
-│   │   ├── _auth/              Masuk, lupa sandi (L1)
-│   │   ├── lapangan/           Layar sales HP: M1 outlet saya … M6 hari ini
-│   │   └── kantor/             Layar admin, gudang, pimpinan: W1–W13 (menu difilter izin)
+│   │   ├── login.tsx           Masuk (L1)
+│   │   ├── field/              Area lapangan — layar sales HP: M1 outlet saya … M6 hari ini
+│   │   └── office/             Area kantor — layar admin, gudang, pimpinan: W1–W13 (menu difilter izin)
 │   ├── features/<modul>/       Sama dengan modul backend
 │   │   ├── api/                Hook TanStack Query tambahan (di luar hasil Orval)
-│   │   ├── components/         Komponen khusus modul (KartuOutlet, BarisKunjungan)
+│   │   ├── components/         Komponen khusus modul (OutletCard, VisitRow)
 │   │   ├── hooks/
 │   │   └── schemas/            Skema Zod (form & data offline)
 │   ├── components/
 │   │   ├── ui/                 Komponen shadcn/ui (hasil `npx shadcn add`), boleh diubah
-│   │   ├── layout/             NavBawah, MenuSamping, KepalaHalaman, TataLetakLapangan/Kantor
-│   │   └── common/             Komponen SIGAP lintas modul: StatusChip, StepperAngka, TabelData, BannerSinyal
+│   │   ├── layout/             BottomNav, SideMenu, PageHeader, ConnectionStatus, LogoutButton
+│   │   └── common/             Komponen SIGAP lintas modul: StatusChip, NumberStepper, DataTable, OfflineBanner
 │   ├── lib/
 │   │   ├── api/generated/      Hasil Orval dari docs/api/openapi.json — JANGAN diedit manual
 │   │   ├── api/client.ts       Instance fetch + token Sanctum
-│   │   ├── format.ts           formatRupiah, formatTanggal, formatRelatif (pedoman UI §9.2)
+│   │   ├── format.ts           formatCurrency, formatDate, formatRelativeDay (pedoman UI §9.2)
 │   │   └── utils.ts            cn() dan helper kecil
 │   ├── offline/                Dexie: db.ts, antrean transaksi, paket kerja, kirim ulang
-│   ├── stores/                 Zustand: sesi, preferensi tampilan (ukuran huruf, kontras)
+│   ├── stores/                 Zustand: session.ts, preferensi tampilan (ukuran huruf, kontras)
 │   ├── i18n/id/                Teks antarmuka (siap multi-bahasa, SDD §12)
 │   ├── styles/
 │   │   ├── tokens.css          Token desain — lihat 07_Pedoman_UI_UX
@@ -135,7 +136,7 @@ Aturan:
 1. `routes/` hanya menyusun halaman; isi layar diambil dari `features/`.
 2. `features/A` tidak boleh mengimpor dari `features/B`. Bila perlu dipakai bersama, pindahkan ke `components/common` atau `lib`.
 3. Semua akses data server lewat hook Orval/TanStack Query; semua tulisan dari lapangan lewat `offline/` (antrean Dexie) dulu.
-4. Nama file komponen `PascalCase.tsx`, hook `useSesuatu.ts`, lainnya `kebab-case.ts`. Nama domain berbahasa Indonesia.
+4. Nama file komponen `PascalCase.tsx`, hook `useSomething.ts`, lainnya `kebab-case.ts`. Semua nama di kode berbahasa Inggris; hanya teks yang tampil di layar berbahasa Indonesia.
 5. Alias impor `@/` menunjuk ke `src/`.
 
 ## 4. Catatan scaffold (sudah dilakukan 17 Nov 2026)

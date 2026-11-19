@@ -28,29 +28,29 @@ Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokum
 
 | Token | Hex | Pemakaian |
 | --- | --- | --- |
-| `daun-50` | `#f0fdf4` | Latar sorotan baris terpilih, latar chip sukses |
-| `daun-100` | `#dcfce7` | Hover baris tabel aktif |
-| `daun-200` | `#bbf7d0` | Garis fokus lembut |
-| `daun-500` | `#22c55e` | Hanya untuk grafik dan ikon besar, **bukan teks** |
-| `daun-600` | `#15803d` | **Primary**: tombol utama, tautan aktif, ring fokus (5,0:1 terhadap putih) |
-| `daun-700` | `#166534` | Primary saat ditekan; primary di mode kontras tinggi (7,1:1) |
-| `daun-800` | `#14532d` | Teks di atas `daun-50` (8,7:1) |
-| `madu-400` | `#fbbf24` | Aksen merek: logo, ilustrasi layar masuk. **Tidak dipakai di UI kerja** agar tidak tertukar dengan kuning "perhatian" |
-| `madu-700` | `#b45309` | Teks aksen merek bila dibutuhkan |
+| `leaf-50` | `#f0fdf4` | Latar sorotan baris terpilih, latar chip sukses |
+| `leaf-100` | `#dcfce7` | Hover baris tabel aktif |
+| `leaf-200` | `#bbf7d0` | Garis fokus lembut |
+| `leaf-500` | `#22c55e` | Hanya untuk grafik dan ikon besar, **bukan teks** |
+| `leaf-600` | `#15803d` | **Primary**: tombol utama, tautan aktif, ring fokus (5,0:1 terhadap putih) |
+| `leaf-700` | `#166534` | Primary saat ditekan; primary di mode kontras tinggi (7,1:1) |
+| `leaf-800` | `#14532d` | Teks di atas `leaf-50` (8,7:1) |
+| `honey-400` | `#fbbf24` | Aksen merek: logo, ilustrasi layar masuk. **Tidak dipakai di UI kerja** agar tidak tertukar dengan kuning "perhatian" |
+| `honey-700` | `#b45309` | Teks aksen merek bila dibutuhkan |
 
 ### 2.2 Netral
 
 | Token | Hex | Pemakaian | Kontras thd putih |
 | --- | --- | --- | --- |
-| `tanah-50` | `#fafaf9` | Latar halaman | — |
-| `tanah-100` | `#f5f5f4` | Latar area sekunder, header tabel | — |
-| `tanah-200` | `#e7e5e4` | Garis pemisah dekoratif | — |
-| `tanah-300` | `#d6d3d1` | Garis kartu | — |
-| `tanah-500` | `#78716c` | **Garis input**, teks placeholder, ikon nonaktif | 4,8:1 |
-| `tanah-600` | `#57534e` | Teks sekunder (keterangan, label kecil) | 7,6:1 |
-| `tanah-900` | `#1c1917` | Teks utama | 16,7:1 |
+| `earth-50` | `#fafaf9` | Latar halaman | — |
+| `earth-100` | `#f5f5f4` | Latar area sekunder, header tabel | — |
+| `earth-200` | `#e7e5e4` | Garis pemisah dekoratif | — |
+| `earth-300` | `#d6d3d1` | Garis kartu | — |
+| `earth-500` | `#78716c` | **Garis input**, teks placeholder, ikon nonaktif | 4,8:1 |
+| `earth-600` | `#57534e` | Teks sekunder (keterangan, label kecil) | 7,6:1 |
+| `earth-900` | `#1c1917` | Teks utama | 16,7:1 |
 
-Aturan: teks lebih terang dari `tanah-600` dilarang di layar sales. Garis input memakai `tanah-500` agar batas kolom terlihat (WCAG 1.4.11, ≥ 3:1).
+Aturan: teks lebih terang dari `earth-600` dilarang di layar sales. Garis input memakai `earth-500` agar batas kolom terlihat (WCAG 1.4.11, ≥ 3:1).
 
 ### 2.3 Warna status (semantik)
 
@@ -87,7 +87,7 @@ Gunakan komponen `StatusChip` dengan pemetaan tetap berikut. Jangan membuat warn
 
 ### 2.5 Warna grafik
 
-- Seri utama (data "kita", omzet, % laku): `daun-600`. Target/pembanding: `tanah-300` atau garis putus `tanah-500`.
+- Seri utama (data "kita", omzet, % laku): `leaf-600`. Target/pembanding: `earth-300` atau garis putus `earth-500`.
 - Bila butuh banyak seri (mis. per sales): `#15803d`, `#1d4ed8`, `#7c3aed`, `#0e7490`, `#be185d`. **Merah, kuning, dan oranye tidak boleh dipakai sebagai warna seri**, karena sudah berarti bahaya/perhatian.
 - Batang progres performa sales tetap hijau; capaian di bawah target ditandai dengan teks/ikon warning di sampingnya, bukan dengan mengganti warna batang.
 - Ikuti skill `dataviz` / komponen chart shadcn agar semua grafik seragam.
@@ -97,7 +97,7 @@ Gunakan komponen `StatusChip` dengan pemetaan tetap berikut. Jangan membuat warn
 | Mode | Status | Keterangan |
 | --- | --- | --- |
 | Terang | **Bawaan** | Paling terbaca di luar ruangan |
-| Kontras tinggi | **Wajib (UX-08)** | `data-contrast="high"` di `<html>`: primary → `daun-700`, teks sekunder → `tanah-900`, garis → `tanah-600`, semua teks ≥ 7:1 |
+| Kontras tinggi | **Wajib (UX-08)** | `data-contrast="high"` di `<html>`: primary → `leaf-700`, teks sekunder → `earth-900`, garis → `earth-600`, semua teks ≥ 7:1 |
 | Gelap | Tidak di MVP | Token sudah disiapkan sebagai variabel CSS, jadi bisa ditambah tanpa mengubah komponen |
 
 ## 3. Tipografi
@@ -130,7 +130,7 @@ Aturan teks: huruf kapital di awal kalimat saja (*sentence case*), bukan HURUF B
 | Jarak antar-kartu | 12 px (HP), 16 px (tablet/desktop) |
 | Padding kartu | 16 px (HP), 20–24 px (desktop) |
 | Sudut | `radius-sm` 6 px (chip, input kecil) · `radius-md` 10 px (tombol, input) · `radius-lg` 14 px (kartu, lembar bawah, dialog) · `full` (avatar, badge angka) |
-| Bayangan | Hampir tidak dipakai. Kartu memakai garis `tanah-300`. Bayangan hanya untuk elemen yang melayang: lembar bawah, dialog, menu tarik turun, tombol utama yang menempel |
+| Bayangan | Hampir tidak dipakai. Kartu memakai garis `earth-300`. Bayangan hanya untuk elemen yang melayang: lembar bawah, dialog, menu tarik turun, tombol utama yang menempel |
 | Lebar konten desktop | Maks. 1440 px; form maks. 720 px |
 
 ## 5. Tata letak responsif
@@ -163,15 +163,15 @@ Semua komponen dasar berasal dari **shadcn/ui** di `frontend/src/components/ui/`
 
 | Varian | Tampilan | Kapan |
 | --- | --- | --- |
-| `primary` | Latar `daun-600`, teks putih semibold | **Satu per layar**: aksi yang menyelesaikan tugas ("Lanjut", "Simpan kunjungan") |
-| `secondary` | Latar putih, garis `tanah-300`, teks `tanah-900` | Aksi alternatif ("Sebagian…", "Cetak") |
-| `ghost` | Tanpa latar, teks `daun-700` | Aksi kecil ("Perbaiki", "Riwayat") |
+| `primary` | Latar `leaf-600`, teks putih semibold | **Satu per layar**: aksi yang menyelesaikan tugas ("Lanjut", "Simpan kunjungan") |
+| `secondary` | Latar putih, garis `earth-300`, teks `earth-900` | Aksi alternatif ("Sebagian…", "Cetak") |
+| `ghost` | Tanpa latar, teks `leaf-700` | Aksi kecil ("Perbaiki", "Riwayat") |
 | `danger` | Latar `#b91c1c`, teks putih | Hanya di dialog konfirmasi hapus/batalkan |
 | `danger-outline` | Garis dan teks merah | Tombol pemicu hapus/batalkan sebelum dialog |
 
 Ukuran: HP tinggi 48 px (utama menempel 56 px); desktop 40 px. Label tombol = **kata kerja + objek** ("Simpan kunjungan", bukan "OK"). Saat proses: tombol nonaktif + spinner kecil + label tetap, cegah ketuk dua kali.
 
-### 7.2 Stepper angka (`StepperAngka`)
+### 7.2 Stepper angka (`NumberStepper`)
 
 Komponen terpenting untuk sales (M2, M5, opname).
 
@@ -182,7 +182,7 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 
 - Angka `text-2xl` semibold, `tabular-nums`, minimal lebar 3 digit.
 - Batas bawah 0; tombol − nonaktif di 0. Batas atas boleh dilewati hanya bila aturan mengizinkan; bila melewati (mis. sisa > titipan), kotak bergaris merah + pesan di bawahnya: "Sisa lebih dari titipan (14). Hitung ulang?"
-- Angka yang **sudah diubah** dari nilai awal diberi latar `daun-50` dan titik kecil, supaya sales tahu baris mana yang ia sentuh.
+- Angka yang **sudah diubah** dari nilai awal diberi latar `leaf-50` dan titik kecil, supaya sales tahu baris mana yang ia sentuh.
 - Perubahan diumumkan ke pembaca layar (`aria-live="polite"`) beserta hitungan turunannya ("Laku 2").
 
 ### 7.3 Kartu dan daftar
@@ -191,12 +191,12 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 - Urutan informasi: **nama → status yang perlu ditindak → keterangan**.
 - Maksimal 3 baris informasi per kartu di HP. Sisanya di halaman detail.
 
-### 7.4 Tabel admin (`TabelData`)
+### 7.4 Tabel admin (`DataTable`)
 
 - Dibangun dengan TanStack Table, satu komponen untuk desktop (tabel) dan HP (kartu) — PW-04.
 - Wajib: kolom cari, filter, urut per kolom, jumlah baris, ekspor Excel (UX-10). Header lengket saat digulir.
 - Angka dan uang **rata kanan**, teks rata kiri, status di tengah-kiri sebagai chip.
-- Tinggi baris 48 px (normal) atau 40 px (rapat, bisa dipilih). Garis antar-baris `tanah-200`, tanpa garis vertikal; zebra tidak dipakai.
+- Tinggi baris 48 px (normal) atau 40 px (rapat, bisa dipilih). Garis antar-baris `earth-200`, tanpa garis vertikal; zebra tidak dipakai.
 - Susunan kolom laporan mengikuti file Excel mitra yang sekarang agar admin "tetap merasa di Excel".
 
 ### 7.5 Form
@@ -266,7 +266,7 @@ Jangan memakai dialog untuk konfirmasi hal yang bisa diperbaiki; lebih baik simp
 | Data | Format | Contoh | Kode |
 | --- | --- | --- | --- |
 | Uang | `Rp` + spasi + titik ribuan, tanpa desimal | Rp 196.560 | `Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0})` |
-| Uang ringkas (KPI) | jt / rb | Rp 12,4 jt | helper `formatRupiahRingkas` |
+| Uang ringkas (KPI) | jt / rb | Rp 12,4 jt | helper `formatCurrencyCompact` |
 | Angka | Titik ribuan | 1.240 | `Intl.NumberFormat('id-ID')` |
 | Persen | Tanpa desimal kecuali < 10 | 62% · 4,5% | — |
 | Tanggal | Tanggal + bulan singkat (+ tahun bila bukan tahun ini) | 16 Nov · 3 Mar 2027 | date-fns locale `id` |
@@ -281,7 +281,7 @@ Jangan memakai dialog untuk konfirmasi hal yang bisa diperbaiki; lebih baik simp
 Target minimum **WCAG 2.1 AA** untuk semua layar; layar sales di mode kontras tinggi mencapai **AAA (7:1)**.
 
 - Kontras teks ≥ 4,5:1 (teks besar ≥ 3:1); batas komponen (input, tombol sekunder) ≥ 3:1.
-- Fokus keyboard selalu terlihat: ring 2 px `daun-600` dengan jarak 2 px. Jangan pernah `outline: none` tanpa pengganti.
+- Fokus keyboard selalu terlihat: ring 2 px `leaf-600` dengan jarak 2 px. Jangan pernah `outline: none` tanpa pengganti.
 - Semua fungsi desktop bisa dijalankan dengan keyboard; urutan Tab mengikuti urutan baca.
 - Setiap input punya `<label>`; setiap ikon tanpa teks punya `aria-label`.
 - Hitungan yang berubah otomatis memakai `aria-live="polite"`.
@@ -320,33 +320,33 @@ Salinan dari `frontend/src/styles/tokens.css` (17 Nov 2026). File tersebut diimp
 @import "./tokens.css";
 ```
 
-Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mis. `bg-primary`, `text-muted-foreground`, `bg-danger-soft`, `text-daun-800`).
+Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mis. `bg-primary`, `text-muted-foreground`, `bg-danger-soft`, `text-leaf-800`).
 
 ```css
 /* Token desain SIGAP — aturan pemakaian: docs/pengembangan/07_Pedoman_UI_UX.md */
 
 @theme {
   /* --- Palet merek: hijau daun --- */
-  --color-daun-50: #f0fdf4;
-  --color-daun-100: #dcfce7;
-  --color-daun-200: #bbf7d0;
-  --color-daun-500: #22c55e; /* grafik & ikon besar saja, bukan teks */
-  --color-daun-600: #15803d; /* primary — 5,0:1 thd putih */
-  --color-daun-700: #166534; /* primary ditekan / kontras tinggi — 7,1:1 */
-  --color-daun-800: #14532d;
+  --color-leaf-50: #f0fdf4;
+  --color-leaf-100: #dcfce7;
+  --color-leaf-200: #bbf7d0;
+  --color-leaf-500: #22c55e; /* grafik & ikon besar saja, bukan teks */
+  --color-leaf-600: #15803d; /* primary — 5,0:1 thd putih */
+  --color-leaf-700: #166534; /* primary ditekan / kontras tinggi — 7,1:1 */
+  --color-leaf-800: #14532d;
 
   /* --- Aksen merek: madu (logo & layar masuk saja, bukan UI kerja) --- */
-  --color-madu-400: #fbbf24;
-  --color-madu-700: #b45309;
+  --color-honey-400: #fbbf24;
+  --color-honey-700: #b45309;
 
   /* --- Netral hangat --- */
-  --color-tanah-50: #fafaf9;
-  --color-tanah-100: #f5f5f4;
-  --color-tanah-200: #e7e5e4;
-  --color-tanah-300: #d6d3d1;
-  --color-tanah-500: #78716c; /* garis input — 4,8:1 */
-  --color-tanah-600: #57534e; /* teks sekunder — 7,6:1 */
-  --color-tanah-900: #1c1917; /* teks utama — 16,7:1 */
+  --color-earth-50: #fafaf9;
+  --color-earth-100: #f5f5f4;
+  --color-earth-200: #e7e5e4;
+  --color-earth-300: #d6d3d1;
+  --color-earth-500: #78716c; /* garis input — 4,8:1 */
+  --color-earth-600: #57534e; /* teks sekunder — 7,6:1 */
+  --color-earth-900: #1c1917; /* teks utama — 16,7:1 */
 
   /* --- Huruf --- */
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -357,36 +357,36 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --radius-lg: 14px;
 
   /* --- Gerak --- */
-  --ease-masuk: cubic-bezier(0, 0, 0.2, 1);
-  --ease-keluar: cubic-bezier(0.4, 0, 1, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
 /* Variabel semantik (format shadcn/ui). Komponen membaca ini, bukan palet mentah. */
 :root {
   --radius: 10px;
 
-  --background: var(--color-tanah-50);
-  --foreground: var(--color-tanah-900);
+  --background: var(--color-earth-50);
+  --foreground: var(--color-earth-900);
   --card: #ffffff;
-  --card-foreground: var(--color-tanah-900);
+  --card-foreground: var(--color-earth-900);
   --popover: #ffffff;
-  --popover-foreground: var(--color-tanah-900);
+  --popover-foreground: var(--color-earth-900);
 
-  --primary: var(--color-daun-600);
+  --primary: var(--color-leaf-600);
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
-  --secondary-foreground: var(--color-tanah-900);
-  --muted: var(--color-tanah-100);
-  --muted-foreground: var(--color-tanah-600);
-  --accent: var(--color-daun-50);
-  --accent-foreground: var(--color-daun-800);
+  --secondary-foreground: var(--color-earth-900);
+  --muted: var(--color-earth-100);
+  --muted-foreground: var(--color-earth-600);
+  --accent: var(--color-leaf-50);
+  --accent-foreground: var(--color-leaf-800);
 
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: var(--color-tanah-300);
-  --input: var(--color-tanah-500);
-  --ring: var(--color-daun-600);
+  --border: var(--color-earth-300);
+  --input: var(--color-earth-500);
+  --ring: var(--color-leaf-600);
 
   /* Status: lembut (latar chip/banner), teks (di atas latar lembut), tegas (ikon/tombol) */
   --danger: #b91c1c;
@@ -408,23 +408,23 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --chart-3: #7c3aed;
   --chart-4: #0e7490;
   --chart-5: #be185d;
-  --chart-target: var(--color-tanah-500);
+  --chart-target: var(--color-earth-500);
 }
 
 /* Mode kontras tinggi (UX-08): <html data-contrast="high"> — semua teks ≥ 7:1 */
 :root[data-contrast="high"] {
   --background: #ffffff;
-  --primary: var(--color-daun-700);
-  --muted-foreground: var(--color-tanah-900);
-  --border: var(--color-tanah-600);
-  --input: var(--color-tanah-900);
-  --ring: var(--color-daun-700);
+  --primary: var(--color-leaf-700);
+  --muted-foreground: var(--color-earth-900);
+  --border: var(--color-earth-600);
+  --input: var(--color-earth-900);
+  --ring: var(--color-leaf-700);
   --warning-text: #78350f;
 }
 
-/* Ukuran huruf pilihan pengguna (UX-08): <html data-ukuran="besar|sangat-besar"> */
-:root[data-ukuran="besar"] { font-size: 112.5%; }
-:root[data-ukuran="sangat-besar"] { font-size: 125%; }
+/* Ukuran huruf pilihan pengguna (UX-08): <html data-font-size="large|x-large"> */
+:root[data-font-size="large"] { font-size: 112.5%; }
+:root[data-font-size="x-large"] { font-size: 125%; }
 
 /* Petakan variabel semantik ke kelas Tailwind (bg-primary, text-danger-text, dst.) */
 @theme inline {

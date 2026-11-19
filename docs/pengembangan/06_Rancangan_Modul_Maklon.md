@@ -138,6 +138,7 @@ Setiap perpindahan status tercatat di `riwayat_status` (siapa, kapan, dari–ke,
 
 ```mermaid
 erDiagram
+  %% Nama konsep. Nama tabel di kode memakai prefix mfg_ (dokumen 10 §5.10)
   KLIEN ||--o{ ORDER_MAKLON : "mengajukan"
   ORDER_MAKLON ||--o{ SAMPEL : "punya"
   ORDER_MAKLON ||--o| PERIZINAN : "punya"

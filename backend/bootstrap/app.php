@@ -15,6 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // PWA selalu menerima JSON dari /api, termasuk saat galat
+        // The PWA always receives JSON from /api, errors included
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*'));
     })->create();

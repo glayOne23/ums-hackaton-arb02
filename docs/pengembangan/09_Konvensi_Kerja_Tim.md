@@ -28,9 +28,9 @@ Format: `<jenis>/<modul>-<ringkasan-pendek>`, huruf kecil, dipisah tanda hubung.
 
 | Jenis | Untuk | Contoh |
 | --- | --- | --- |
-| `fitur/` | Fitur baru | `fitur/kunjungan-simpan-offline` |
-| `perbaikan/` | Memperbaiki bug | `perbaikan/tagihan-pembulatan-potongan` |
-| `rapikan/` | Refactor tanpa ubah perilaku | `rapikan/gudang-action-mutasi` |
+| `fitur/` | Fitur baru | `fitur/sales-simpan-offline` |
+| `perbaikan/` | Memperbaiki bug | `perbaikan/billing-pembulatan-potongan` |
+| `rapikan/` | Refactor tanpa ubah perilaku | `rapikan/inventory-action-mutasi` |
 | `dok/` | Dokumen saja | `dok/pedoman-ui-stepper` |
 | `infra/` | CI, konfigurasi, dependensi | `infra/ci-github-actions` |
 
@@ -59,14 +59,14 @@ Memakai format **Conventional Commits**, dengan deskripsi berbahasa Indonesia, k
 Contoh yang baik:
 
 ```text
-feat(kunjungan): hitung laku dan saran isi ulang saat sisa diubah
+feat(sales): hitung laku dan saran isi ulang saat sisa diubah
 
 Mengikuti SDD §4.1 langkah 3–6. Kebutuhan: KS-03, KS-05.
 ```
 
 Hindari pesan seperti `update`, `fix bug`, `wip`, atau `perubahan`. Pesan commit adalah catatan untuk anggota tim berikutnya (dan juri) tentang **apa** dan **kenapa**.
 
-Nama `<modul>` sama dengan modul di [08_Struktur_Folder](08_Struktur_Folder.md): `outlet`, `produk`, `gudang`, `kunjungan`, `tagihan`, `laporan`, `pengaturan`, `akses`, `maklon`, ditambah `core`, `ui`, `offline`, `api`, `infra`, `docs`.
+Nama `<modul>` sama dengan modul di [08_Struktur_Folder](08_Struktur_Folder.md) dan [10_Arsitektur_Basis_Data](10_Arsitektur_Basis_Data.md) §2: `auth`, `setting`, `outlet`, `product`, `inventory`, `sales`, `billing`, `report`, `manufacturing`, ditambah `core`, `ui`, `offline`, `api`, `infra`, `docs`. Deskripsi commit tetap berbahasa Indonesia; kodenya berbahasa Inggris.
 
 ## 4. Pull Request
 
@@ -117,6 +117,7 @@ Sebuah tugas dianggap selesai bila:
 
 - [ ] Perilaku sesuai kebutuhan SRS/wireframe yang dirujuk; aturan angka dibaca dari Pengaturan, tidak ditulis mati
 - [ ] Logika bisnis ada di Action dan punya tes (Pest) untuk kasus normal + minimal satu kasus batas
+- [ ] Kode berbahasa Inggris, teks tampilan berbahasa Indonesia; tabel baru memakai prefix dan aturan nama di [10_Arsitektur_Basis_Data](10_Arsitektur_Basis_Data.md)
 - [ ] Endpoint dicek izinnya di server (bukan hanya disembunyikan di tampilan)
 - [ ] Tampilan mengikuti [07_Pedoman_UI_UX](07_Pedoman_UI_UX.md) §12 (daftar periksa UI)
 - [ ] Layar sales tetap jalan tanpa sinyal bila termasuk pekerjaan lapangan (PW-05)

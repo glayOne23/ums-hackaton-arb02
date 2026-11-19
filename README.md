@@ -90,6 +90,7 @@ Semua rancangan ada di [`docs/pengembangan/`](docs/pengembangan/). Baca sesuai k
 | 07 | [Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md) | **Wajib untuk frontend:** warna, huruf, komponen, bahasa, token CSS |
 | 08 | [Struktur Folder](docs/pengembangan/08_Struktur_Folder.md) | **Wajib untuk semua developer:** susunan kode per modul |
 | 09 | [Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md) | **Wajib untuk semua developer:** branch, commit, Pull Request, definisi selesai |
+| 10 | [Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md) | **Wajib untuk backend:** prefix tabel per kelompok, aturan nama, katalog tabel, glosarium istilah → kode |
 
 Bahan pendukung ada di [`docs/referensi/`](docs/referensi/) (profil mitra, proposal, review Figma). Keputusan teknis baru dicatat di [`docs/adr/`](docs/adr/).
 
@@ -101,7 +102,7 @@ ums-hackaton-arb02/
 ├── backend/        API Laravel 13 — modul per domain di app/Modules
 ├── frontend/       PWA React 19 — fitur per domain di src/features
 └── docs/
-    ├── pengembangan/   Dokumen rancangan 01–09 (sumber kebenaran)
+    ├── pengembangan/   Dokumen rancangan 01–10 (sumber kebenaran)
     ├── referensi/      Bahan dari repo tim
     └── adr/            Catatan keputusan arsitektur
 ```
@@ -135,7 +136,7 @@ npm run dev
 | `sales1` | 081100000004 | Sales | Area lapangan (HP) |
 | `sales2` | 081100000005 | Sales | Area lapangan (HP) |
 
-Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), dan [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md).
+Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md), dan [10 · Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md). Singkatnya: **kode dan nama tabel berbahasa Inggris, tampilan berbahasa Indonesia**, dan tabel satu kelompok memakai prefix yang sama (`auth_`, `crm_`, `inv_`, `sls_`, …).
 
 ## 📅 Jadwal
 
