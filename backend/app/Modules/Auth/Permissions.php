@@ -16,6 +16,7 @@ final class Permissions
         'dashboard.view' => 'Lihat ringkasan',
         'report.view' => 'Lihat laporan',
         'outlet.view' => 'Lihat outlet',
+        'outlet.view_all' => 'Lihat semua outlet (bukan hanya outlet tugas sendiri)',
         'outlet.manage' => 'Tambah/ubah outlet & penugasan',
         'outlet.propose' => 'Usulkan outlet baru',
         'product.view' => 'Lihat produk & harga',
