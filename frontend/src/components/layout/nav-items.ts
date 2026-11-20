@@ -1,8 +1,8 @@
-import { LayoutDashboard, type LucideIcon, Package, Percent, Store, Warehouse } from 'lucide-react'
+import { ClipboardList, LayoutDashboard, type LucideIcon, Package, Percent, Store, Warehouse } from 'lucide-react'
 import { useSession } from '@/stores/session'
 
 export interface NavItem {
-  to: '/office' | '/office/outlets' | '/office/products' | '/office/discounts' | '/office/inventory'
+  to: '/office' | '/office/outlets' | '/office/visits' | '/office/products' | '/office/discounts' | '/office/inventory'
   label: string
   icon: LucideIcon
   /** Shown when the user has any of these permissions */
@@ -15,6 +15,7 @@ export interface NavItem {
 const ITEMS: NavItem[] = [
   { to: '/office', label: 'Ringkasan', icon: LayoutDashboard, permissions: ['dashboard.view'], exact: true },
   { to: '/office/outlets', label: 'Outlet', icon: Store, permissions: ['outlet.view'] },
+  { to: '/office/visits', label: 'Kunjungan', icon: ClipboardList, permissions: ['visit.view'] },
   { to: '/office/products', label: 'Produk', icon: Package, permissions: ['product.view'] },
   { to: '/office/discounts', label: 'Potongan', icon: Percent, permissions: ['product.view'] },
   { to: '/office/inventory', label: 'Gudang', icon: Warehouse, permissions: ['inventory.view', 'stock_request.view'] },

@@ -50,7 +50,7 @@ test('the warehouse records goods in with batch and expiry (P1)', async () => {
 })
 
 test('a sales asks for goods from the phone, numbers only (P2)', async () => {
-  await sales.getByRole('link', { name: 'Hari ini' }).click()
+  await sales.getByRole('link', { name: 'Hari ini', exact: true }).click()
   await sales.getByRole('link', { name: 'Minta barang ke gudang' }).click()
   await sales.getByLabel('Cari produk').fill('Jahe')
   const plus = sales.getByRole('button', { name: `Tambah Minta ${PRODUCT}` })
