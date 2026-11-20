@@ -1,0 +1,123 @@
+/** Shapes of the Sales API (backend: App\Modules\Sales). */
+
+export type SaleModeValue = 'consignment' | 'cash' | 'credit'
+export type TransactionTypeValue = 'consignment_visit' | 'direct_sale'
+export type PaymentMethodValue = 'cash' | 'transfer'
+
+export interface ProductStock {
+  product_id: string
+  qty: number
+  near_expiry_qty: number
+  nearest_expiry: string
+}
+
+export interface OutletPrice {
+  selling_price: number
+  discount_percent: number
+  /** After discount */
+  price: number
+}
+
+export interface PackageOutlet {
+  id: string
+  code: string
+  name: string
+  outlet_type: string | null
+  region: string | null
+  district: string
+  address: string | null
+  whatsapp_number: string | null
+  sale_mode: { value: SaleModeValue; label: string }
+  visit_cycle_days: number
+  last_visit_at: string | null
+  unpaid: number
+  stock: ProductStock[]
+  prices: Record<string, OutletPrice>
+}
+
+export interface PackageSettings {
+  billing_threshold: number
+  billing_threshold_unit: 'unit' | 'product'
+  expiry_withdrawal_months: number
+  visit_cycle_days: number
+  credit_term_days: number
+  form_photo_required: boolean
+}
+
+/** Everything the phone needs for a day in the field (GET /sales/work-package). */
+export interface WorkPackage {
+  generated_at: string
+  today: { date: string; visited_outlet_ids: string[]; cash: number; transfer: number }
+  settings: PackageSettings
+  products: { id: string; code: string; name: string; unit: string }[]
+  carried: ProductStock[]
+  outlets: PackageOutlet[]
+}
+
+export interface TransactionItemInput {
+  product_id: string
+  opening_qty?: number
+  remaining_qty?: number
+  withdrawn_qty?: number
+  refill_qty?: number
+  sold_qty?: number
+}
+
+/** What the phone sends (POST /sales/transactions). */
+export interface TransactionInput {
+  client_uuid: string
+  type: TransactionTypeValue
+  outlet_id: string
+  transacted_at: string
+  items: TransactionItemInput[]
+  payment: { amount: number; method: PaymentMethodValue }
+}
+
+export interface TransactionItem {
+  id: string
+  product_id: string
+  product_name: string
+  opening_qty: number | null
+  remaining_qty: number | null
+  sold_qty: number
+  withdrawn_qty: number
+  refill_qty: number
+  closing_qty: number | null
+  unit_price: number
+  discount_percent: number
+  line_total: number
+}
+
+/** A saved nota (TransactionResource). */
+export interface Transaction {
+  id: string
+  client_uuid: string
+  number: string
+  type: { value: TransactionTypeValue; label: string }
+  status: { value: 'active' | 'corrected' | 'void'; label: string }
+  outlet?: { id: string; code: string; name: string; whatsapp_number: string | null }
+  sales?: { id: number; name: string }
+  transacted_at: string
+  subtotal: number
+  discount_total: number
+  total: number
+  sold_qty?: number
+  needs_review: boolean
+  review_notes: string[]
+  has_photo: boolean
+  items?: TransactionItem[]
+  invoice?: {
+    number: string
+    amount: number
+    paid_amount: number
+    due_date: string
+    status: { value: 'unpaid' | 'partial' | 'paid' | 'void'; label: string }
+  } | null
+  paid_now?: number
+  created_at: string
+}
+
+export interface Paginated<T> {
+  data: T[]
+  meta: { current_page: number; last_page: number; per_page: number; total: number }
+}

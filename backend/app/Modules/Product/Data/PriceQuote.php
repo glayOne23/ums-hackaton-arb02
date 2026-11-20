@@ -2,6 +2,7 @@
 
 namespace App\Modules\Product\Data;
 
+use App\Core\Support\Money;
 use App\Modules\Product\Models\Discount;
 use App\Modules\Product\Models\Product;
 
@@ -24,8 +25,8 @@ final readonly class PriceQuote
 
     public static function make(Product $product, ?Discount $discount): self
     {
-        $selling = self::toCents((string) $product->selling_price);
-        $basisPoints = $discount ? self::toCents((string) $discount->discount_percent) : 0;
+        $selling = Money::toCents((string) $product->selling_price);
+        $basisPoints = $discount ? Money::toCents((string) $discount->discount_percent) : 0;
 
         // net = selling × (10000 − bp) / 10000, rounded half up
         $net = intdiv($selling * (10_000 - $basisPoints) + 5_000, 10_000);
@@ -46,13 +47,5 @@ final readonly class PriceQuote
     public function netPrice(): float
     {
         return $this->netPriceCents / 100;
-    }
-
-    /** "60000.00" → 6000000; "16.5" → 1650 */
-    private static function toCents(string $decimal): int
-    {
-        [$whole, $fraction] = array_pad(explode('.', $decimal, 2), 2, '0');
-
-        return ((int) $whole) * 100 + (int) str_pad(substr($fraction, 0, 2), 2, '0');
     }
 }

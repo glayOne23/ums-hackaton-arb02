@@ -161,8 +161,8 @@ Mutasi stok hanya dibuat lewat satu Action, `App\Modules\Inventory\Actions\Recor
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `sls_transactions` | `transaksi` | `client_uuid` (unik, dari HP untuk kirim ulang tanpa dobel), `number`, `type` (`consignment_visit`, `direct_sale`), `outlet_id`, `sales_user_id`, `transacted_at`, `subtotal`, `discount_total`, `total`, `form_photo_path`, `status` (`active`, `corrected`, `void`), `corrects_id` (transaksi yang dikoreksi), `voided_by`, `voided_at`, `void_reason`, `needs_review`, `client_payload` (salinan data HP saat konflik), `import_batch_id` | MVP |
-| `sls_transaction_items` | `transaksi_detail` | `transaction_id`, `product_id`, `product_name`, `opening_qty`, `remaining_qty`, `sold_qty`, `withdrawn_qty`, `refill_qty`, `closing_qty`, `unit_price`, `discount_percent`, `line_total` | MVP |
+| `sls_transactions` | `transaksi` | `client_uuid` (unik, dari HP untuk kirim ulang tanpa dobel), `number` (`NT-yymm-0001`), `type` (`consignment_visit`, `direct_sale`), `outlet_id`, `sales_user_id`, `transacted_at` (jam di HP), `subtotal`, `discount_total`, `total`, `form_photo_path` (disk privat, dilihat lewat API), `status` (`active`, `corrected`, `void`), `corrects_id`, `voided_by`, `voided_at`, `void_reason`, `needs_review`, `review_notes` (alasan "Perlu dicek"), `client_payload` (salinan data HP saat konflik), `import_batch_id`. Dicatat lewat `Sales\Actions\RecordTransaction`: server menghitung ulang semua angka; angka HP yang usang tidak ditolak, tetapi dicatat sebisanya dan ditandai `needs_review`. Outlet/produk yang punya transaksi tidak bisa dihapus (`Sales\Usage\*`) | ada |
+| `sls_transaction_items` | `transaksi_detail` | `transaction_id`, `product_id`, `product_name`, `opening_qty`, `remaining_qty`, `sold_qty`, `withdrawn_qty`, `refill_qty`, `closing_qty`, `unit_price`, `discount_percent`, `line_total`. Kolom titip (`opening_qty`, `remaining_qty`, `closing_qty`) kosong untuk beli langsung | ada |
 
 Padanan kolom rekap Excel mitra (A-M-R-L-S, dokumen 04 §3.2): A = `opening_qty`, M = `refill_qty`, R = `remaining_qty`, L = `sold_qty`, S = `closing_qty`; tarik = `withdrawn_qty`.
 
@@ -170,8 +170,8 @@ Padanan kolom rekap Excel mitra (A-M-R-L-S, dokumen 04 §3.2): A = `opening_qty`
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `bil_invoices` | `tagihan` | `number`, `type` (`sales`; nanti `mfg_sample`, `mfg_license_dp`, …), `transaction_id` (unik, boleh kosong), `outlet_id`, `amount`, `paid_amount`, `due_date`, `status` (`unpaid`, `partial`, `paid`, `void`) | MVP |
-| `bil_payments` | `pembayaran` | `client_uuid` (unik), `invoice_id`, `amount`, `method` (`cash`, `transfer`), `paid_at`, `received_by`, `remittance_id`, `status` (`valid`, `void`) | MVP |
+| `bil_invoices` | `tagihan` | `number` (`TG-yymm-0001`), `type` (`sales`; nanti `mfg_sample`, `mfg_license_dp`, …), `transaction_id` (unik, boleh kosong), `outlet_id`, `sales_user_id` (BR-08), `invoice_date`, `amount`, `paid_amount`, `due_date` (beli langsung/titip: hari transaksi; tempo: + `credit_term_days`), `status` (`unpaid`, `partial`, `paid`, `void`). Dibuat lewat `Billing\Actions\CreateSalesInvoice` saat ada yang laku | ada |
+| `bil_payments` | `pembayaran` | `client_uuid` (unik, boleh kosong: untuk pembayaran terpisah dari HP), `invoice_id`, `transaction_id` (kunjungan tempat uang diterima), `amount`, `method` (`cash`, `transfer`), `paid_at`, `received_by`, `remittance_id`, `status` (`valid`, `void`). Uang dibagi ke tagihan outlet yang belum lunas, terlama dulu (`Billing\Actions\ApplyOutletPayment`) | ada |
 | `bil_remittances` | `setoran` | `sales_user_id`, `remittance_date`, `amount`, `received_by`, `received_at`, `status` | MVP |
 
 ### 5.10 `mfg_` — maklon (fase 4)

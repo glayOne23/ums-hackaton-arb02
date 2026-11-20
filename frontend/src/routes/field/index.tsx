@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { MyOutletList } from '@/features/outlet/components/MyOutletList'
+import { FieldOutletList } from '@/features/sales/components/FieldOutletList'
 
-// M1 Outlet saya — outlets assigned to this sales
+// M1 Outlet saya — assigned outlets, longest since the last visit first
 export const Route = createFileRoute('/field/')({
-  component: MyOutletList,
+  component: FieldOutletList,
 })

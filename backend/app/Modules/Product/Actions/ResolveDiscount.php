@@ -24,14 +24,7 @@ final class ResolveDiscount
     /** Price for one product at one outlet. */
     public function forOutlet(Product $product, Outlet $outlet, ?CarbonInterface $date = null): PriceQuote
     {
-        $discount = self::pick(
-            $this->candidates($date),
-            $product->id,
-            $outlet->outlet_type_id,
-            $outlet->id,
-        );
-
-        return PriceQuote::make($product, $discount);
+        return self::quote($product, $outlet, $this->candidates($date));
     }
 
     /**
@@ -48,6 +41,25 @@ final class ResolveDiscount
         return collect($products)->map(
             fn (Product $product) => PriceQuote::make($product, self::pick($candidates, $product->id, $outletTypeId, null)),
         )->values();
+    }
+
+    /**
+     * Prices for many outlets and products with one query: load the discounts
+     * once with candidatesOn(), then quote() each pair (Sales work package).
+     *
+     * @return Collection<int, Discount>
+     */
+    public function candidatesOn(?CarbonInterface $date = null): Collection
+    {
+        return $this->candidates($date);
+    }
+
+    /**
+     * @param  Collection<int, Discount>  $candidates  from candidatesOn()
+     */
+    public static function quote(Product $product, Outlet $outlet, Collection $candidates): PriceQuote
+    {
+        return PriceQuote::make($product, self::pick($candidates, $product->id, $outlet->outlet_type_id, $outlet->id));
     }
 
     /**

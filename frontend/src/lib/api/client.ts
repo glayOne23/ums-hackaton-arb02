@@ -34,7 +34,8 @@ interface Options {
 export async function api<T>(path: string, { method = 'GET', body, signal }: Options = {}): Promise<T> {
   const token = useSession.getState().token
   const headers: Record<string, string> = { Accept: 'application/json' }
-  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  const isForm = body instanceof FormData
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
   if (token) headers.Authorization = `Bearer ${token}`
 
   let response: Response
@@ -42,7 +43,7 @@ export async function api<T>(path: string, { method = 'GET', body, signal }: Opt
     response = await fetch(`${BASE_URL}${path}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       signal,
     })
   } catch {
@@ -50,15 +51,33 @@ export async function api<T>(path: string, { method = 'GET', body, signal }: Opt
   }
 
   if (response.status === 204) return undefined as T
+  if (!response.ok) return rejectWith(response, token)
 
-  const data = await response.json().catch(() => null)
+  return (await response.json().catch(() => null)) as T
+}
 
-  if (!response.ok) {
-    if (response.status === 401 && token) useSession.getState().clear()
-    throw new ApiError(response.status, errorMessage(response.status, data), data?.errors ?? {})
+/** A file from the API (e.g. a form photo) as an object URL; revoke it when done. */
+export async function apiBlobUrl(path: string, signal?: AbortSignal): Promise<string> {
+  const token = useSession.getState().token
+  let response: Response
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      headers: token
+        ? { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+        : { Accept: 'application/json' },
+      signal,
+    })
+  } catch {
+    throw new ApiError(0, 'Tidak ada sinyal. Coba lagi saat sinyal kembali.')
   }
+  if (!response.ok) return rejectWith(response, token)
+  return URL.createObjectURL(await response.blob())
+}
 
-  return data as T
+async function rejectWith(response: Response, token: string | null): Promise<never> {
+  const data = await response.json().catch(() => null)
+  if (response.status === 401 && token) useSession.getState().clear()
+  throw new ApiError(response.status, errorMessage(response.status, data), data?.errors ?? {})
 }
 
 function errorMessage(status: number, data: { message?: string; errors?: Record<string, string[]> } | null): string {
