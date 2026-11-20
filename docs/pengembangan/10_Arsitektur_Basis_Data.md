@@ -104,7 +104,7 @@ Kolom **Status**: **ada** = sudah ada migrasinya; **MVP** = dibuat untuk purwaru
 | `auth_model_has_roles`, `auth_model_has_permissions`, `auth_role_has_permissions` | Tabel penghubung spatie | ada |
 | `auth_password_reset_tokens`, `auth_sessions` | Bawaan Laravel | ada |
 
-Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approve`. Daftar lengkap beserta label Indonesianya ada di `App\Modules\Auth\Permissions`. Nama peran: `manager` (Pimpinan), `office_admin` (Admin Kantor), `warehouse_admin` (Admin Gudang), `sales` (Sales), dengan label di `App\Modules\Auth\Roles::LABELS`.
+Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approve`. Daftar lengkap beserta label Indonesianya ada di `App\Modules\Auth\Permissions`. Izin `outlet.view_all` membedakan siapa yang melihat semua outlet (Pimpinan, Admin Kantor) dan siapa yang hanya melihat outlet tugasnya (Sales); jangan membedakannya dengan nama peran. Nama peran: `manager` (Pimpinan), `office_admin` (Admin Kantor), `warehouse_admin` (Admin Gudang), `sales` (Sales), dengan label di `App\Modules\Auth\Roles::LABELS`.
 
 ### 5.3 `core_` — mekanisme lintas modul
 
@@ -127,10 +127,10 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `crm_regions` | `wilayah` (kabupaten/kota) | `name`, `is_active` | MVP |
-| `crm_outlet_types` | `jenis_outlet` | `name`, `is_active` | MVP |
-| `crm_outlets` | `outlet` | `code`, `name`, `outlet_type_id`, `region_id`, `district` (kecamatan), `address`, `whatsapp_number`, `sale_mode` (`consignment`, `cash`, `credit`), `visit_cycle_days` (kosong = ikut pengaturan), `is_active`, `merged_into_id`, `custom_fields`, `deleted_at` | MVP |
-| `crm_assignments` | `penugasan` | `outlet_id`, `sales_user_id`, `start_date`, `end_date` (kosong = masih aktif) | MVP |
+| `crm_regions` | `wilayah` (kabupaten/kota) | `name` (unik), `is_active`. Isi awal 7 kabupaten/kota dari `OutletReferenceSeeder` | ada |
+| `crm_outlet_types` | `jenis_outlet` | `name` (unik), `is_active`. Isi awal 9 jenis dari `OutletReferenceSeeder` | ada |
+| `crm_outlets` | `outlet` | `code`, `name`, `outlet_type_id`, `region_id`, `district` (kecamatan), `address`, `whatsapp_number`, `sale_mode` (`consignment`, `cash`, `credit`), `visit_cycle_days` (kosong = ikut pengaturan), `is_active`, `merged_into_id`, `custom_fields`, `created_by`, `updated_by`, `deleted_at`, `deleted_by`. `code` dibuat otomatis `OT-0001`, tidak pernah dipakai ulang; `whatsapp_number` disimpan berawalan `0`. Hapus = pindah ke tempat sampah (bisa dipulihkan); ditolak bila modul lain masih memakai outlet (`Outlet\Contracts\OutletUsage`) | ada |
+| `crm_assignments` | `penugasan` | `outlet_id`, `sales_user_id`, `start_date`, `end_date` (kosong = masih aktif), `reason` (alasan penugasan/pindah; wajib saat outlet pindah dari sales), `created_by`. Baris tidak pernah dihapus | ada |
 | `crm_outlet_stock_targets` | `stok_standar` | `outlet_id`, `product_id`, `target_qty`; unik (`outlet_id`, `product_id`) | MVP |
 
 ### 5.6 `prd_` — produk

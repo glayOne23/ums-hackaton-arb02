@@ -10,20 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OfficeRouteRouteImport } from './routes/office/route'
 import { Route as FieldRouteRouteImport } from './routes/field/route'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as OfficeRouteRouteImport } from './routes/office/route'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
+import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as OfficeOutletsIndexRouteImport } from './routes/office/outlets/index'
+import { Route as OfficeOutletsNewRouteImport } from './routes/office/outlets/new'
+import { Route as OfficeOutletsOutletIdIndexRouteImport } from './routes/office/outlets/$outletId/index'
+import { Route as OfficeOutletsOutletIdEditRouteImport } from './routes/office/outlets/$outletId/edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OfficeRouteRoute = OfficeRouteRouteImport.update({
-  id: '/office',
-  path: '/office',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FieldRouteRoute = FieldRouteRouteImport.update({
@@ -36,60 +35,120 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OfficeIndexRoute = OfficeIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => OfficeRouteRoute,
+const OfficeRouteRoute = OfficeRouteRouteImport.update({
+  id: '/office',
+  path: '/office',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const FieldIndexRoute = FieldIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FieldRouteRoute,
 } as any)
+const OfficeIndexRoute = OfficeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeOutletsIndexRoute = OfficeOutletsIndexRouteImport.update({
+  id: '/outlets/',
+  path: '/outlets/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeOutletsNewRoute = OfficeOutletsNewRouteImport.update({
+  id: '/outlets/new',
+  path: '/outlets/new',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeOutletsOutletIdIndexRoute =
+  OfficeOutletsOutletIdIndexRouteImport.update({
+    id: '/outlets/$outletId/',
+    path: '/outlets/$outletId/',
+    getParentRoute: () => OfficeRouteRoute,
+  } as any)
+const OfficeOutletsOutletIdEditRoute =
+  OfficeOutletsOutletIdEditRouteImport.update({
+    id: '/outlets/$outletId/edit',
+    path: '/outlets/$outletId/edit',
+    getParentRoute: () => OfficeRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/office': typeof OfficeRouteRouteWithChildren
   '/field': typeof FieldRouteRouteWithChildren
+  '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/office/': typeof OfficeIndexRoute
   '/field/': typeof FieldIndexRoute
+  '/office/': typeof OfficeIndexRoute
+  '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/outlets/': typeof OfficeOutletsIndexRoute
+  '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/outlets/$outletId/': typeof OfficeOutletsOutletIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/office': typeof OfficeIndexRoute
   '/field': typeof FieldIndexRoute
+  '/office': typeof OfficeIndexRoute
+  '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/outlets': typeof OfficeOutletsIndexRoute
+  '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/outlets/$outletId': typeof OfficeOutletsOutletIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/office': typeof OfficeRouteRouteWithChildren
   '/field': typeof FieldRouteRouteWithChildren
+  '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/office/': typeof OfficeIndexRoute
   '/field/': typeof FieldIndexRoute
+  '/office/': typeof OfficeIndexRoute
+  '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/outlets/': typeof OfficeOutletsIndexRoute
+  '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/outlets/$outletId/': typeof OfficeOutletsOutletIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/office' | '/field' | '/login' | '/office/' | '/field/'
+    | '/'
+    | '/field'
+    | '/office'
+    | '/login'
+    | '/field/'
+    | '/office/'
+    | '/office/outlets/new'
+    | '/office/outlets/'
+    | '/office/outlets/$outletId/edit'
+    | '/office/outlets/$outletId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/office' | '/field'
+  to:
+    | '/'
+    | '/login'
+    | '/field'
+    | '/office'
+    | '/office/outlets/new'
+    | '/office/outlets'
+    | '/office/outlets/$outletId/edit'
+    | '/office/outlets/$outletId'
   id:
     | '__root__'
     | '/'
-    | '/office'
     | '/field'
+    | '/office'
     | '/login'
-    | '/office/'
     | '/field/'
+    | '/office/'
+    | '/office/outlets/new'
+    | '/office/outlets/'
+    | '/office/outlets/$outletId/edit'
+    | '/office/outlets/$outletId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  OfficeRouteRoute: typeof OfficeRouteRouteWithChildren
   FieldRouteRoute: typeof FieldRouteRouteWithChildren
+  OfficeRouteRoute: typeof OfficeRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -100,13 +159,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/office': {
-      id: '/office'
-      path: '/office'
-      fullPath: '/office'
-      preLoaderRoute: typeof OfficeRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/field': {
@@ -123,12 +175,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/office/': {
-      id: '/office/'
-      path: '/'
-      fullPath: '/office/'
-      preLoaderRoute: typeof OfficeIndexRouteImport
-      parentRoute: typeof OfficeRouteRoute
+    '/office': {
+      id: '/office'
+      path: '/office'
+      fullPath: '/office'
+      preLoaderRoute: typeof OfficeRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/field/': {
       id: '/field/'
@@ -137,20 +189,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FieldIndexRouteImport
       parentRoute: typeof FieldRouteRoute
     }
+    '/office/': {
+      id: '/office/'
+      path: '/'
+      fullPath: '/office/'
+      preLoaderRoute: typeof OfficeIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/outlets/': {
+      id: '/office/outlets/'
+      path: '/outlets'
+      fullPath: '/office/outlets/'
+      preLoaderRoute: typeof OfficeOutletsIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/outlets/new': {
+      id: '/office/outlets/new'
+      path: '/outlets/new'
+      fullPath: '/office/outlets/new'
+      preLoaderRoute: typeof OfficeOutletsNewRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/outlets/$outletId/': {
+      id: '/office/outlets/$outletId/'
+      path: '/outlets/$outletId'
+      fullPath: '/office/outlets/$outletId/'
+      preLoaderRoute: typeof OfficeOutletsOutletIdIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/outlets/$outletId/edit': {
+      id: '/office/outlets/$outletId/edit'
+      path: '/outlets/$outletId/edit'
+      fullPath: '/office/outlets/$outletId/edit'
+      preLoaderRoute: typeof OfficeOutletsOutletIdEditRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
   }
 }
-
-interface OfficeRouteRouteChildren {
-  OfficeIndexRoute: typeof OfficeIndexRoute
-}
-
-const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
-  OfficeIndexRoute: OfficeIndexRoute,
-}
-
-const OfficeRouteRouteWithChildren = OfficeRouteRoute._addFileChildren(
-  OfficeRouteRouteChildren,
-)
 
 interface FieldRouteRouteChildren {
   FieldIndexRoute: typeof FieldIndexRoute
@@ -164,10 +239,30 @@ const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
   FieldRouteRouteChildren,
 )
 
+interface OfficeRouteRouteChildren {
+  OfficeIndexRoute: typeof OfficeIndexRoute
+  OfficeOutletsNewRoute: typeof OfficeOutletsNewRoute
+  OfficeOutletsIndexRoute: typeof OfficeOutletsIndexRoute
+  OfficeOutletsOutletIdEditRoute: typeof OfficeOutletsOutletIdEditRoute
+  OfficeOutletsOutletIdIndexRoute: typeof OfficeOutletsOutletIdIndexRoute
+}
+
+const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
+  OfficeIndexRoute: OfficeIndexRoute,
+  OfficeOutletsNewRoute: OfficeOutletsNewRoute,
+  OfficeOutletsIndexRoute: OfficeOutletsIndexRoute,
+  OfficeOutletsOutletIdEditRoute: OfficeOutletsOutletIdEditRoute,
+  OfficeOutletsOutletIdIndexRoute: OfficeOutletsOutletIdIndexRoute,
+}
+
+const OfficeRouteRouteWithChildren = OfficeRouteRoute._addFileChildren(
+  OfficeRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  OfficeRouteRoute: OfficeRouteRouteWithChildren,
   FieldRouteRoute: FieldRouteRouteWithChildren,
+  OfficeRouteRoute: OfficeRouteRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport

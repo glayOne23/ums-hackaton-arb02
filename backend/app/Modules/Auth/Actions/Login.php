@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Actions;
 
+use App\Core\Support\PhoneNumber;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -88,18 +89,6 @@ final class Login
      */
     public static function normalizePhone(string $input): ?string
     {
-        $digits = preg_replace('/\D/', '', $input) ?? '';
-
-        if (strlen($digits) < 9 || preg_match('/[a-z]/i', $input)) {
-            return null;
-        }
-
-        if (str_starts_with($digits, '62')) {
-            $digits = '0'.substr($digits, 2);
-        } elseif (str_starts_with($digits, '8')) {
-            $digits = '0'.$digits;
-        }
-
-        return $digits;
+        return PhoneNumber::normalize($input);
     }
 }

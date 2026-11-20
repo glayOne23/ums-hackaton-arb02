@@ -2,10 +2,11 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { Leaf } from 'lucide-react'
 import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
 import { LogoutButton } from '@/components/layout/LogoutButton'
+import { OfficeBottomNav, OfficeSideNav } from '@/components/layout/OfficeNav'
 import { requireArea } from '@/features/auth/guard'
 import { useSession } from '@/stores/session'
 
-/** Office area: admin, warehouse, manager (W1–W13). Side menu comes later. */
+/** Office area: admin, warehouse, manager (W1–W13). Menu items follow the user's permissions. */
 export const Route = createFileRoute('/office')({
   beforeLoad: () => requireArea('office'),
   component: OfficeLayout,
@@ -34,9 +35,13 @@ function OfficeLayout() {
           <LogoutButton />
         </div>
       </header>
-      <main className="mx-auto w-full max-w-[1440px] flex-1 px-4 py-6 sm:px-6 lg:px-8">
-        <Outlet />
-      </main>
+      <div className="flex flex-1">
+        <OfficeSideNav />
+        <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          <Outlet />
+        </main>
+      </div>
+      <OfficeBottomNav />
     </div>
   )
 }
