@@ -126,6 +126,23 @@ npm install
 npm run dev
 ```
 
+### Pilihan: backend lewat Docker (Linux)
+
+Untuk yang tidak memasang PHP 8.5 di laptop. Folder `backend` di-mount ke container, jadi perubahan kode langsung terpakai tanpa build ulang. MySQL tetap di luar container ini: boleh MySQL di laptop, boleh container MySQL lain yang port-nya dibuka ke laptop. Frontend tetap dijalankan langsung dengan `npm run dev`. Alasannya di [ADR 0003](docs/adr/0003-opsi-docker-backend-lokal.md).
+
+```bash
+cd backend
+cp .env.example .env        # isi DB_HOST=127.0.0.1, DB_PORT (mis. 3307 bila MySQL di container), DB_*
+docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah
+docker compose run --rm app composer install
+docker compose run --rm app php artisan key:generate
+docker compose run --rm app php artisan migrate --seed
+docker compose up -d        # API di http://127.0.0.1:8000 + pekerja antrean
+docker compose logs -f app  # lihat log; perintah lain: docker compose exec app php artisan …
+```
+
+Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend tersambung ke MySQL bawaan Ubuntu, yang menolak login `root` dengan kata sandi. Arahkan `DB_PORT` ke MySQL yang dimaksud, atau buat user khusus untuk database proyek.
+
 **Akun contoh** (data fiktif, hanya dibuat di luar produksi). Kata sandi semuanya `sigap123`. Masuk bisa dengan username atau nomor HP.
 
 | Username | Nomor HP | Peran | Setelah masuk |
