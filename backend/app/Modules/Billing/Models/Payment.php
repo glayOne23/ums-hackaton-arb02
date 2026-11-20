@@ -20,8 +20,14 @@ use Illuminate\Support\Carbon;
  * @property Carbon $paid_at
  * @property int $received_by
  * @property PaymentStatus $status
+ * @property string|null $client_uuid
+ * @property string|null $remittance_id
+ * @property string|null $note
+ * @property Carbon|null $voided_at
+ * @property string|null $void_reason
+ * @property Carbon $created_at
  */
-#[Fillable(['client_uuid', 'invoice_id', 'transaction_id', 'amount', 'method', 'paid_at', 'received_by', 'status'])]
+#[Fillable(['client_uuid', 'invoice_id', 'transaction_id', 'amount', 'method', 'paid_at', 'received_by', 'status', 'note'])]
 class Payment extends Model
 {
     use HasUlids;
@@ -36,6 +42,7 @@ class Payment extends Model
             'amount' => 'decimal:2',
             'paid_at' => 'datetime',
             'received_by' => 'integer',
+            'voided_at' => 'datetime',
         ];
     }
 
@@ -49,5 +56,17 @@ class Payment extends Model
     public function receiver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'received_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function voider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
+    }
+
+    /** @return BelongsTo<Remittance, $this> */
+    public function remittance(): BelongsTo
+    {
+        return $this->belongsTo(Remittance::class);
     }
 }

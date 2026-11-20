@@ -138,9 +138,12 @@ final class RecordTransaction
         }
 
         if ($total > 0) {
-            $dueDate = $outlet->sale_mode === SaleMode::Credit
-                ? $at->copy()->addDays(Setting::int('credit_term_days'))
-                : $at;
+            $dueDate = match ($outlet->sale_mode) {
+                SaleMode::Credit => $at->copy()->addDays(Setting::int('credit_term_days')),
+                // Consignment is collected at the next visit when not now (BR-02): due by then
+                SaleMode::Consignment => $at->copy()->addDays($outlet->visit_cycle_days ?? Setting::int('visit_cycle_days')),
+                SaleMode::Cash => $at,
+            };
             $this->createInvoice->handle($transaction->id, $outlet->id, $sales->id, $total, $at, $dueDate);
         }
 
