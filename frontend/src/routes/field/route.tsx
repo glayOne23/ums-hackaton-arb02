@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
+import { FieldNav } from '@/components/layout/FieldNav'
 import { LogoutButton } from '@/components/layout/LogoutButton'
 import { requireArea } from '@/features/auth/guard'
 import { useSession } from '@/stores/session'
@@ -25,6 +26,7 @@ function FieldLayout() {
       <main className="flex-1 px-4 py-4">
         <Outlet />
       </main>
+      <FieldNav />
     </div>
   )
 }

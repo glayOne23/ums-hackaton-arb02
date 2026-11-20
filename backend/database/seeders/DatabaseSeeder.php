@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Samples\SampleInventorySeeder;
 use Database\Seeders\Samples\SampleOutletSeeder;
 use Database\Seeders\Samples\SampleProductSeeder;
 use Database\Seeders\Samples\SampleUserSeeder;
@@ -16,7 +17,7 @@ class DatabaseSeeder extends Seeder
 
         // Sample data for development and demos only, never in production
         if (! app()->isProduction()) {
-            $this->call([SampleUserSeeder::class, SampleOutletSeeder::class, SampleProductSeeder::class]);
+            $this->call([SampleUserSeeder::class, SampleOutletSeeder::class, SampleProductSeeder::class, SampleInventorySeeder::class]);
         }
     }
 }

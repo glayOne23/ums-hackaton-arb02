@@ -146,14 +146,14 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `inv_stock_locations` | `lokasi_stok` | `type` (`warehouse`, `salesperson`, `outlet`, `returns`, `disposed`), `user_id` (bila salesperson), `outlet_id` (bila outlet), `owner_id` (kosong = Arba'in; untuk maklon), `name` | MVP |
-| `inv_batches` | `batch` | `product_id`, `batch_number`, `production_date`, `expiry_date`, `owner_id`; unik (`product_id`, `batch_number`) | MVP |
-| `inv_stock_balances` | `saldo_stok` | `location_id`, `batch_id`, `qty` (≥ 0, dijaga CHECK constraint); unik (`location_id`, `batch_id`) | MVP |
-| `inv_stock_movements` | `mutasi_stok` (buku besar) | `batch_id`, `from_location_id`, `to_location_id`, `qty`, `type` (`receipt`, `issue`, `refill`, `sale`, `withdrawal`, `return`, `disposal`, `adjustment`), `source_type` + `source_id` (dokumen asal), `reverses_id`, `created_by`. **Tidak pernah diubah atau dihapus**; koreksi = mutasi baru | MVP |
-| `inv_goods_receipts` + `_items` | Barang masuk | Header: `number`, `received_date`, `note`, `created_by`. Item: `batch_id`, `qty` | MVP |
-| `inv_stock_requests` + `_items` | Permintaan barang sales | Header: `number`, `sales_user_id`, `status` (`submitted`, `prepared`, `issued`, `rejected`). Item: `product_id`, `requested_qty`, `issued_qty` | MVP |
-| `inv_returns` + `_items` | Retur ke gudang | Header: `number`, `sales_user_id`, `status`. Item: `batch_id`, `qty`, `condition` (`sellable`, `damaged`, `expired`) | MVP |
-| `inv_stock_adjustments` + `_items` | Opname / penyesuaian stok | Header: `number`, `location_id`, `reason`, `status`. Item: `batch_id`, `system_qty`, `physical_qty`, `difference_qty` | MVP |
+| `inv_stock_locations` | `lokasi_stok` | `type` (`warehouse`, `salesperson`, `outlet`, `returns`, `disposed`), `user_id` (bila salesperson), `outlet_id` (bila outlet), `owner_id` (kosong = Arba'in; untuk maklon), `name`, `key` (unik: `warehouse`, `returns`, `disposed`, `salesperson:<user_id>`, `outlet:<outlet_id>`; dibuat lewat `Inventory\Actions\StockLocations`) | ada |
+| `inv_batches` | `batch` | `product_id`, `batch_number`, `production_date`, `expiry_date`, `owner_id`; unik (`product_id`, `batch_number`); nomor batch disimpan huruf besar | ada |
+| `inv_stock_balances` | `saldo_stok` | `location_id`, `batch_id`, `qty` (≥ 0: kolom unsigned dan dicek `RecordStockMovement` sebelum menulis); unik (`location_id`, `batch_id`) | ada |
+| `inv_stock_movements` | `mutasi_stok` (buku besar) | `batch_id`, `from_location_id`, `to_location_id`, `qty`, `type` (`receipt`, `issue`, `refill`, `sale`, `withdrawal`, `return`, `disposal`, `adjustment`), `source_type` + `source_id` (dokumen asal), `reverses_id`, `created_by`. `note`. **Tidak pernah diubah atau dihapus**; koreksi = mutasi baru. `from` kosong = masuk dari luar, `to` kosong = keluar dari pembukuan | ada |
+| `inv_goods_receipts` + `_items` | Barang masuk | Header: `number`, `received_date`, `note`, `created_by`. Item: `batch_id`, `qty`. Nomor `BM-yymm-0001` | ada |
+| `inv_stock_requests` + `_items` | Permintaan barang sales | Header: `number`, `sales_user_id`, `status` (`submitted`, `prepared`, `issued`, `rejected`). `note`, `warehouse_note`, `prepared_by/at`, `issued_by/at`, `rejected_by/at`. Item: `product_id`, `requested_qty`, `issued_qty`, `allocations` (JSON batch yang dipilih saat disiapkan, dipindah saat keluar). Nomor `PB-` | ada |
+| `inv_returns` + `_items` | Retur ke gudang | Header: `number`, `sales_user_id`, `status`. `received_date`, `note` (tanpa status: retur langsung tercatat). Item: `batch_id`, `qty`, `condition` (`sellable` → gudang, `damaged` → retur/rework, `expired` → musnah). Nomor `RT-` | ada |
+| `inv_stock_adjustments` + `_items` | Opname / penyesuaian stok | Header: `number`, `location_id`, `reason`, `status`. `counted_date`, `decided_by/at`, `decision_note`; status `pending`, `applied`, `rejected`. Item hanya batch yang berselisih: `batch_id`, `system_qty`, `physical_qty`, `difference_qty`. Nomor `OP-` | ada |
 
 Mutasi stok hanya dibuat lewat satu Action, `App\Modules\Inventory\Actions\RecordStockMovement`, di dalam satu transaksi DB yang sekaligus memperbarui `inv_stock_balances`.
 
@@ -214,7 +214,7 @@ Kunci memakai snake_case Bahasa Inggris. Kunci persetujuan mengikuti pola `appro
 | `period_closing_enabled` | `tutup_buku` | false |
 | `mfg_*` | `maklon_*` (dokumen 06 §6), misalnya `mfg_sample_fee`, `mfg_max_sample_revisions` | — |
 
-Di kode, nilai dibaca lewat `Setting::value('billing_threshold')`. Angka aturan tidak boleh ditulis mati.
+Di kode, nilai dibaca lewat `App\Modules\Setting\Setting::value('billing_threshold')` (atau `::int()`, `::bool()`). Angka aturan tidak boleh ditulis mati. Selama tabel `cfg_settings` belum dibuat, kelas itu mengembalikan nilai bawaan di tabel ini; saat modul Pengaturan dibuat, hanya kelas itu yang berubah.
 
 ## 7. Glosarium: istilah lapangan → nama di kode
 

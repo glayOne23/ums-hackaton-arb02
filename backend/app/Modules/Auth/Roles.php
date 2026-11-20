@@ -33,7 +33,7 @@ final class Roles
         return [
             self::MANAGER => [
                 'dashboard.view', 'report.view', 'outlet.view', 'outlet.view_all', 'product.view',
-                'discount.approve', 'inventory.view', 'stock_request.view',
+                'discount.approve', 'inventory.view', 'stock_request.view', 'stock_adjustment.approve',
                 'visit.view', 'invoice.view',
             ],
             self::OFFICE_ADMIN => [

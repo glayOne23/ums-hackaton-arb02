@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Modules\Inventory\Actions;
+
+use App\Core\Support\DocumentNumber;
+use App\Models\User;
+use App\Modules\Inventory\Enums\MovementType;
+use App\Modules\Inventory\Models\Batch;
+use App\Modules\Inventory\Models\GoodsReceipt;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+/**
+ * GD-01 / P1: goods from production enter the warehouse. The admin picks the
+ * product, types batch and expiry, and the quantity. A batch number seen
+ * before for the same product must keep its expiry date.
+ */
+final class ReceiveGoods
+{
+    public function __construct(
+        private readonly StockLocations $locations,
+        private readonly RecordStockMovement $move,
+    ) {}
+
+    /**
+     * @param  array{received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>}  $data
+     */
+    public function handle(array $data, User $actor): GoodsReceipt
+    {
+        return DB::transaction(function () use ($data, $actor) {
+            $date = isset($data['received_date']) ? Carbon::parse($data['received_date']) : now();
+
+            $receipt = GoodsReceipt::query()->create([
+                'number' => DocumentNumber::next('inv_goods_receipts', 'BM', $date),
+                'received_date' => $date->toDateString(),
+                'note' => $data['note'] ?? null,
+                'created_by' => $actor->id,
+            ]);
+
+            $warehouse = $this->locations->warehouse();
+
+            foreach ($data['items'] as $index => $line) {
+                $batch = $this->batch($line, $index);
+                $receipt->items()->create(['batch_id' => $batch->id, 'qty' => $line['qty']]);
+                $this->move->handle($batch, null, $warehouse, (int) $line['qty'], MovementType::Receipt, $actor, $receipt);
+            }
+
+            return $receipt;
+        });
+    }
+
+    /**
+     * @param  array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string}  $line
+     */
+    private function batch(array $line, int $index): Batch
+    {
+        $number = mb_strtoupper(trim($line['batch_number']));
+
+        $batch = Batch::query()
+            ->where('product_id', $line['product_id'])
+            ->where('batch_number', $number)
+            ->first();
+
+        if (! $batch) {
+            return Batch::query()->create([
+                'product_id' => $line['product_id'],
+                'batch_number' => $number,
+                'expiry_date' => $line['expiry_date'],
+                'production_date' => $line['production_date'] ?? null,
+            ]);
+        }
+
+        if ($batch->expiry_date->toDateString() !== Carbon::parse($line['expiry_date'])->toDateString()) {
+            throw ValidationException::withMessages([
+                "items.{$index}.expiry_date" => "Batch {$number} sudah tercatat dengan ED {$batch->expiry_date->format('d/m/Y')}. Periksa lagi nomor batch atau ED-nya.",
+            ]);
+        }
+
+        return $batch;
+    }
+}
