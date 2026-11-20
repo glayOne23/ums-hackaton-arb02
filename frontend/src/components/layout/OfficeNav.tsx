@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, type LucideIcon, Store } from 'lucide-react'
+import { LayoutDashboard, type LucideIcon, Package, Percent, Store } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSession } from '@/stores/session'
 
 interface NavItem {
-  to: '/office' | '/office/outlets'
+  to: '/office' | '/office/outlets' | '/office/products' | '/office/discounts'
   label: string
   icon: LucideIcon
   permission: string
@@ -27,6 +27,18 @@ const ITEMS: NavItem[] = [
     icon: Store,
     permission: 'outlet.view',
   },
+  {
+    to: '/office/products',
+    label: 'Produk',
+    icon: Package,
+    permission: 'product.view',
+  },
+  {
+    to: '/office/discounts',
+    label: 'Potongan',
+    icon: Percent,
+    permission: 'product.view',
+  },
 ]
 
 function useNavItems() {
@@ -39,7 +51,7 @@ export function OfficeSideNav() {
   const items = useNavItems()
 
   return (
-    <nav aria-label="Menu utama" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block">
+    <nav aria-label="Menu utama" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block print:hidden">
       <ul className="sticky top-16 flex flex-col gap-1 p-3">
         {items.map(({ to, label, icon: Icon, exact }) => (
           <li key={to}>
@@ -67,7 +79,7 @@ export function OfficeBottomNav() {
   if (items.length === 0) return null
 
   return (
-    <nav aria-label="Menu utama" className="sticky bottom-0 z-10 border-t border-border bg-card lg:hidden">
+    <nav aria-label="Menu utama" className="sticky bottom-0 z-10 border-t border-border bg-card lg:hidden print:hidden">
       <ul className="mx-auto flex max-w-xl">
         {items.map(({ to, label, icon: Icon, exact }) => (
           <li key={to} className="flex-1">
