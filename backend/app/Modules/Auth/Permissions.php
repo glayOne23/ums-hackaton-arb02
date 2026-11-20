@@ -24,6 +24,7 @@ final class Permissions
         'discount.approve' => 'Setujui perubahan potongan',
         'inventory.view' => 'Lihat stok gudang',
         'inventory.manage' => 'Barang masuk, retur, opname',
+        'stock_adjustment.approve' => 'Setujui penyesuaian opname',
         'stock_request.view' => 'Lihat permintaan barang',
         'stock_request.create' => 'Ajukan permintaan barang',
         'stock_request.prepare' => 'Siapkan barang untuk sales',

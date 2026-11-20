@@ -5,16 +5,16 @@ namespace App\Modules\Product\Actions;
 use App\Models\User;
 use App\Modules\Product\Enums\DiscountStatus;
 use App\Modules\Product\Models\Discount;
+use App\Modules\Setting\Setting;
 use Illuminate\Validation\ValidationException;
 
 /**
  * PR-03: add a discount. Discounts are not edited afterwards; a change is a
  * new discount with a later valid_from (the old one stays as history).
  *
- * BR-05: a discount takes effect after approval. Until the Setting module
- * exists, approval is always on (the default of approve_discount, doc 10 §6):
- * a discount added by someone who may approve is active right away, any other
- * waits for discount.approve. Then this reads Setting::value('approve_discount').
+ * BR-05: when approve_discount is on, a discount waits for discount.approve,
+ * unless the person adding it may approve (then it is active right away).
+ * When the setting is off, every discount is active right away.
  */
 final class SaveDiscount
 {
@@ -51,7 +51,7 @@ final class SaveDiscount
         ]);
         $discount->created_by = $actor->id;
 
-        if ($actor->can(self::APPROVE_PERMISSION)) {
+        if (! Setting::bool('approve_discount') || $actor->can(self::APPROVE_PERMISSION)) {
             $discount->status = DiscountStatus::Active;
             $discount->decided_by = $actor->id;
             $discount->decided_at = now();

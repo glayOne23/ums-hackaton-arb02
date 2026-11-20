@@ -1,50 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, type LucideIcon, Package, Percent, Store } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useSession } from '@/stores/session'
-
-interface NavItem {
-  to: '/office' | '/office/outlets' | '/office/products' | '/office/discounts'
-  label: string
-  icon: LucideIcon
-  permission: string
-  /** Only highlight on the exact path (the dashboard is the parent of every office page) */
-  exact?: boolean
-}
-
-/** Office menu. Items the user has no permission for are hidden, not greyed out (UI guide §5). */
-const ITEMS: NavItem[] = [
-  {
-    to: '/office',
-    label: 'Ringkasan',
-    icon: LayoutDashboard,
-    permission: 'dashboard.view',
-    exact: true,
-  },
-  {
-    to: '/office/outlets',
-    label: 'Outlet',
-    icon: Store,
-    permission: 'outlet.view',
-  },
-  {
-    to: '/office/products',
-    label: 'Produk',
-    icon: Package,
-    permission: 'product.view',
-  },
-  {
-    to: '/office/discounts',
-    label: 'Potongan',
-    icon: Percent,
-    permission: 'product.view',
-  },
-]
-
-function useNavItems() {
-  const permissions = useSession((s) => s.user?.permissions ?? [])
-  return ITEMS.filter((item) => permissions.includes(item.permission))
-}
+import { Ellipsis } from 'lucide-react'
+import { useNavItems } from './nav-items'
 
 /** Fixed side menu, 256 px, on desktop (≥ 1024 px). */
 export function OfficeSideNav() {
@@ -71,12 +27,22 @@ export function OfficeSideNav() {
   )
 }
 
-/** Bottom bar below 1024 px: icon 24 px + label, max 4 items (UI guide §5). */
+const BOTTOM_LIMIT = 4
+
+/**
+ * Bottom bar below 1024 px: icon 24 px + label, max 4 items; with more, the
+ * fourth becomes "Lainnya" (UI guide §5).
+ */
 export function OfficeBottomNav() {
-  const items = useNavItems().slice(0, 4)
+  const all = useNavItems()
 
   // Always shown when there is a menu: pinned primary buttons sit right above it
-  if (items.length === 0) return null
+  if (all.length === 0) return null
+
+  const overflow = all.length > BOTTOM_LIMIT
+  const items = overflow ? all.slice(0, BOTTOM_LIMIT - 1) : all
+  const linkClass = 'flex h-16 flex-col items-center justify-center gap-1 text-sm text-muted-foreground'
+  const activeClass = 'font-semibold text-leaf-700'
 
   return (
     <nav aria-label="Menu utama" className="sticky bottom-0 z-10 border-t border-border bg-card lg:hidden print:hidden">
@@ -86,14 +52,22 @@ export function OfficeBottomNav() {
             <Link
               to={to}
               activeOptions={{ exact: exact ?? false }}
-              className={cn('flex h-16 flex-col items-center justify-center gap-1 text-sm text-muted-foreground')}
-              activeProps={{ className: 'font-semibold text-leaf-700' }}
+              className={linkClass}
+              activeProps={{ className: activeClass }}
             >
               <Icon className="size-6" aria-hidden />
               {label}
             </Link>
           </li>
         ))}
+        {overflow && (
+          <li className="flex-1">
+            <Link to="/office/menu" className={linkClass} activeProps={{ className: activeClass }}>
+              <Ellipsis className="size-6" aria-hidden />
+              Lainnya
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   )

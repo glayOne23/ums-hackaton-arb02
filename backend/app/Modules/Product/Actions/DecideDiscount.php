@@ -25,7 +25,7 @@ final class DecideDiscount
         }
 
         return DB::transaction(function () use ($discount, $approve, $note, $actor) {
-            $discount = Discount::query()->lockForUpdate()->findOrFail($discount->getKey());
+            $discount = Discount::query()->lockForUpdate()->findOrFail((string) $discount->getKey());
 
             if ($discount->status !== DiscountStatus::Pending) {
                 throw ValidationException::withMessages([
