@@ -1,0 +1,33 @@
+# Local development only. MySQL runs on the host (not in Docker).
+#
+#   docker compose up -d        # API at http://127.0.0.1:8000
+#   docker compose logs -f app
+#   docker compose exec app php artisan migrate --seed
+#
+# network_mode: host lets the container reach MySQL on 127.0.0.1:3306 and lets
+# Vite's /api proxy reach 127.0.0.1:8000 with no extra settings (Linux only).
+# The backend folder is mounted, so code changes apply on the next request.
+
+x-php: &php
+  build:
+    context: ./docker
+    dockerfile: dev.Dockerfile
+    network: host
+  image: sigap-backend-dev
+  network_mode: host
+  # Run as your own user so files created by artisan/composer stay yours
+  user: "${UID:-1000}:${GID:-1000}"
+  volumes:
+    - ./:/app
+  restart: unless-stopped
+
+services:
+  app:
+    <<: *php
+    command: php artisan serve --host=127.0.0.1 --port=8000
+
+  # Runs queued jobs (notifications, imports). queue:listen reloads the code
+  # for every job, so it also needs no restart after code changes.
+  queue:
+    <<: *php
+    command: php artisan queue:listen --tries=1 --timeout=0
