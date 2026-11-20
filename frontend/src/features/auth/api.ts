@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
 import { type User, useSession } from '@/stores/session'
 import type { LoginInput } from './schemas'
@@ -31,6 +31,24 @@ export function useLogin() {
     // Signing in always needs a signal; never queue it while offline
     networkMode: 'always',
     onSuccess: ({ token, user }) => save(token, user),
+  })
+}
+
+export const currentUserQueryKey = ['auth', 'me'] as const
+
+/**
+ * The signed-in user as the server sees it now. Refetched when the app opens or
+ * regains focus, so role or permission changes made by an admin reach the device
+ * without signing in again. Paused without a signal (the saved user is used).
+ */
+export function useCurrentUser() {
+  const token = useSession((s) => s.token)
+
+  return useQuery({
+    queryKey: currentUserQueryKey,
+    queryFn: ({ signal }) => api<{ data: User }>('/auth/me', { signal }).then((response) => response.data),
+    enabled: token !== null,
+    retry: false,
   })
 }
 

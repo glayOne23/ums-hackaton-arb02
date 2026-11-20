@@ -15,6 +15,23 @@ it('normalizes phone numbers to the 0 prefix', function (string $input, ?string 
     ['1234', null],
 ]);
 
+it('uses one rate-limit key for every format of the same login', function () {
+    expect(Login::throttleKey('081234567890'))
+        ->toBe(Login::throttleKey('+62 812-3456-7890'))
+        ->toBe(Login::throttleKey(' 6281234567890 '))
+        ->and(Login::throttleKey(' Sales1 '))->toBe('sales1');
+});
+
+it('only accepts usernames that contain a letter', function (string $username, bool $valid) {
+    expect((bool) preg_match(Login::USERNAME_PATTERN, $username))->toBe($valid);
+})->with([
+    ['sales1', true],
+    ['admin.kantor', true],
+    ['081234567890', false],
+    ['ab', false],
+    ['nama spasi', false],
+]);
+
 it('only grants default roles permissions that exist in the catalog', function () {
     $all = array_keys(Permissions::ALL);
 

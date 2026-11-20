@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
@@ -43,5 +44,9 @@ export default defineConfig({
       // Laravel backend: php artisan serve (port 8000)
       '/api': 'http://127.0.0.1:8000',
     },
+  },
+  test: {
+    // tests/e2e belongs to Playwright (npm run test:e2e), not Vitest
+    include: ['tests/unit/**/*.test.{ts,tsx}'],
   },
 })

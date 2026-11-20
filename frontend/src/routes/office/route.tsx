@@ -5,13 +5,6 @@ import { LogoutButton } from '@/components/layout/LogoutButton'
 import { requireArea } from '@/features/auth/guard'
 import { useSession } from '@/stores/session'
 
-/** UI labels for role names sent by the API (backend: App\Modules\Auth\Roles::LABELS). */
-const ROLE_LABELS: Record<string, string> = {
-  manager: 'Pimpinan',
-  office_admin: 'Admin Kantor',
-  warehouse_admin: 'Admin Gudang',
-}
-
 /** Office area: admin, warehouse, manager (W1–W13). Side menu comes later. */
 export const Route = createFileRoute('/office')({
   beforeLoad: () => requireArea('office'),
@@ -20,7 +13,8 @@ export const Route = createFileRoute('/office')({
 
 function OfficeLayout() {
   const user = useSession((s) => s.user)
-  const roles = user?.roles.map((role) => ROLE_LABELS[role] ?? role).join(', ')
+  // Labels come from the API; a session saved before role_labels existed shows names until /auth/me refreshes it
+  const roles = (user?.role_labels ?? user?.roles)?.join(', ')
 
   return (
     <div className="flex min-h-dvh flex-col">

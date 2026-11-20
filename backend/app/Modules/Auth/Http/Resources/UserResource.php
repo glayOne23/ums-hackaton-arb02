@@ -25,6 +25,9 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'phone' => $this->phone,
             'roles' => $roles,
+            // UI labels, so the frontend never keeps its own copy of Roles::LABELS.
+            // Roles created later from the admin screen fall back to their name.
+            'role_labels' => $roles->map(fn (string $role) => Roles::LABELS[$role] ?? $role)->values(),
             'permissions' => $this->getAllPermissions()->pluck('name')->sort()->values(),
             // The frontend uses this to open the right area after signing in
             'area' => $roles->intersect(Roles::FIELD_ROLES)->isNotEmpty() ? 'field' : 'office',
