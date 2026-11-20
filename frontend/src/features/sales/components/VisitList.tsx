@@ -2,13 +2,13 @@ import { Link } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight, CircleAlert, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency, formatTableDate, formatTime } from '@/lib/format'
 import { useTransactions } from '../api'
-import { InvoiceStatusChip } from './InvoiceStatusChip'
 
 /** Office: every visit and direct sale, newest first; "Perlu dicek" shows offline conflicts (KR-11). */
 export function VisitList() {

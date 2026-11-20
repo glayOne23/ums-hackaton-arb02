@@ -1,10 +1,13 @@
 import { CircleCheck, CircleX, Clock, Wallet } from 'lucide-react'
 import { StatusChip } from '@/components/common/StatusChip'
-import type { Transaction } from '../types'
+/** Invoice status from the API (Billing\Enums\InvoiceStatus). */
+export interface InvoiceStatus {
+  value: 'unpaid' | 'partial' | 'paid' | 'void'
+  label: string
+}
 
-type Status = NonNullable<Transaction['invoice']>['status']
-
-export function InvoiceStatusChip({ status }: { status: Status }) {
+/** Colour + icon + words (UI guide §2.3). */
+export function InvoiceStatusChip({ status }: { status: InvoiceStatus }) {
   switch (status.value) {
     case 'paid':
       return (

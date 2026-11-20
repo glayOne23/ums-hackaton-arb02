@@ -50,6 +50,8 @@ it('records the acceptance scenario: sold 3 of 4, 16% off, refill, withdraw near
         ->assertJsonPath('data.total', 151200)
         ->assertJsonPath('data.discount_total', 28800)
         ->assertJsonPath('data.invoice.status.value', 'paid')
+        // Unpaid consignment waits for the next visit (30-day cycle), not overdue at once
+        ->assertJsonPath('data.invoice.due_date', now()->addDays(30)->toDateString())
         ->assertJsonPath('data.paid_now', 151200);
 
     $items = collect($response->json('data.items'))->keyBy('product_name');

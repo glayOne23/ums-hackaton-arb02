@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import { ChevronLeft, CircleAlert, ImageOff } from 'lucide-react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
 import { formatCurrency, formatDate, formatDiscountPercent, formatTableDate, formatTime } from '@/lib/format'
 import { useTransaction, useTransactionPhoto } from '../api'
 import type { Transaction } from '../types'
-import { InvoiceStatusChip } from './InvoiceStatusChip'
 
 /** Office view of one nota: shelf numbers per product, bill, payment, form photo, review notes. */
 export function VisitDetail({ transactionId }: { transactionId: string }) {
