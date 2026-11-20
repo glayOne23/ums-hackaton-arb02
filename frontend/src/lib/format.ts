@@ -12,6 +12,7 @@ const rupiah = new Intl.NumberFormat('id-ID', {
 })
 const integer = new Intl.NumberFormat('id-ID')
 const oneDecimal = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 })
+const twoDecimals = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 })
 
 /** Rp 196.560 */
 export function formatCurrency(value: number): string {
@@ -35,6 +36,14 @@ export function formatNumber(value: number): string {
 /** 62% · 4,5% (decimals only below 10%) */
 export function formatPercent(value: number): string {
   return `${Math.abs(value) < 10 ? oneDecimal.format(value) : Math.round(value)}%`
+}
+
+/**
+ * 16% · 12,5% · 12,75% — exact, for discounts (formatPercent rounds values ≥ 10,
+ * which would show a 12,5% discount as 13%).
+ */
+export function formatDiscountPercent(value: number): string {
+  return `${twoDecimals.format(value)}%`
 }
 
 /** 16 Nov · 3 Mar 2027 (year only when not this year) */

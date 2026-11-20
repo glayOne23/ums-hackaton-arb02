@@ -15,10 +15,17 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as OfficeRouteRouteImport } from './routes/office/route'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
 import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as OfficePriceListRouteImport } from './routes/office/price-list'
+import { Route as OfficeDiscountsIndexRouteImport } from './routes/office/discounts/index'
+import { Route as OfficeDiscountsNewRouteImport } from './routes/office/discounts/new'
 import { Route as OfficeOutletsIndexRouteImport } from './routes/office/outlets/index'
 import { Route as OfficeOutletsNewRouteImport } from './routes/office/outlets/new'
+import { Route as OfficeProductsIndexRouteImport } from './routes/office/products/index'
+import { Route as OfficeProductsNewRouteImport } from './routes/office/products/new'
 import { Route as OfficeOutletsOutletIdIndexRouteImport } from './routes/office/outlets/$outletId/index'
 import { Route as OfficeOutletsOutletIdEditRouteImport } from './routes/office/outlets/$outletId/edit'
+import { Route as OfficeProductsProductIdIndexRouteImport } from './routes/office/products/$productId/index'
+import { Route as OfficeProductsProductIdEditRouteImport } from './routes/office/products/$productId/edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,6 +57,21 @@ const OfficeIndexRoute = OfficeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
+const OfficePriceListRoute = OfficePriceListRouteImport.update({
+  id: '/price-list',
+  path: '/price-list',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeDiscountsIndexRoute = OfficeDiscountsIndexRouteImport.update({
+  id: '/discounts/',
+  path: '/discounts/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeDiscountsNewRoute = OfficeDiscountsNewRouteImport.update({
+  id: '/discounts/new',
+  path: '/discounts/new',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
 const OfficeOutletsIndexRoute = OfficeOutletsIndexRouteImport.update({
   id: '/outlets/',
   path: '/outlets/',
@@ -58,6 +80,16 @@ const OfficeOutletsIndexRoute = OfficeOutletsIndexRouteImport.update({
 const OfficeOutletsNewRoute = OfficeOutletsNewRouteImport.update({
   id: '/outlets/new',
   path: '/outlets/new',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeProductsIndexRoute = OfficeProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeProductsNewRoute = OfficeProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
 const OfficeOutletsOutletIdIndexRoute =
@@ -72,28 +104,54 @@ const OfficeOutletsOutletIdEditRoute =
     path: '/outlets/$outletId/edit',
     getParentRoute: () => OfficeRouteRoute,
   } as any)
+const OfficeProductsProductIdIndexRoute =
+  OfficeProductsProductIdIndexRouteImport.update({
+    id: '/products/$productId/',
+    path: '/products/$productId/',
+    getParentRoute: () => OfficeRouteRoute,
+  } as any)
+const OfficeProductsProductIdEditRoute =
+  OfficeProductsProductIdEditRouteImport.update({
+    id: '/products/$productId/edit',
+    path: '/products/$productId/edit',
+    getParentRoute: () => OfficeRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/office/price-list': typeof OfficePriceListRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
+  '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/discounts/': typeof OfficeDiscountsIndexRoute
   '/office/outlets/': typeof OfficeOutletsIndexRoute
+  '/office/products/': typeof OfficeProductsIndexRoute
   '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/products/$productId/edit': typeof OfficeProductsProductIdEditRoute
   '/office/outlets/$outletId/': typeof OfficeOutletsOutletIdIndexRoute
+  '/office/products/$productId/': typeof OfficeProductsProductIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/office/price-list': typeof OfficePriceListRoute
   '/field': typeof FieldIndexRoute
   '/office': typeof OfficeIndexRoute
+  '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/discounts': typeof OfficeDiscountsIndexRoute
   '/office/outlets': typeof OfficeOutletsIndexRoute
+  '/office/products': typeof OfficeProductsIndexRoute
   '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/products/$productId/edit': typeof OfficeProductsProductIdEditRoute
   '/office/outlets/$outletId': typeof OfficeOutletsOutletIdIndexRoute
+  '/office/products/$productId': typeof OfficeProductsProductIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +159,19 @@ export interface FileRoutesById {
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/office/price-list': typeof OfficePriceListRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
+  '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
+  '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/discounts/': typeof OfficeDiscountsIndexRoute
   '/office/outlets/': typeof OfficeOutletsIndexRoute
+  '/office/products/': typeof OfficeProductsIndexRoute
   '/office/outlets/$outletId/edit': typeof OfficeOutletsOutletIdEditRoute
+  '/office/products/$productId/edit': typeof OfficeProductsProductIdEditRoute
   '/office/outlets/$outletId/': typeof OfficeOutletsOutletIdIndexRoute
+  '/office/products/$productId/': typeof OfficeProductsProductIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,34 +180,55 @@ export interface FileRouteTypes {
     | '/field'
     | '/office'
     | '/login'
+    | '/office/price-list'
     | '/field/'
     | '/office/'
+    | '/office/discounts/new'
     | '/office/outlets/new'
+    | '/office/products/new'
+    | '/office/discounts/'
     | '/office/outlets/'
+    | '/office/products/'
     | '/office/outlets/$outletId/edit'
+    | '/office/products/$productId/edit'
     | '/office/outlets/$outletId/'
+    | '/office/products/$productId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/office/price-list'
     | '/field'
     | '/office'
+    | '/office/discounts/new'
     | '/office/outlets/new'
+    | '/office/products/new'
+    | '/office/discounts'
     | '/office/outlets'
+    | '/office/products'
     | '/office/outlets/$outletId/edit'
+    | '/office/products/$productId/edit'
     | '/office/outlets/$outletId'
+    | '/office/products/$productId'
   id:
     | '__root__'
     | '/'
     | '/field'
     | '/office'
     | '/login'
+    | '/office/price-list'
     | '/field/'
     | '/office/'
+    | '/office/discounts/new'
     | '/office/outlets/new'
+    | '/office/products/new'
+    | '/office/discounts/'
     | '/office/outlets/'
+    | '/office/products/'
     | '/office/outlets/$outletId/edit'
+    | '/office/products/$productId/edit'
     | '/office/outlets/$outletId/'
+    | '/office/products/$productId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -196,6 +282,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeIndexRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
+    '/office/price-list': {
+      id: '/office/price-list'
+      path: '/price-list'
+      fullPath: '/office/price-list'
+      preLoaderRoute: typeof OfficePriceListRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/discounts/': {
+      id: '/office/discounts/'
+      path: '/discounts'
+      fullPath: '/office/discounts/'
+      preLoaderRoute: typeof OfficeDiscountsIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/discounts/new': {
+      id: '/office/discounts/new'
+      path: '/discounts/new'
+      fullPath: '/office/discounts/new'
+      preLoaderRoute: typeof OfficeDiscountsNewRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
     '/office/outlets/': {
       id: '/office/outlets/'
       path: '/outlets'
@@ -210,6 +317,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeOutletsNewRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
+    '/office/products/': {
+      id: '/office/products/'
+      path: '/products'
+      fullPath: '/office/products/'
+      preLoaderRoute: typeof OfficeProductsIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/products/new': {
+      id: '/office/products/new'
+      path: '/products/new'
+      fullPath: '/office/products/new'
+      preLoaderRoute: typeof OfficeProductsNewRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
     '/office/outlets/$outletId/': {
       id: '/office/outlets/$outletId/'
       path: '/outlets/$outletId'
@@ -222,6 +343,20 @@ declare module '@tanstack/react-router' {
       path: '/outlets/$outletId/edit'
       fullPath: '/office/outlets/$outletId/edit'
       preLoaderRoute: typeof OfficeOutletsOutletIdEditRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/products/$productId/': {
+      id: '/office/products/$productId/'
+      path: '/products/$productId'
+      fullPath: '/office/products/$productId/'
+      preLoaderRoute: typeof OfficeProductsProductIdIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/products/$productId/edit': {
+      id: '/office/products/$productId/edit'
+      path: '/products/$productId/edit'
+      fullPath: '/office/products/$productId/edit'
+      preLoaderRoute: typeof OfficeProductsProductIdEditRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
   }
@@ -240,19 +375,33 @@ const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
 )
 
 interface OfficeRouteRouteChildren {
+  OfficePriceListRoute: typeof OfficePriceListRoute
   OfficeIndexRoute: typeof OfficeIndexRoute
+  OfficeDiscountsNewRoute: typeof OfficeDiscountsNewRoute
   OfficeOutletsNewRoute: typeof OfficeOutletsNewRoute
+  OfficeProductsNewRoute: typeof OfficeProductsNewRoute
+  OfficeDiscountsIndexRoute: typeof OfficeDiscountsIndexRoute
   OfficeOutletsIndexRoute: typeof OfficeOutletsIndexRoute
+  OfficeProductsIndexRoute: typeof OfficeProductsIndexRoute
   OfficeOutletsOutletIdEditRoute: typeof OfficeOutletsOutletIdEditRoute
+  OfficeProductsProductIdEditRoute: typeof OfficeProductsProductIdEditRoute
   OfficeOutletsOutletIdIndexRoute: typeof OfficeOutletsOutletIdIndexRoute
+  OfficeProductsProductIdIndexRoute: typeof OfficeProductsProductIdIndexRoute
 }
 
 const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
+  OfficePriceListRoute: OfficePriceListRoute,
   OfficeIndexRoute: OfficeIndexRoute,
+  OfficeDiscountsNewRoute: OfficeDiscountsNewRoute,
   OfficeOutletsNewRoute: OfficeOutletsNewRoute,
+  OfficeProductsNewRoute: OfficeProductsNewRoute,
+  OfficeDiscountsIndexRoute: OfficeDiscountsIndexRoute,
   OfficeOutletsIndexRoute: OfficeOutletsIndexRoute,
+  OfficeProductsIndexRoute: OfficeProductsIndexRoute,
   OfficeOutletsOutletIdEditRoute: OfficeOutletsOutletIdEditRoute,
+  OfficeProductsProductIdEditRoute: OfficeProductsProductIdEditRoute,
   OfficeOutletsOutletIdIndexRoute: OfficeOutletsOutletIdIndexRoute,
+  OfficeProductsProductIdIndexRoute: OfficeProductsProductIdIndexRoute,
 }
 
 const OfficeRouteRouteWithChildren = OfficeRouteRoute._addFileChildren(

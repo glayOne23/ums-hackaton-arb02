@@ -137,10 +137,10 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `prd_categories` | `kategori_produk` | `name`, `is_active` | MVP |
-| `prd_products` | `produk` | `code`, `name`, `category_id`, `bpom_number`, `unit`, `selling_price`, `is_active`, `merged_into_id`, `custom_fields`, `deleted_at` | MVP |
-| `prd_product_aliases` | Nama lama produk untuk impor (§10) | `product_id`, `alias` (unik) | MVP |
-| `prd_discounts` | `potongan` | `outlet_type_id`, `product_id`, `outlet_id` (semuanya boleh kosong; yang paling khusus menang), `discount_percent`, `valid_from`, `status` (`pending`, `active`, `inactive`), `created_by` | MVP |
+| `prd_categories` | `kategori_produk` | `name` (unik), `is_active` | ada |
+| `prd_products` | `produk` | `code` (diisi admin, unik termasuk produk terhapus, disimpan huruf besar), `name`, `category_id`, `bpom_number` (wajib di form; kolom boleh kosong untuk impor lama), `unit`, `selling_price`, `min_stock_qty` (batas peringatan stok gudang), `is_active`, `merged_into_id`, `custom_fields`, `created_by`, `updated_by`, `deleted_by`, `deleted_at`. Stok tidak disimpan di sini, tetapi di `inv_`. Hapus = tempat sampah; ditolak bila modul lain memakai produk (`Product\Contracts\ProductUsage`) | ada |
+| `prd_product_aliases` | Nama lama produk untuk impor (§10) | `product_id`, `alias` (unik) | ada |
+| `prd_discounts` | `potongan` | `outlet_type_id`, `product_id`, `outlet_id` (minimal satu terisi; outlet tidak digabung dengan jenis outlet), `discount_percent`, `valid_from`, `status` (`pending`, `active`, `inactive`, `rejected`), `created_by`, `decided_by`, `decided_at`, `decision_note` (wajib saat ditolak). Urutan menang: outlet + produk > outlet > jenis outlet + produk > produk > jenis outlet, lalu `valid_from` terbaru (`Product\Actions\ResolveDiscount`). Tidak diubah setelah berlaku: perubahan = potongan baru | ada |
 
 ### 5.7 `inv_` — gudang dan stok
 

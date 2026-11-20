@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
+import { toQueryString } from '@/lib/api/query'
 import type { AssignmentFormInput, OutletFormInput } from './schemas'
 import { toOutletPayload } from './schemas'
 import type { Assignee, Outlet, OutletFilters, Paginated, Reference } from './types'
@@ -14,14 +15,7 @@ export const outletKeys = {
   outletTypes: ['outlet-types'] as const,
 }
 
-function query(params: Record<string, string | number | undefined>): string {
-  const search = new URLSearchParams()
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== '') search.set(key, String(value))
-  }
-  const text = search.toString()
-  return text ? `?${text}` : ''
-}
+const query = toQueryString
 
 export function useOutlets(filters: OutletFilters & { per_page?: number }) {
   return useQuery({
