@@ -100,7 +100,7 @@ Kolom **Status**: **ada** = sudah ada migrasinya; **MVP** = dibuat untuk purwaru
 | --- | --- | --- |
 | `auth_users` | `name`, `username` (unik, 3–50 karakter huruf/angka/`.`/`_`, wajib ada huruf agar tidak tertukar dengan nomor HP; `Login::USERNAME_PATTERN`), `phone` (unik, format `08…`), `email`, `is_active`, `last_login_at`, `password` | ada |
 | `auth_personal_access_tokens` | Token Sanctum; satu token = satu perangkat (`name` = nama perangkat). Kolom `last_synced_at` ditambah saat modul sinkron dibuat | ada |
-| `auth_roles`, `auth_permissions` | Peran dan izin (spatie/laravel-permission) | ada |
+| `auth_roles`, `auth_permissions` | Peran dan izin (spatie/laravel-permission). `auth_roles` ditambah `label` (nama peran di layar, mis. "Kepala Gudang") dan `area` (`field` = layar HP sales, `office` = layar kantor & gudang); model `Auth\Models\Role`. Daftar izin dan pengelompokannya di layar W9 ada di `Auth\Permissions`. Perubahan peran dan pengguna masuk riwayat (`sys_activity_log`, `log_name = access`). Paling sedikit satu pengguna aktif harus tetap punya `user.manage` (`Auth\AccessGuard`) | ada |
 | `auth_model_has_roles`, `auth_model_has_permissions`, `auth_role_has_permissions` | Tabel penghubung spatie | ada |
 | `auth_password_reset_tokens`, `auth_sessions` | Bawaan Laravel | ada |
 

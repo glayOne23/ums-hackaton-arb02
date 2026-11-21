@@ -34,6 +34,8 @@ import { Route as OfficeOutletsIndexRouteImport } from './routes/office/outlets/
 import { Route as OfficeOutletsNewRouteImport } from './routes/office/outlets/new'
 import { Route as OfficeProductsIndexRouteImport } from './routes/office/products/index'
 import { Route as OfficeProductsNewRouteImport } from './routes/office/products/new'
+import { Route as OfficeUsersIndexRouteImport } from './routes/office/users/index'
+import { Route as OfficeUsersRolesRouteImport } from './routes/office/users/roles'
 import { Route as OfficeVisitsIndexRouteImport } from './routes/office/visits/index'
 import { Route as OfficeVisitsTransactionIdRouteImport } from './routes/office/visits/$transactionId'
 import { Route as OfficeBillingInvoicesInvoiceIdRouteImport } from './routes/office/billing/invoices/$invoiceId'
@@ -173,6 +175,16 @@ const OfficeProductsNewRoute = OfficeProductsNewRouteImport.update({
   path: '/products/new',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
+const OfficeUsersIndexRoute = OfficeUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeUsersRolesRoute = OfficeUsersRolesRouteImport.update({
+  id: '/users/roles',
+  path: '/users/roles',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
 const OfficeVisitsIndexRoute = OfficeVisitsIndexRouteImport.update({
   id: '/visits/',
   path: '/visits/',
@@ -266,12 +278,14 @@ export interface FileRoutesByFullPath {
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/users/roles': typeof OfficeUsersRolesRoute
   '/office/visits/$transactionId': typeof OfficeVisitsTransactionIdRoute
   '/office/billing/': typeof OfficeBillingIndexRoute
   '/office/discounts/': typeof OfficeDiscountsIndexRoute
   '/office/inventory/': typeof OfficeInventoryIndexRoute
   '/office/outlets/': typeof OfficeOutletsIndexRoute
   '/office/products/': typeof OfficeProductsIndexRoute
+  '/office/users/': typeof OfficeUsersIndexRoute
   '/office/visits/': typeof OfficeVisitsIndexRoute
   '/office/billing/invoices/$invoiceId': typeof OfficeBillingInvoicesInvoiceIdRoute
   '/office/inventory/receipts/new': typeof OfficeInventoryReceiptsNewRoute
@@ -303,12 +317,14 @@ export interface FileRoutesByTo {
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/users/roles': typeof OfficeUsersRolesRoute
   '/office/visits/$transactionId': typeof OfficeVisitsTransactionIdRoute
   '/office/billing': typeof OfficeBillingIndexRoute
   '/office/discounts': typeof OfficeDiscountsIndexRoute
   '/office/inventory': typeof OfficeInventoryIndexRoute
   '/office/outlets': typeof OfficeOutletsIndexRoute
   '/office/products': typeof OfficeProductsIndexRoute
+  '/office/users': typeof OfficeUsersIndexRoute
   '/office/visits': typeof OfficeVisitsIndexRoute
   '/office/billing/invoices/$invoiceId': typeof OfficeBillingInvoicesInvoiceIdRoute
   '/office/inventory/receipts/new': typeof OfficeInventoryReceiptsNewRoute
@@ -343,12 +359,14 @@ export interface FileRoutesById {
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
+  '/office/users/roles': typeof OfficeUsersRolesRoute
   '/office/visits/$transactionId': typeof OfficeVisitsTransactionIdRoute
   '/office/billing/': typeof OfficeBillingIndexRoute
   '/office/discounts/': typeof OfficeDiscountsIndexRoute
   '/office/inventory/': typeof OfficeInventoryIndexRoute
   '/office/outlets/': typeof OfficeOutletsIndexRoute
   '/office/products/': typeof OfficeProductsIndexRoute
+  '/office/users/': typeof OfficeUsersIndexRoute
   '/office/visits/': typeof OfficeVisitsIndexRoute
   '/office/billing/invoices/$invoiceId': typeof OfficeBillingInvoicesInvoiceIdRoute
   '/office/inventory/receipts/new': typeof OfficeInventoryReceiptsNewRoute
@@ -384,12 +402,14 @@ export interface FileRouteTypes {
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
+    | '/office/users/roles'
     | '/office/visits/$transactionId'
     | '/office/billing/'
     | '/office/discounts/'
     | '/office/inventory/'
     | '/office/outlets/'
     | '/office/products/'
+    | '/office/users/'
     | '/office/visits/'
     | '/office/billing/invoices/$invoiceId'
     | '/office/inventory/receipts/new'
@@ -421,12 +441,14 @@ export interface FileRouteTypes {
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
+    | '/office/users/roles'
     | '/office/visits/$transactionId'
     | '/office/billing'
     | '/office/discounts'
     | '/office/inventory'
     | '/office/outlets'
     | '/office/products'
+    | '/office/users'
     | '/office/visits'
     | '/office/billing/invoices/$invoiceId'
     | '/office/inventory/receipts/new'
@@ -460,12 +482,14 @@ export interface FileRouteTypes {
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
+    | '/office/users/roles'
     | '/office/visits/$transactionId'
     | '/office/billing/'
     | '/office/discounts/'
     | '/office/inventory/'
     | '/office/outlets/'
     | '/office/products/'
+    | '/office/users/'
     | '/office/visits/'
     | '/office/billing/invoices/$invoiceId'
     | '/office/inventory/receipts/new'
@@ -663,6 +687,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeProductsNewRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
+    '/office/users/': {
+      id: '/office/users/'
+      path: '/users'
+      fullPath: '/office/users/'
+      preLoaderRoute: typeof OfficeUsersIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/users/roles': {
+      id: '/office/users/roles'
+      path: '/users/roles'
+      fullPath: '/office/users/roles'
+      preLoaderRoute: typeof OfficeUsersRolesRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
     '/office/visits/': {
       id: '/office/visits/'
       path: '/visits'
@@ -783,12 +821,14 @@ interface OfficeRouteRouteChildren {
   OfficeInventoryRequestsRoute: typeof OfficeInventoryRequestsRoute
   OfficeOutletsNewRoute: typeof OfficeOutletsNewRoute
   OfficeProductsNewRoute: typeof OfficeProductsNewRoute
+  OfficeUsersRolesRoute: typeof OfficeUsersRolesRoute
   OfficeVisitsTransactionIdRoute: typeof OfficeVisitsTransactionIdRoute
   OfficeBillingIndexRoute: typeof OfficeBillingIndexRoute
   OfficeDiscountsIndexRoute: typeof OfficeDiscountsIndexRoute
   OfficeInventoryIndexRoute: typeof OfficeInventoryIndexRoute
   OfficeOutletsIndexRoute: typeof OfficeOutletsIndexRoute
   OfficeProductsIndexRoute: typeof OfficeProductsIndexRoute
+  OfficeUsersIndexRoute: typeof OfficeUsersIndexRoute
   OfficeVisitsIndexRoute: typeof OfficeVisitsIndexRoute
   OfficeBillingInvoicesInvoiceIdRoute: typeof OfficeBillingInvoicesInvoiceIdRoute
   OfficeInventoryReceiptsNewRoute: typeof OfficeInventoryReceiptsNewRoute
@@ -813,12 +853,14 @@ const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
   OfficeInventoryRequestsRoute: OfficeInventoryRequestsRoute,
   OfficeOutletsNewRoute: OfficeOutletsNewRoute,
   OfficeProductsNewRoute: OfficeProductsNewRoute,
+  OfficeUsersRolesRoute: OfficeUsersRolesRoute,
   OfficeVisitsTransactionIdRoute: OfficeVisitsTransactionIdRoute,
   OfficeBillingIndexRoute: OfficeBillingIndexRoute,
   OfficeDiscountsIndexRoute: OfficeDiscountsIndexRoute,
   OfficeInventoryIndexRoute: OfficeInventoryIndexRoute,
   OfficeOutletsIndexRoute: OfficeOutletsIndexRoute,
   OfficeProductsIndexRoute: OfficeProductsIndexRoute,
+  OfficeUsersIndexRoute: OfficeUsersIndexRoute,
   OfficeVisitsIndexRoute: OfficeVisitsIndexRoute,
   OfficeBillingInvoicesInvoiceIdRoute: OfficeBillingInvoicesInvoiceIdRoute,
   OfficeInventoryReceiptsNewRoute: OfficeInventoryReceiptsNewRoute,

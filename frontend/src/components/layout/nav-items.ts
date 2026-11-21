@@ -7,6 +7,7 @@ import {
   Percent,
   Settings,
   Store,
+  Users,
   Warehouse,
 } from 'lucide-react'
 import { useSession } from '@/stores/session'
@@ -21,6 +22,7 @@ export interface NavItem {
     | '/office/discounts'
     | '/office/inventory'
     | '/office/settings'
+    | '/office/users'
   label: string
   icon: LucideIcon
   /** Shown when the user has any of these permissions */
@@ -38,6 +40,7 @@ const ITEMS: NavItem[] = [
   { to: '/office/products', label: 'Produk', icon: Package, permissions: ['product.view'] },
   { to: '/office/discounts', label: 'Potongan', icon: Percent, permissions: ['product.view'] },
   { to: '/office/inventory', label: 'Gudang', icon: Warehouse, permissions: ['inventory.view', 'stock_request.view'] },
+  { to: '/office/users', label: 'Pengguna', icon: Users, permissions: ['user.manage'] },
   { to: '/office/settings', label: 'Pengaturan', icon: Settings, permissions: ['setting.manage'] },
 ]
 

@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Modules\Auth\Models\Role;
 use App\Modules\Auth\Permissions;
 use App\Modules\Auth\Roles;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
@@ -31,6 +31,10 @@ class RolePermissionSeeder extends Seeder
 
         foreach (Roles::defaultPermissions() as $roleName => $permissions) {
             $role = Role::findOrCreate($roleName, 'web');
+            if ($role->label === null) {
+                $area = in_array($roleName, Roles::FIELD_ROLES, true) ? Roles::AREA_FIELD : Roles::AREA_OFFICE;
+                $role->forceFill(['label' => Roles::LABELS[$roleName], 'area' => $area])->save();
+            }
 
             if ($role->wasRecentlyCreated) {
                 $role->syncPermissions($permissions);
