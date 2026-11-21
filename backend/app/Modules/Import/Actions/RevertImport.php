@@ -22,6 +22,7 @@ final class RevertImport
 
         DB::transaction(function () use ($type, $batch, $actor) {
             $type->revert($batch, $actor);
+            $type->revertMerges($batch->merges ?? [], $batch, $actor);
 
             $batch->forceFill(['status' => ImportBatch::REVERTED, 'reverted_by' => $actor->id, 'reverted_at' => now()])->save();
 

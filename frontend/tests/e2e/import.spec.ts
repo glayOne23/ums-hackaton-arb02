@@ -72,3 +72,31 @@ test('the imported outlet is in the list, and the session can be undone (KR-14)'
   await expect(office.getByText('Impor dibatalkan.')).toBeVisible()
   await expect(first).toContainText('dibatalkan')
 })
+
+test('a similar row joins the existing outlet with [Gabung] instead of a new one (OT-06)', async () => {
+  await office.getByRole('radio', { name: /Outlet/ }).click()
+  await office.locator('input[type="file"]').setInputFiles({
+    name: 'outlet-gabung.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(
+      [
+        'Nama outlet,Jenis,Kabupaten/kota,Kecamatan,Cara jual,Sales',
+        'AP Delanggu Contoh,Apotek,Kab. Klaten,Delanggu,Titip jual,',
+      ].join('\n'),
+    ),
+  })
+
+  await expect(office.getByText('1 mirip')).toBeVisible()
+  await expect(office.getByRole('button', { name: 'Belum ada baris yang siap' })).toBeDisabled()
+  await office.getByRole('radio', { name: /Gabung ke Apotek Delanggu Contoh \(OT-\d+\)/ }).check()
+  await office.getByRole('button', { name: 'Impor 1 baris' }).click()
+  await expect(office.getByText('0 outlet diimpor, 1 digabung.')).toBeVisible()
+
+  // Leave the sample data as it was
+  const first = office.getByRole('list', { name: 'Riwayat impor' }).getByRole('listitem').first()
+  await expect(first).toContainText('1 digabung')
+  await first.getByRole('button', { name: /Batalkan impor/ }).click()
+  await expect(office.getByRole('alertdialog').getByText(/Isian yang dilengkapi lewat Gabung/)).toBeVisible()
+  await office.getByRole('alertdialog').getByRole('button', { name: 'Batalkan impor' }).click()
+  await expect(office.getByText('Impor dibatalkan.')).toBeVisible()
+})

@@ -233,3 +233,52 @@ it('exports outlets and products in their template columns (IE-02)', function ()
     $this->actingAs($this->sales)->get('/api/v1/exports/products')->assertOk();
     $this->actingAs($this->warehouse)->get('/api/v1/exports/outlets')->assertForbidden();
 });
+
+it('joins a similar row to the existing outlet with [Gabung], and undoing the session puts it back (OT-06)', function () {
+    $sari = Outlet::factory()->create([
+        'name' => 'Apotek Sari Farma', 'code' => 'OT-0001', 'region_id' => $this->klaten->id, 'district' => 'Delanggu',
+        'address' => null, 'whatsapp_number' => null,
+    ]);
+    $file = xlsx([
+        ['Nama outlet', 'Jenis', 'Kabupaten', 'Kecamatan', 'Cara jual', 'Sales', 'No WA', 'Alamat'],
+        ['AP Sari Farma', 'Apotek', 'Klaten', 'Delanggu', 'Titip jual', 'endri', '0812 3456 7890', 'Jl. Delanggu 7'],
+        ['Toko Baru Sejahtera', 'Apotek', 'Klaten', 'Gading', 'Titip jual', '', '', ''],
+    ]);
+    $response = preview($this->admin, 'outlets', $file)
+        ->assertJsonPath('rows.0.merge_into', [['id' => $sari->id, 'code' => 'OT-0001', 'name' => 'Apotek Sari Farma']]);
+
+    // Only into a record the check proposed
+    $this->actingAs($this->admin)->postJson('/api/v1/imports/outlets', [
+        'token' => $response->json('token'),
+        'merge' => [2 => Outlet::factory()->create()->id],
+    ])->assertCreated()->assertJsonPath('data.merged_count', 0)->assertJsonPath('data.imported_count', 1);
+    expect($sari->fresh()->address)->toBeNull();
+
+    $response = preview($this->admin, 'outlets', $file);
+    $batchId = $this->actingAs($this->admin)->postJson('/api/v1/imports/outlets', [
+        'token' => $response->json('token'),
+        'merge' => [2 => $sari->id],
+    ])->assertCreated()
+        ->assertJsonPath('data.imported_count', 0)
+        ->assertJsonPath('data.merged_count', 1)
+        ->assertJsonPath('data.skipped_count', 1)
+        ->json('data.id');
+
+    $sari->refresh();
+    expect($sari->address)->toBe('Jl. Delanggu 7')
+        ->and($sari->whatsapp_number)->toBe('081234567890')
+        ->and($sari->activeAssignments()->pluck('sales_user_id')->all())->toBe([$this->sales->id])
+        ->and(Outlet::query()->where('name', 'AP Sari Farma')->exists())->toBeFalse();
+    $this->actingAs($this->admin)->getJson("/api/v1/history/outlet/{$sari->id}")
+        ->assertJsonPath('data.0.title', 'Digabung dengan baris 2 "AP Sari Farma" dari impor data.xlsx')
+        ->assertJsonPath('data.0.changes.0', 'Alamat: (kosong) → Jl. Delanggu 7');
+    expect(collect($this->actingAs($this->admin)->getJson('/api/v1/imports')->json('batches'))->firstWhere('id', $batchId)['merged_count'])->toBe(1);
+
+    // Someone fixes the address by hand afterwards: undoing keeps that
+    $sari->forceFill(['address' => 'Jl. Delanggu 7A'])->save();
+    $this->actingAs($this->admin)->postJson("/api/v1/imports/batches/{$batchId}/revert")->assertOk();
+    $sari->refresh();
+    expect($sari->address)->toBe('Jl. Delanggu 7A')
+        ->and($sari->whatsapp_number)->toBeNull()
+        ->and($sari->activeAssignments()->count())->toBe(0);
+});

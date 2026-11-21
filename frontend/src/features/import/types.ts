@@ -15,6 +15,8 @@ export interface ImportBatchItem {
   file_name: string
   row_count: number
   imported_count: number
+  /** Rows joined to existing data with [Gabung] */
+  merged_count: number
   skipped_count: number
   status: 'imported' | 'reverted'
   created_by: string | null
@@ -29,6 +31,8 @@ export interface PreviewRow {
   values: Record<string, string>
   problems: string[]
   similar: string[]
+  /** Existing records this row may be joined to instead of created ([Gabung]) */
+  merge_into: { id: string; code: string; name: string }[]
 }
 
 export interface ImportPreview {

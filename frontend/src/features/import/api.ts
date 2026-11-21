@@ -27,11 +27,22 @@ export function usePreviewImport() {
 export function useRunImport() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ type, token, includeSimilar }: { type: ImportTypeKey; token: string; includeSimilar: number[] }) =>
-      api<{ data: { id: string; imported_count: number; skipped_count: number } }>(`/imports/${type}`, {
-        method: 'POST',
-        body: { token, include_similar: includeSimilar },
-      }),
+    mutationFn: ({
+      type,
+      token,
+      includeSimilar,
+      merge,
+    }: {
+      type: ImportTypeKey
+      token: string
+      includeSimilar: number[]
+      /** line => id of the existing record the row joins */
+      merge: Record<number, string>
+    }) =>
+      api<{ data: { id: string; imported_count: number; merged_count: number; skipped_count: number } }>(
+        `/imports/${type}`,
+        { method: 'POST', body: { token, include_similar: includeSimilar, merge } },
+      ),
     onSuccess: () => void queryClient.invalidateQueries(),
   })
 }
