@@ -2,6 +2,8 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Models\StockRequest;
@@ -28,6 +30,13 @@ final class RejectStockRequest
                     'request' => "Permintaan {$request->number} sudah {$request->status->label()}.",
                 ]);
             }
+
+            app(Notifier::class)->toUser($request->sales_user_id, new Alert(
+                'Permintaan barang ditolak',
+                "{$request->number}: {$note}",
+                '/field/today',
+                'request',
+            ), $actor);
 
             $request->forceFill([
                 'status' => StockRequestStatus::Rejected,

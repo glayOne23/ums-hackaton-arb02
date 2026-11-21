@@ -2,6 +2,8 @@
 
 namespace App\Modules\Product\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Product\Enums\DiscountStatus;
 use App\Modules\Product\Models\Discount;
@@ -60,6 +62,15 @@ final class SaveDiscount
         }
 
         $discount->save();
+
+        if ($discount->status === DiscountStatus::Pending) {
+            app(Notifier::class)->toPermission(self::APPROVE_PERMISSION, new Alert(
+                'Potongan menunggu persetujuan',
+                'Potongan '.(float) $discount->discount_percent."% diajukan {$actor->name}",
+                '/office/discounts',
+                'approval',
+            ), $actor);
+        }
 
         return $discount;
     }

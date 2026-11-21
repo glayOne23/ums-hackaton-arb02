@@ -3,6 +3,8 @@
 namespace App\Modules\Sales\Actions;
 
 use App\Core\History\History;
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Sales\Enums\CorrectionKind;
 use App\Modules\Sales\Enums\CorrectionStatus;
@@ -31,6 +33,7 @@ final class DecideCorrection
             $this->requests->carryOut($correction, $actor, $correction->reason, $changes);
             $correction->forceFill(['decision_note' => $this->note($note)])->save();
             History::record($correction->transaction, $correction->kind === CorrectionKind::Void ? 'Menyetujui pembatalan' : 'Menyetujui koreksi', [], $this->note($note), $actor);
+            $this->tellRequester($correction, true, $actor);
 
             return $correction;
         });
@@ -52,6 +55,7 @@ final class DecideCorrection
                 'decision_note' => $note,
             ])->save();
             History::record($correction->transaction, $correction->kind === CorrectionKind::Void ? 'Menolak pembatalan' : 'Menolak koreksi', [], $note, $actor);
+            $this->tellRequester($correction, false, $actor);
 
             return $correction;
         });
@@ -68,6 +72,21 @@ final class DecideCorrection
         }
 
         return $correction;
+    }
+
+    private function tellRequester(TransactionCorrection $correction, bool $approved, User $actor): void
+    {
+        $requester = $correction->requester()->first();
+        if (! $requester) {
+            return;
+        }
+        $id = $correction->replacement_id ?? $correction->transaction_id;
+        app(Notifier::class)->toUser($requester, new Alert(
+            $correction->kind->label().($approved ? ' disetujui' : ' ditolak'),
+            "Nota {$correction->transaction->number}".($approved ? '' : ": {$correction->decision_note}"),
+            Notifier::isField($requester) ? "/field/fix/{$id}" : "/office/visits/{$id}",
+            'approval',
+        ), $actor);
     }
 
     private function note(?string $note): ?string

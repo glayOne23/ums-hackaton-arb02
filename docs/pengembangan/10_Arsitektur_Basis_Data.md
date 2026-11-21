@@ -91,7 +91,8 @@ Kolom **Status**: **ada** = sudah ada migrasinya; **MVP** = dibuat untuk purwaru
 | `sys_cache`, `sys_cache_locks` | Cache dan kunci (driver database) | ada |
 | `sys_jobs`, `sys_job_batches`, `sys_failed_jobs` | Antrean (driver database) | ada |
 | `sys_activity_log` | Riwayat perubahan: siapa, kapan, nilai lama/baru (spatie/laravel-activitylog, AK-03). Versi 5 tidak punya opsi nama tabel, jadi `config/activitylog.php` menunjuk model `App\Core\Models\Activity` yang memakai tabel ini. `subject_id` berupa string (ULID); `log_name = history` untuk riwayat per data (KR-10, W12) lewat `App\Core\History\History`, dibaca di `GET /history/{type}/{id}` (outlet, produk, nota, barang masuk, permintaan barang) | ada |
-| `sys_push_subscriptions` | Langganan Web Push per perangkat (PW-08). Atur `table_name` di config webpush | nanti |
+| `sys_push_subscriptions` | Langganan Web Push per perangkat (PW-08), skema paket laravel-notification-channels/webpush; `table_name` diatur di `config/webpush.php`. Diisi saat pengguna menekan "Nyalakan di perangkat ini" di panel notifikasi | ada |
+| `sys_notifications` | Notifikasi di lonceng (PW-08), kanal database Laravel; model `App\Core\Models\Notification`. Dikirim lewat `App\Core\Notify\Notifier` (ke pemegang izin atau satu pengguna) dengan `App\Core\Notify\Alert`: lonceng langsung, push ke perangkat lewat antrean. Pemicu: persetujuan menunggu (koreksi, barang keluar, potongan, opname, usulan outlet), permintaan barang baru, penugasan outlet, hasil usulan/permintaan/koreksi; ringkasan pagi ED dekat dan tagihan lewat jatuh tempo (`sigap:daily-notifications`, 07.00) | ada |
 | `sys_features` | Feature flag Laravel Pennant. Atur `stores.database.table` di `config/pennant.php` | nanti |
 
 ### 5.2 `auth_` — pengguna dan akses

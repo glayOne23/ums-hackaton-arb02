@@ -2,6 +2,8 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\AdjustmentStatus;
@@ -77,6 +79,13 @@ final class SaveStockAdjustment
 
             if (! Setting::bool('approve_stock_adjustment') || $actor->can(self::APPROVE_PERMISSION)) {
                 $this->apply->handle($adjustment, $actor);
+            } else {
+                app(Notifier::class)->toPermission(self::APPROVE_PERMISSION, new Alert(
+                    'Opname menunggu persetujuan',
+                    "{$adjustment->number}: ".count($differences)." selisih, oleh {$actor->name}",
+                    '/office/inventory/count',
+                    'approval',
+                ), $actor);
             }
 
             return $adjustment;

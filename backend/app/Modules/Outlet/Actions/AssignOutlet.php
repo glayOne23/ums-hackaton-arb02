@@ -3,6 +3,8 @@
 namespace App\Modules\Outlet\Actions;
 
 use App\Core\History\History;
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Outlet\Models\Assignment;
 use App\Modules\Outlet\Models\Outlet;
@@ -57,6 +59,15 @@ final class AssignOutlet
                     'reason' => $reason,
                     'created_by' => $actor->id,
                 ]);
+            }
+
+            foreach ($toStart as $salesUserId) {
+                app(Notifier::class)->toUser((int) $salesUserId, new Alert(
+                    'Outlet baru untuk Anda',
+                    "{$outlet->name} ({$outlet->district}) sekarang tugas Anda".($reason ? ": {$reason}" : '.'),
+                    '/field',
+                    'assignment',
+                ), $actor);
             }
 
             if ($toEnd->isNotEmpty() || $toStart !== []) {
