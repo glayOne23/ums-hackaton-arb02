@@ -117,8 +117,12 @@ cd backend
 composer install
 cp .env.example .env        # sesuaikan DB_* dengan MySQL lokal, buat database "sigap"
 php artisan key:generate
+php artisan webpush:vapid    # kunci notifikasi push ke perangkat (sekali)
 php artisan migrate --seed   # tabel + peran/izin + akun contoh
 php artisan serve
+# Di terminal lain, selama mengembangkan:
+php artisan queue:listen --tries=1 --timeout=0   # antrean: push ke perangkat, impor
+php artisan schedule:work                        # tugas terjadwal: Tempat Sampah, notifikasi pagi
 
 # Frontend → http://localhost:5173 (permintaan /api diteruskan ke backend)
 cd frontend
@@ -136,10 +140,13 @@ cp .env.example .env        # isi DB_HOST=127.0.0.1, DB_PORT (mis. 3307 bila MyS
 docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah
 docker compose run --rm app composer install
 docker compose run --rm app php artisan key:generate
+docker compose run --rm app php artisan webpush:vapid
 docker compose run --rm app php artisan migrate --seed
-docker compose up -d        # API di http://127.0.0.1:8000 + pekerja antrean
+docker compose up -d        # API di http://127.0.0.1:8000 + pekerja antrean + scheduler
 docker compose logs -f app  # lihat log; perintah lain: docker compose exec app php artisan …
 ```
+
+Tanpa `webpush:vapid`, notifikasi tetap muncul di lonceng aplikasi; hanya push ke perangkat yang dilewati. Tanpa pekerja antrean, push tidak terkirim. Tanpa scheduler, Tempat Sampah tidak dibersihkan dan notifikasi pagi (ED dekat, tagihan jatuh tempo) tidak dikirim.
 
 Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend tersambung ke MySQL bawaan Ubuntu, yang menolak login `root` dengan kata sandi. Arahkan `DB_PORT` ke MySQL yang dimaksud, atau buat user khusus untuk database proyek.
 
@@ -152,6 +159,16 @@ Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend te
 | `gudang` | 081100000003 | Admin Gudang | Area kantor |
 | `sales1` | 081100000004 | Sales | Area lapangan (HP) |
 | `sales2` | 081100000005 | Sales | Area lapangan (HP) |
+
+### Menjalankan di server
+
+Di luar langkah Laravel biasa (`composer install --no-dev`, `.env` produksi, `php artisan migrate --force`, `npm run build` untuk frontend), server butuh tiga hal:
+
+1. **Kunci push, sekali:** `php artisan webpush:vapid` (mengisi `VAPID_PUBLIC_KEY` dan `VAPID_PRIVATE_KEY` di `.env`). Jangan dibuat ulang setelah dipakai, karena langganan push di HP pengguna terikat ke kunci itu.
+2. **Pekerja antrean** yang selalu hidup, misalnya lewat Supervisor atau systemd: `php artisan queue:work --tries=3`.
+3. **Cron scheduler** setiap menit: `* * * * * cd /path/ke/backend && php artisan schedule:run >> /dev/null 2>&1`.
+
+Notifikasi push hanya jalan lewat HTTPS (kecuali `localhost`), dan di iPhone hanya setelah SIGAP dipasang di layar utama (iOS 16.4+).
 
 Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md), dan [10 · Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md). Singkatnya: **kode dan nama tabel berbahasa Inggris, tampilan berbahasa Indonesia**, dan tabel satu kelompok memakai prefix yang sama (`auth_`, `crm_`, `inv_`, `sls_`, …).
 

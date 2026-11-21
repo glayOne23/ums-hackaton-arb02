@@ -1,6 +1,6 @@
 # Local development only. MySQL runs on the host (not in Docker).
 #
-#   docker compose up -d        # API at http://127.0.0.1:8000
+#   docker compose up -d        # API at http://127.0.0.1:8000 + queue worker + scheduler
 #   docker compose logs -f app
 #   docker compose exec app php artisan migrate --seed
 #
@@ -31,3 +31,9 @@ services:
   queue:
     <<: *php
     command: php artisan queue:listen --tries=1 --timeout=0
+
+  # Runs the scheduled tasks in routes/console.php: Tempat Sampah purge (02.00)
+  # and the morning notifications (07.00). Same as cron "schedule:run" on a server.
+  scheduler:
+    <<: *php
+    command: php artisan schedule:work
