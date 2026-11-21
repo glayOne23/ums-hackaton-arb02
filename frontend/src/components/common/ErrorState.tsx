@@ -1,7 +1,8 @@
-import { CircleAlert } from 'lucide-react'
+import { CircleAlert, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useHelpLink } from '@/features/help/useHelpLink'
 
-/** Server error (UI guide §7.8): plain sentence + "Coba lagi". */
+/** Server error (UI guide §7.8): plain sentence + "Coba lagi" + "Hubungi admin" (WhatsApp, UX-09). */
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div
@@ -10,11 +11,27 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
     >
       <CircleAlert className="size-12 text-danger" aria-hidden />
       <p className="text-lg">{message}</p>
-      {onRetry && (
-        <Button variant="outline" onClick={onRetry}>
-          Coba lagi
-        </Button>
-      )}
+      <div className="flex flex-wrap justify-center gap-2">
+        {onRetry && (
+          <Button variant="outline" onClick={onRetry}>
+            Coba lagi
+          </Button>
+        )}
+        <HelpLink />
+      </div>
     </div>
+  )
+}
+
+function HelpLink() {
+  const link = useHelpLink()
+  if (!link) return null
+  return (
+    <Button asChild variant="ghost" className="text-leaf-700">
+      <a href={link} target="_blank" rel="noreferrer">
+        <MessageCircle aria-hidden />
+        Hubungi admin
+      </a>
+    </Button>
   )
 }

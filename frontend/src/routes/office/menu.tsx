@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
 import { useNavItems } from '@/components/layout/nav-items'
+import { HelpButton } from '@/features/help/components/HelpSheet'
 
 /** "Lainnya" on phones: every menu item the user may open (UI guide §5). */
 export const Route = createFileRoute('/office/menu')({
@@ -23,6 +24,9 @@ function MenuPage() {
             </Link>
           </li>
         ))}
+        <li>
+          <HelpButton className="flex h-14 w-full items-center gap-3 px-4 text-lg [&_svg]:text-leaf-700" />
+        </li>
       </ul>
     </section>
   )

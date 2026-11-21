@@ -5,6 +5,7 @@ import { LogoutButton } from '@/components/layout/LogoutButton'
 import { OfflineDataNotice, OutboxSync } from '@/components/offline/OfficeOffline'
 import { OfficeBottomNav, OfficeSideNav } from '@/components/layout/OfficeNav'
 import { requireArea } from '@/features/auth/guard'
+import { ScreenHint } from '@/features/help/components/ScreenHint'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { useSession } from '@/stores/session'
 
@@ -44,6 +45,7 @@ function OfficeLayout() {
         <OfficeSideNav />
         <main className="mx-auto flex w-full max-w-[1440px] min-w-0 flex-1 flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
           <OfflineDataNotice />
+          <ScreenHint />
           <Outlet />
         </main>
       </div>

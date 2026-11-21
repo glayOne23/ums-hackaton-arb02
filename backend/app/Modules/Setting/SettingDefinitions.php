@@ -94,6 +94,11 @@ final class SettingDefinitions
             'section' => 'company', 'type' => 'string', 'default' => '', 'max_length' => 20,
             'label' => 'Nomor WhatsApp',
         ],
+        'help_whatsapp' => [
+            'section' => 'company', 'type' => 'string', 'default' => '', 'max_length' => 20,
+            'label' => 'Nomor WA admin untuk tombol Bantuan',
+            'help' => 'Tujuan tombol Bantuan di semua layar (UX-09). Kosong = memakai nomor WhatsApp perusahaan di atas.',
+        ],
         'edit_window_days' => [
             'section' => 'correction', 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 30, 'suffix' => 'hari',
             'label' => 'Pembuat nota boleh memperbaiki langsung sampai',

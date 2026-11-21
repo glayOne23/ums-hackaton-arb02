@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Ellipsis } from 'lucide-react'
+import { HelpButton } from '@/features/help/components/HelpSheet'
 import { useNavItems } from './nav-items'
 
 /** Fixed side menu, 256 px, on desktop (≥ 1024 px). */
@@ -22,6 +23,10 @@ export function OfficeSideNav() {
             </Link>
           </li>
         ))}
+        {/* UX-09 */}
+        <li className="mt-2 border-t border-border pt-2">
+          <HelpButton className="flex h-11 w-full items-center gap-3 rounded-md px-3 font-medium text-foreground hover:bg-accent [&_svg]:size-5" />
+        </li>
       </ul>
     </nav>
   )
@@ -39,7 +44,8 @@ export function OfficeBottomNav() {
   // Always shown when there is a menu: pinned primary buttons sit right above it
   if (all.length === 0) return null
 
-  const overflow = all.length > BOTTOM_LIMIT
+  // "Lainnya" also holds Bantuan (UX-09), so it shows once a fourth slot is needed
+  const overflow = all.length >= BOTTOM_LIMIT
   const items = overflow ? all.slice(0, BOTTOM_LIMIT - 1) : all
   const linkClass = 'flex h-16 flex-col items-center justify-center gap-1 text-sm text-muted-foreground'
   const activeClass = 'font-semibold text-leaf-700'
@@ -60,12 +66,16 @@ export function OfficeBottomNav() {
             </Link>
           </li>
         ))}
-        {overflow && (
+        {overflow ? (
           <li className="flex-1">
             <Link to="/office/menu" className={linkClass} activeProps={{ className: activeClass }}>
               <Ellipsis className="size-6" aria-hidden />
               Lainnya
             </Link>
+          </li>
+        ) : (
+          <li className="flex-1">
+            <HelpButton className={`${linkClass} w-full`} />
           </li>
         )}
       </ul>

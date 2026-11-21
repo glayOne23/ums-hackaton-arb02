@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Http\Controllers\HelpController;
 use App\Core\Http\Controllers\NotificationController;
 use App\Core\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -13,3 +14,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('push-subscriptions', [PushSubscriptionController::class, 'store']);
     Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy']);
 });
+
+/* UX-09: the admin's WhatsApp for the "Bantuan" button */
+Route::middleware('auth:sanctum')->get('help', HelpController::class);
