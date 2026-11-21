@@ -4,9 +4,11 @@
 #   docker compose build
 FROM php:8.5-cli
 
+# default-mysql-client: mysqldump for the daily backup (NF-06, spatie/laravel-backup)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git unzip libzip-dev libicu-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+        default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql zip intl gd bcmath pcntl exif \
     && rm -rf /var/lib/apt/lists/*

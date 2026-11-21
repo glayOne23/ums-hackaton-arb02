@@ -137,7 +137,7 @@ Untuk yang tidak memasang PHP 8.5 di laptop. Folder `backend` di-mount ke contai
 ```bash
 cd backend
 cp .env.example .env        # isi DB_HOST=127.0.0.1, DB_PORT (mis. 3307 bila MySQL di container), DB_*
-docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah
+docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah (terakhir: mysqldump untuk backup)
 docker compose run --rm app composer install
 docker compose run --rm app php artisan key:generate
 docker compose run --rm app php artisan webpush:vapid
@@ -164,9 +164,9 @@ Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend te
 
 Di luar langkah Laravel biasa (`composer install --no-dev`, `.env` produksi, `php artisan migrate --force`, `npm run build` untuk frontend), server butuh tiga hal:
 
-1. **Kunci push, sekali:** `php artisan webpush:vapid` (mengisi `VAPID_PUBLIC_KEY` dan `VAPID_PRIVATE_KEY` di `.env`). Jangan dibuat ulang setelah dipakai, karena langganan push di HP pengguna terikat ke kunci itu.
+1. **Kunci push, sekali:** `php artisan webpush:vapid` (mengisi `VAPID_PUBLIC_KEY` dan `VAPID_PRIVATE_KEY` di `.env`). Jangan dibuat ulang setelah dipakai, karena langganan push di HP pengguna terikat ke kunci itu. Isi juga `VAPID_SUBJECT=mailto:email-admin` (atau URL https aplikasi); push ke iPhone menolak nilai lain.
 2. **Pekerja antrean** yang selalu hidup, misalnya lewat Supervisor atau systemd: `php artisan queue:work --tries=3`.
-3. **Cron scheduler** setiap menit: `* * * * * cd /path/ke/backend && php artisan schedule:run >> /dev/null 2>&1`.
+3. **Cron scheduler** setiap menit: `* * * * * cd /path/ke/backend && php artisan schedule:run >> /dev/null 2>&1`. Scheduler juga menjalankan **backup harian** pukul 01.30 (database + foto/unggahan, `config/backup.php`), jadi server butuh `mysqldump` (paket `mysql-client`). Arahkan `BACKUP_DISK` ke disk di luar server (mis. S3) dan isi `BACKUP_NOTIFY_EMAIL` agar kegagalan backup terkirim ke email.
 
 Notifikasi push hanya jalan lewat HTTPS (kecuali `localhost`), dan di iPhone hanya setelah SIGAP dipasang di layar utama (iOS 16.4+).
 

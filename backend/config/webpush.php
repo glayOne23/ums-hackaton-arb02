@@ -11,7 +11,11 @@ use NotificationChannels\WebPush\PushSubscription;
 return [
 
     'vapid' => [
-        'subject' => env('VAPID_SUBJECT', env('APP_URL')),
+        // Push services (Apple's included) accept only "mailto:" or an https URL here.
+        // Without VAPID_SUBJECT: the app URL when it is https, otherwise the app's sender address.
+        'subject' => env('VAPID_SUBJECT') ?: (str_starts_with((string) env('APP_URL'), 'https://')
+            ? env('APP_URL')
+            : 'mailto:'.env('MAIL_FROM_ADDRESS', 'hello@example.com')),
         'public_key' => env('VAPID_PUBLIC_KEY'),
         'private_key' => env('VAPID_PRIVATE_KEY'),
         'pem_file' => env('VAPID_PEM_FILE'),

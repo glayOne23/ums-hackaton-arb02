@@ -28,13 +28,13 @@ self.addEventListener('notificationclick', (event) => {
   const url = (event.notification.data && event.notification.data.url) || '/'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
-      for (const client of windows) {
-        if ('focus' in client) {
-          client.navigate(url)
-          return client.focus()
-        }
-      }
-      return self.clients.openWindow(url)
+      const client = windows.find((w) => 'focus' in w)
+      if (!client) return self.clients.openWindow(url)
+      // navigate() fails on a window this worker does not control: open a new one then
+      return client
+        .focus()
+        .then((focused) => (focused || client).navigate(url))
+        .catch(() => self.clients.openWindow(url))
     }),
   )
 })

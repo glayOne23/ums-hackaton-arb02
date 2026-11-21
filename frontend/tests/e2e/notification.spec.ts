@@ -23,11 +23,13 @@ test('a new stock request reaches the warehouse bell and opens the requests (PW-
   const number = await sales.evaluate(async () => {
     const token = JSON.parse(localStorage.getItem('sigap-session') ?? '{}').state?.token
     const headers = { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
-    const products = await (await fetch('/api/v1/products?per_page=1', { headers })).json()
+    // Not the product inventory.spec asks for with the same sales, so the two never pick each other's request
+    const products = await (await fetch('/api/v1/products?per_page=50', { headers })).json()
+    const product = products.data.find((p: { name: string }) => !p.name.startsWith('Jahe'))
     const response = await fetch('/api/v1/inventory/stock-requests', {
       method: 'POST',
       headers,
-      body: JSON.stringify({ items: [{ product_id: products.data[0].id, qty: 1 }], note: 'Uji e2e notifikasi' }),
+      body: JSON.stringify({ items: [{ product_id: product.id, qty: 1 }], note: 'Uji e2e notifikasi' }),
     })
     return (await response.json()).data.number as string
   })
@@ -50,10 +52,9 @@ test('a new stock request reaches the warehouse bell and opens the requests (PW-
   await warehouse.getByRole('alertdialog').getByRole('button', { name: 'Tolak permintaan' }).click()
   // Refused: it leaves the list of open requests
   await expect(warehouse.getByRole('listitem').filter({ hasText: number })).toHaveCount(0)
+  // Read them all; other specs may add new ones meanwhile, so the bell is not checked to be empty
   await warehouse.getByRole('button', { name: /Notifikasi/ }).click()
   const markAll = warehouse.getByRole('button', { name: 'Tandai semua sudah dibaca' })
   if (await markAll.isVisible()) await markAll.click()
-  await expect(markAll).toBeHidden()
   await warehouse.keyboard.press('Escape')
-  await expect(warehouse.getByRole('button', { name: 'Notifikasi', exact: true })).toBeVisible()
 })
