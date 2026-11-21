@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Report\Http\Controllers\OutletOverviewController;
 use App\Modules\Report\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,4 +10,10 @@ Route::middleware('auth:sanctum')->prefix('reports')->group(function () {
     Route::get('options', [ReportController::class, 'options']);
     Route::get('summary', [ReportController::class, 'summary']);
     Route::get('{code}', [ReportController::class, 'show'])->where('code', '[a-z-]+');
+});
+
+// OT-03 outlet profile (stock, visits, invoices) and OT-07 stok standar
+Route::middleware('auth:sanctum')->prefix('outlets/{outlet}')->whereUlid('outlet')->group(function () {
+    Route::get('overview', [OutletOverviewController::class, 'show'])->middleware('can:outlet.view');
+    Route::put('stock-targets', [OutletOverviewController::class, 'updateTargets'])->middleware('can:outlet.manage');
 });

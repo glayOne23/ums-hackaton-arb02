@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleAlert, LoaderCircle } from 'lucide-react'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { FieldError } from '@/components/common/FieldError'
 import { Button } from '@/components/ui/button'
@@ -9,16 +10,22 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { ApiError } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
-import { useOutletTypes, useRegions, useSaveOutlet } from '../api'
+import { useOutletTypes, useProposeOutlet, useRegions, useSaveOutlet } from '../api'
 import { type OutletFormInput, outletFormSchema } from '../schemas'
-import { type Outlet, SALE_MODES } from '../types'
+import { type Outlet, type OutletProposal, SALE_MODES } from '../types'
 import { SimilarOutletsNotice } from './SimilarOutletsNotice'
 
 interface Props {
   /** Empty = add a new outlet */
   outlet?: Outlet
-  onSaved: (outlet: Outlet) => void
+  onSaved?: (outlet: Outlet) => void
   onCancel: () => void
+  /**
+   * OT-05: a sales proposes a new outlet from the field instead of saving one.
+   * No visit cycle (the office decides), a note for the office, and the
+   * similar-name check is left to the office.
+   */
+  onProposed?: (proposal: OutletProposal) => void
 }
 
 function defaults(outlet?: Outlet): OutletFormInput {
@@ -36,10 +43,14 @@ function defaults(outlet?: Outlet): OutletFormInput {
 }
 
 /** OT-01 add/change outlet. Labels above fields, errors say how to fix (UI guide §7.5). */
-export function OutletForm({ outlet, onSaved, onCancel }: Props) {
+export function OutletForm({ outlet, onSaved, onCancel, onProposed }: Props) {
   const regions = useRegions()
   const outletTypes = useOutletTypes()
-  const save = useSaveOutlet(outlet?.id)
+  const saveOutlet = useSaveOutlet(outlet?.id)
+  const propose = useProposeOutlet()
+  const proposing = onProposed !== undefined
+  const save = proposing ? propose : saveOutlet
+  const [note, setNote] = useState('')
   const {
     register,
     handleSubmit,
@@ -53,21 +64,35 @@ export function OutletForm({ outlet, onSaved, onCancel }: Props) {
     mode: 'onTouched',
   })
 
+  const onError = (error: Error) => {
+    // Show server validation messages under their own fields
+    if (error instanceof ApiError) {
+      for (const [field, messages] of Object.entries(error.fieldErrors)) {
+        if (field in defaults())
+          setError(field as keyof OutletFormInput, {
+            message: messages[0],
+          })
+      }
+    }
+  }
+
   const submit = handleSubmit((input) =>
-    save.mutate(input, {
-      onSuccess: onSaved,
-      onError: (error) => {
-        // Show server validation messages under their own fields
-        if (error instanceof ApiError) {
-          for (const [field, messages] of Object.entries(error.fieldErrors)) {
-            if (field in input)
-              setError(field as keyof OutletFormInput, {
-                message: messages[0],
-              })
-          }
-        }
-      },
-    }),
+    proposing
+      ? propose.mutate({ ...input, note }, { onSuccess: onProposed, onError })
+      : saveOutlet.mutate(input, {
+          onSuccess: onSaved,
+          onError: (error) => {
+            // Show server validation messages under their own fields
+            if (error instanceof ApiError) {
+              for (const [field, messages] of Object.entries(error.fieldErrors)) {
+                if (field in input)
+                  setError(field as keyof OutletFormInput, {
+                    message: messages[0],
+                  })
+              }
+            }
+          },
+        }),
   )
 
   const [name, regionId, district, saleMode, isActive] = useWatch({
@@ -140,7 +165,9 @@ export function OutletForm({ outlet, onSaved, onCancel }: Props) {
         <FieldError id="district-error" message={errors.district?.message} />
       </div>
 
-      <SimilarOutletsNotice name={name} region_id={regionId} district={district} except_id={outlet?.id} />
+      {!proposing && (
+        <SimilarOutletsNotice name={name} region_id={regionId} district={district} except_id={outlet?.id} />
+      )}
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="address" className="text-base">
@@ -166,18 +193,20 @@ export function OutletForm({ outlet, onSaved, onCancel }: Props) {
           <FieldError id="whatsapp_number-error" message={errors.whatsapp_number?.message} />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="visit_cycle_days" className="text-base">
-            Siklus kunjungan (hari)
-          </Label>
-          <Input
-            {...field('visit_cycle_days')}
-            inputMode="numeric"
-            placeholder="Ikut Pengaturan"
-            {...register('visit_cycle_days')}
-          />
-          <FieldError id="visit_cycle_days-error" message={errors.visit_cycle_days?.message} />
-        </div>
+        {!proposing && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="visit_cycle_days" className="text-base">
+              Siklus kunjungan (hari)
+            </Label>
+            <Input
+              {...field('visit_cycle_days')}
+              inputMode="numeric"
+              placeholder="Ikut Pengaturan"
+              {...register('visit_cycle_days')}
+            />
+            <FieldError id="visit_cycle_days-error" message={errors.visit_cycle_days?.message} />
+          </div>
+        )}
       </div>
 
       {/* 3 options → buttons, not a dropdown (UI guide §7.5) */}
@@ -203,6 +232,22 @@ export function OutletForm({ outlet, onSaved, onCancel }: Props) {
         <FieldError id="sale_mode-error" message={errors.sale_mode?.message} />
       </fieldset>
 
+      {proposing && (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="proposal-note" className="text-base">
+            Catatan untuk admin
+          </Label>
+          <Textarea
+            id="proposal-note"
+            rows={2}
+            maxLength={255}
+            placeholder="Misalnya: pemilik minta dititipi madu, dekat pasar Gading"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+      )}
+
       {outlet && (
         <label className="flex min-h-12 items-center gap-3">
           <input
@@ -226,7 +271,7 @@ export function OutletForm({ outlet, onSaved, onCancel }: Props) {
         </Button>
         <Button type="submit" size="cta" className="sm:h-10 sm:w-auto" disabled={save.isPending}>
           {save.isPending && <LoaderCircle className="size-5 animate-spin" aria-hidden />}
-          {outlet ? 'Simpan perubahan' : 'Simpan outlet'}
+          {proposing ? 'Kirim usulan' : outlet ? 'Simpan perubahan' : 'Simpan outlet'}
         </Button>
       </div>
     </form>

@@ -12,13 +12,14 @@ import { useOutlet } from '../api'
 import type { Outlet } from '../types'
 import { AssignmentEditor } from './AssignmentEditor'
 import { DeleteOutletButton } from './DeleteOutletButton'
+import { OutletOverviewPanel } from './OutletOverviewPanel'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
 
 /**
- * W2 — outlet profile (OT-03). This first version shows the outlet data and
- * who holds it. Stock, visit history, and unpaid invoices are added when the
- * Inventory, Sales, and Billing modules exist.
+ * W2 — outlet profile (OT-03): the outlet data, who holds it, its shelf with
+ * the optional stok standar (OT-07), recent visits, unpaid invoices, and the
+ * change history.
  */
 export function OutletProfile({ outletId }: { outletId: string }) {
   const outlet = useOutlet(outletId)
@@ -134,12 +135,9 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
         )}
       </section>
 
-      <HistoryPanel type="outlet" id={outlet.id} />
+      <OutletOverviewPanel outletId={outlet.id} />
 
-      <p className="text-sm text-muted-foreground">
-        Stok titipan, riwayat kunjungan, dan tagihan outlet akan tampil di sini setelah modul gudang, kunjungan, dan
-        tagihan tersedia.
-      </p>
+      <HistoryPanel type="outlet" id={outlet.id} />
     </article>
   )
 }

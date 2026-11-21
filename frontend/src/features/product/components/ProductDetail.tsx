@@ -37,6 +37,7 @@ export function ProductDetail({ productId }: { productId: string }) {
 
 function Content({ product }: { product: Product }) {
   const canManage = usePermission('product.manage')
+  const canSeeStock = usePermission('inventory.view')
 
   return (
     <article className="flex flex-col gap-6">
@@ -88,7 +89,21 @@ function Content({ product }: { product: Product }) {
         <Link to="/office/price-list" className="font-medium text-leaf-700 underline underline-offset-4">
           Daftar harga
         </Link>
-        . Stok per batch tampil di sini setelah modul gudang tersedia.
+        .
+        {canSeeStock && (
+          <>
+            {' '}
+            Stok per batch dan keluar-masuknya ada di{' '}
+            <Link
+              to="/office/inventory/stock-card/$productId"
+              params={{ productId: product.id }}
+              className="font-medium text-leaf-700 underline underline-offset-4"
+            >
+              Kartu stok
+            </Link>
+            .
+          </>
+        )}
       </p>
     </article>
   )

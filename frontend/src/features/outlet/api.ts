@@ -3,7 +3,7 @@ import { api } from '@/lib/api/client'
 import { toQueryString } from '@/lib/api/query'
 import type { AssignmentFormInput, OutletFormInput } from './schemas'
 import { toOutletPayload } from './schemas'
-import type { Assignee, Outlet, OutletFilters, Paginated, Reference } from './types'
+import type { Assignee, Outlet, OutletFilters, OutletOverview, OutletProposal, Paginated, Reference } from './types'
 
 export const outletKeys = {
   all: ['outlets'] as const,
@@ -13,6 +13,8 @@ export const outletKeys = {
   assignees: ['outlets', 'assignees'] as const,
   regions: ['regions'] as const,
   outletTypes: ['outlet-types'] as const,
+  overview: (id: string) => ['outlets', 'overview', id] as const,
+  proposals: (mine: boolean) => ['outlets', 'proposals', mine] as const,
 }
 
 const query = toQueryString
@@ -138,6 +140,72 @@ export function useRestoreOutlet() {
 
   return useMutation({
     mutationFn: restoreOutlet,
+    networkMode: 'always',
+    // Not awaited: the trash list empties on refetch and unmounts the row, whose
+    // own onSuccess (go to the restored outlet) must still run
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: outletKeys.all })
+    },
+  })
+}
+
+/** OT-03: shelf, visits, and what the outlet still owes, for the profile page. */
+export function useOutletOverview(id: string) {
+  return useQuery({
+    queryKey: outletKeys.overview(id),
+    queryFn: ({ signal }) => api<{ data: OutletOverview }>(`/outlets/${id}/overview`, { signal }).then((r) => r.data),
+  })
+}
+
+/** OT-07: save the stok standar per product; empty clears it. */
+export function useSaveStockTargets(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (targets: { product_id: string; target_qty: number | null }[]) =>
+      api<{ data: OutletOverview; changed: number }>(`/outlets/${id}/stock-targets`, {
+        method: 'PUT',
+        body: { targets },
+      }),
+    networkMode: 'always',
+    onSuccess: (r) => {
+      queryClient.setQueryData(outletKeys.overview(id), r.data)
+      return queryClient.invalidateQueries({ queryKey: ['correction', 'history'] })
+    },
+  })
+}
+
+/**
+ * OT-05: for the office, proposals waiting for a decision; for a sales (or
+ * with `mine`), their own proposals and what became of them.
+ */
+export function useOutletProposals(mine = false, enabled = true) {
+  return useQuery({
+    queryKey: outletKeys.proposals(mine),
+    queryFn: ({ signal }) =>
+      api<{ data: OutletProposal[] }>(`/outlet-proposals${mine ? '?mine=1' : ''}`, { signal }).then((r) => r.data),
+    enabled,
+  })
+}
+
+export function useProposeOutlet() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: OutletFormInput & { note?: string }) =>
+      api<{ data: OutletProposal }>('/outlet-proposals', {
+        method: 'POST',
+        body: { ...toOutletPayload(input), note: input.note || null },
+      }).then((r) => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['outlets', 'proposals'] }),
+  })
+}
+
+export function useDecideProposal() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, decision, note }: { id: string; decision: 'approve' | 'reject'; note?: string }) =>
+      api<{ data: OutletProposal }>(`/outlet-proposals/${id}/${decision}`, { method: 'POST', body: { note } }).then(
+        (r) => r.data,
+      ),
     networkMode: 'always',
     onSuccess: () => queryClient.invalidateQueries({ queryKey: outletKeys.all }),
   })

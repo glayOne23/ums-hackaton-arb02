@@ -8,6 +8,7 @@ use App\Modules\Billing\Queries\OutletBalances;
 use App\Modules\Inventory\Actions\StockLocations;
 use App\Modules\Inventory\Queries\LocationStock;
 use App\Modules\Outlet\Models\Outlet;
+use App\Modules\Outlet\Models\OutletStockTarget;
 use App\Modules\Product\Actions\ResolveDiscount;
 use App\Modules\Product\Models\Product;
 use App\Modules\Sales\Enums\TransactionStatus;
@@ -53,6 +54,10 @@ final class WorkPackage
         $outletIds = $outlets->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         $stockByOutlet = $this->stock->byOutlet($outletIds, $cutoff);
+        // OT-07: the optional stok standar, which the visit refills up to
+        $targets = OutletStockTarget::query()->whereIn('outlet_id', $outletIds)->get()
+            ->groupBy('outlet_id')
+            ->map(fn ($rows) => $rows->mapWithKeys(fn (OutletStockTarget $t) => [$t->product_id => $t->target_qty]));
         $carried = $this->stock->summary($this->locations->forSales($sales), $cutoff);
         $unpaid = $this->balances->unpaidByOutlet($outletIds);
 
@@ -96,7 +101,7 @@ final class WorkPackage
                 'unit' => $product->unit,
             ])->values(),
             'carried' => collect($carried)->map(fn (array $row, string $productId) => ['product_id' => $productId, ...$row])->values(),
-            'outlets' => $outlets->map(function (Outlet $outlet) use ($stockByOutlet, $carried, $products, $candidates, $unpaid, $lastVisits) {
+            'outlets' => $outlets->map(function (Outlet $outlet) use ($stockByOutlet, $carried, $products, $candidates, $unpaid, $lastVisits, $targets) {
                 $stock = $stockByOutlet[$outlet->id] ?? [];
                 $priced = array_unique([...array_keys($stock), ...array_keys($carried)]);
 
@@ -114,6 +119,7 @@ final class WorkPackage
                     'last_visit_at' => isset($lastVisits[$outlet->id]) ? now()->parse($lastVisits[$outlet->id])->toIso8601String() : null,
                     'unpaid' => ($unpaid[$outlet->id] ?? 0) / 100,
                     'stock' => collect($stock)->map(fn (array $row, string $productId) => ['product_id' => $productId, ...$row])->values(),
+                    'stock_targets' => (object) ($targets[$outlet->id] ?? collect())->all(),
                     'prices' => collect($priced)
                         ->filter(fn (string $id) => $products->has($id))
                         ->mapWithKeys(function (string $id) use ($products, $outlet, $candidates) {

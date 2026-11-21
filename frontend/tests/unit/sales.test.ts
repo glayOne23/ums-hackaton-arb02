@@ -54,6 +54,14 @@ describe('computeLine (SDD §4.1)', () => {
     expect(result.sold).toBe(0)
   })
 
+  it('refills up to the stok standar when the outlet has one (OT-07)', () => {
+    expect(computeLine({ ...madu, target: 6 }, { remaining: 1 })).toMatchObject({ sold: 3, refill: 5, closing: 6 })
+    // Already above the standard: nothing to refill
+    expect(computeLine({ ...madu, opening: 8, target: 5 })).toMatchObject({ refill: 0, closing: 8 })
+    // A new product with a standard, still limited by what the sales carries
+    expect(computeLine({ ...madu, opening: 0, target: 30 })).toMatchObject({ refill: 24 })
+  })
+
   it('keeps what the sales typed over the suggestion', () => {
     expect(computeLine(madu, { remaining: 1, refill: 5 })).toMatchObject({ refill: 5, closing: 6 })
     expect(computeLine(madu, { refill: 30 }).refillTooHigh).toBe(true)

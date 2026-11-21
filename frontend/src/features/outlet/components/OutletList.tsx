@@ -10,6 +10,7 @@ import type { OutletFilters } from '../types'
 import { DeletedOutletList } from './DeletedOutletList'
 import { OutletFilterBar } from './OutletFilterBar'
 import { OutletCards, OutletTable } from './OutletTable'
+import { ProposalReview } from './ProposalReview'
 
 const PER_PAGE = 25
 
@@ -46,6 +47,8 @@ export function OutletList({ filters, onFiltersChange }: Props) {
           )}
         </div>
       </header>
+
+      <ProposalReview />
 
       <OutletFilterBar filters={filters} onChange={onFiltersChange} />
 
