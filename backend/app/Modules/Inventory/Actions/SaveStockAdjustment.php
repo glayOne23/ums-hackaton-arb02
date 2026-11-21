@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Actions;
 
 use App\Core\Notify\Alert;
 use App\Core\Notify\Notifier;
+use App\Core\Support\ClientUuid;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\AdjustmentStatus;
@@ -30,11 +31,20 @@ final class SaveStockAdjustment
     /**
      * @param  list<array{batch_id: string, physical_qty: int}>  $counts
      */
-    public function handle(array $counts, ?string $reason, User $actor): StockAdjustment
+    public function handle(array $counts, ?string $reason, User $actor, ?string $clientUuid = null): StockAdjustment
     {
         $reason = filled($reason) ? trim((string) $reason) : null;
 
-        return DB::transaction(function () use ($counts, $reason, $actor) {
+        // PW-06: sent again from a device that saved it without a signal → the same count
+        return ClientUuid::once(StockAdjustment::class, $clientUuid, $actor, fn () => $this->save($counts, $reason, $actor, $clientUuid));
+    }
+
+    /**
+     * @param  list<array{batch_id: string, physical_qty: int}>  $counts
+     */
+    private function save(array $counts, ?string $reason, User $actor, ?string $clientUuid): StockAdjustment
+    {
+        return DB::transaction(function () use ($counts, $reason, $actor, $clientUuid) {
             $warehouse = $this->locations->warehouse();
 
             $differences = [];
@@ -68,6 +78,7 @@ final class SaveStockAdjustment
             }
 
             $adjustment = StockAdjustment::query()->create([
+                'client_uuid' => $clientUuid,
                 'number' => DocumentNumber::next('inv_stock_adjustments', 'OP'),
                 'location_id' => $warehouse->id,
                 'counted_date' => now()->toDateString(),

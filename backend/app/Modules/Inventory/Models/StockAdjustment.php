@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $reopened_at
  * @property string|null $reopen_reason
  */
-#[Fillable(['number', 'location_id', 'counted_date', 'reason', 'status', 'created_by'])]
+#[Fillable(['client_uuid', 'number', 'location_id', 'counted_date', 'reason', 'status', 'created_by'])]
 class StockAdjustment extends Model
 {
     use HasUlids;

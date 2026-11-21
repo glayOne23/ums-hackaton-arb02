@@ -20,8 +20,9 @@ function NewReturnPage() {
         </Link>
         <h1 className="text-2xl font-semibold">Terima retur</h1>
         <ReturnForm
-          onSaved={(ret) => {
-            toast.success(`${ret.number} tersimpan`)
+          onSaved={(result) => {
+            if (result.queued) toast.info('Retur tersimpan di perangkat. Terkirim otomatis saat ada sinyal.')
+            else toast.success(`${result.data.number} tersimpan`)
             navigate({ to: '/office/inventory/returns' })
           }}
           onCancel={() => navigate({ to: '/office/inventory/returns' })}

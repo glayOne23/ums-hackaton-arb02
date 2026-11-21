@@ -9,6 +9,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { ApiError } from '@/lib/api/client'
 import { useProductOptions, useReceiveGoods } from '../api'
 import type { GoodsReceipt } from '../types'
+import type { Sent } from '@/lib/offline/outbox'
 
 interface Line {
   key: number
@@ -21,7 +22,13 @@ interface Line {
 const emptyLine = (key: number): Line => ({ key, product_id: '', batch_number: '', expiry_date: '', qty: '' })
 
 /** GD-01 / P1 — pick product, type batch and ED, fill the quantity. Several products at once. */
-export function GoodsReceiptForm({ onSaved, onCancel }: { onSaved: (r: GoodsReceipt) => void; onCancel: () => void }) {
+export function GoodsReceiptForm({
+  onSaved,
+  onCancel,
+}: {
+  onSaved: (r: Sent<GoodsReceipt>) => void
+  onCancel: () => void
+}) {
   const products = useProductOptions()
   const receive = useReceiveGoods()
   const [today] = useState(() => format(new Date(), 'yyyy-MM-dd'))

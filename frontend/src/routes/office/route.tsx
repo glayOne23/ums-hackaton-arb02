@@ -2,6 +2,7 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { Leaf } from 'lucide-react'
 import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
 import { LogoutButton } from '@/components/layout/LogoutButton'
+import { OfflineDataNotice, OutboxSync } from '@/components/offline/OfficeOffline'
 import { OfficeBottomNav, OfficeSideNav } from '@/components/layout/OfficeNav'
 import { requireArea } from '@/features/auth/guard'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
@@ -20,6 +21,7 @@ function OfficeLayout() {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <OutboxSync />
       <header className="sticky top-0 z-10 print:hidden flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-md bg-primary text-primary-foreground">
@@ -40,7 +42,8 @@ function OfficeLayout() {
       </header>
       <div className="flex flex-1">
         <OfficeSideNav />
-        <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">
+        <main className="mx-auto flex w-full max-w-[1440px] min-w-0 flex-1 flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
+          <OfflineDataNotice />
           <Outlet />
         </main>
       </div>

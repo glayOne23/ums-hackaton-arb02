@@ -41,6 +41,7 @@ class StockAdjustmentController extends Controller
     public function store(Request $request, SaveStockAdjustment $save): JsonResponse
     {
         $data = $request->validate([
+            'client_uuid' => ['nullable', 'uuid'],
             'reason' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.batch_id' => ['required', 'string', 'distinct', 'exists:inv_batches,id'],
@@ -56,9 +57,10 @@ class StockAdjustmentController extends Controller
         $user = $request->user();
         /** @var list<array{batch_id: string, physical_qty: int}> $items */
         $items = $data['items'];
-        $adjustment = $save->handle($items, $data['reason'] ?? null, $user);
+        $adjustment = $save->handle($items, $data['reason'] ?? null, $user, $data['client_uuid'] ?? null);
 
-        return (new StockAdjustmentResource($adjustment->load(self::RELATIONS)))->response()->setStatusCode(201);
+        // 200 when this device already sent it (PW-06)
+        return (new StockAdjustmentResource($adjustment->load(self::RELATIONS)))->response()->setStatusCode($adjustment->wasRecentlyCreated ? 201 : 200);
     }
 
     public function approve(Request $request, StockAdjustment $stockAdjustment, DecideStockAdjustment $decide): StockAdjustmentResource

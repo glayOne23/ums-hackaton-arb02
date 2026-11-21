@@ -10,6 +10,7 @@ import { formatNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useReceiveReturn, useSalesStock, useSalesUsers } from '../api'
 import { RETURN_CONDITIONS, type ReturnConditionValue, type StockReturn } from '../types'
+import type { Sent } from '@/lib/offline/outbox'
 
 interface Line {
   key: number
@@ -19,7 +20,7 @@ interface Line {
 }
 
 /** GD-05 / P6 — goods back from a sales; the condition decides where they go (BR-07). */
-export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: StockReturn) => void; onCancel: () => void }) {
+export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: Sent<StockReturn>) => void; onCancel: () => void }) {
   const salesUsers = useSalesUsers()
   const receive = useReceiveReturn()
   const [salesId, setSalesId] = useState('')
@@ -48,6 +49,7 @@ export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: StockReturn) =>
     receive.mutate(
       {
         sales_user_id: Number(salesId),
+        sales_name: salesUsers.data?.find((u) => String(u.id) === salesId)?.name,
         note,
         items: lines.map((line) => ({ product_id: line.product_id, qty: Number(line.qty), condition: line.condition })),
       },

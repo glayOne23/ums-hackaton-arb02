@@ -1,5 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
+import { forgetLastSync } from '@/lib/offline/lastSync'
+import { queryPersister } from '@/lib/offline/persister'
 import { type User, useSession } from '@/stores/session'
 import type { LoginInput } from './schemas'
 
@@ -19,8 +21,20 @@ export function deviceName(userAgent: string = navigator.userAgent): string {
   return 'Perangkat lain'
 }
 
+/**
+ * PW-07 keeps what each person opened on the device. A sign-in or sign-out
+ * starts clean, so the next person on a shared device never sees it.
+ * (Unsent visits and warehouse documents are separate and stay to be sent.)
+ */
+async function forgetCachedData(queryClient: QueryClient): Promise<void> {
+  queryClient.clear()
+  forgetLastSync()
+  await queryPersister.removeClient()
+}
+
 export function useLogin() {
   const save = useSession((s) => s.save)
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (input: LoginInput) =>
@@ -30,7 +44,10 @@ export function useLogin() {
       }),
     // Signing in always needs a signal; never queue it while offline
     networkMode: 'always',
-    onSuccess: ({ token, user }) => save(token, user),
+    onSuccess: async ({ token, user }) => {
+      await forgetCachedData(queryClient)
+      save(token, user)
+    },
   })
 }
 
@@ -54,11 +71,15 @@ export function useCurrentUser() {
 
 export function useLogout() {
   const clear = useSession((s) => s.clear)
+  const queryClient = useQueryClient()
 
   return useMutation({
     // Sign out on the device even when the server cannot be reached
     mutationFn: () => api<void>('/auth/logout', { method: 'POST' }).catch(() => undefined),
     networkMode: 'always',
-    onSettled: () => clear(),
+    onSettled: async () => {
+      clear()
+      await forgetCachedData(queryClient)
+    },
   })
 }

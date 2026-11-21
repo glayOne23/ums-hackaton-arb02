@@ -3,6 +3,7 @@
 namespace App\Modules\Inventory\Actions;
 
 use App\Core\Period\ClosedPeriods;
+use App\Core\Support\ClientUuid;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
@@ -27,15 +28,25 @@ final class ReceiveGoods
     ) {}
 
     /**
-     * @param  array{received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>}  $data
+     * @param  array{client_uuid?: ?string, received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>}  $data
      */
     public function handle(array $data, User $actor): GoodsReceipt
+    {
+        // PW-06: sent again from a device that saved it without a signal → the same receipt
+        return ClientUuid::once(GoodsReceipt::class, $data['client_uuid'] ?? null, $actor, fn () => $this->receive($data, $actor));
+    }
+
+    /**
+     * @param  array{client_uuid?: ?string, received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>}  $data
+     */
+    private function receive(array $data, User $actor): GoodsReceipt
     {
         return DB::transaction(function () use ($data, $actor) {
             $date = isset($data['received_date']) ? Carbon::parse($data['received_date']) : now();
             app(ClosedPeriods::class)->assertOpen($date, 'Barang masuk ini', 'received_date');
 
             $receipt = GoodsReceipt::query()->create([
+                'client_uuid' => $data['client_uuid'] ?? null,
                 'number' => DocumentNumber::next('inv_goods_receipts', 'BM', $date),
                 'received_date' => $date->toDateString(),
                 'note' => $data['note'] ?? null,

@@ -70,7 +70,8 @@ test('a sales proposes an outlet from the phone; the office sees it with similar
   await card.getByRole('button', { name: 'Tolak' }).click()
   await office.getByLabel('Alasan untuk sales (wajib)').fill('Uji e2e: tidak dibuka')
   await office.getByRole('alertdialog').getByRole('button', { name: 'Tolak usulan' }).click()
-  await expect(office.getByText('Usulan ditolak')).toBeVisible()
+  // Refused: it leaves the panel (the toast may be gone already on a slow machine)
+  await expect(card).toHaveCount(0)
 
   await sales.goto('/field/propose')
   const mine = sales.getByRole('region', { name: 'Usulan saya' }).getByRole('listitem').filter({ hasText: PROPOSAL })
