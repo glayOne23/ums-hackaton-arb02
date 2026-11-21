@@ -134,14 +134,20 @@ cd backend
 composer install
 cp .env.example .env          # sesuaikan DB_* dengan MySQL lokal
 php artisan key:generate
-php artisan migrate
+php artisan webpush:vapid     # kunci notifikasi push ke perangkat (sekali)
+php artisan migrate --seed    # tabel + peran/izin + akun contoh
 php artisan serve
+# Di terminal lain:
+php artisan queue:listen --tries=1 --timeout=0   # antrean: push ke perangkat, impor
+php artisan schedule:work                        # Tempat Sampah (02.00), notifikasi pagi (07.00)
 
 # Frontend — http://localhost:5173 (permintaan /api diteruskan ke backend)
 cd frontend
 npm install
 npm run dev
 ```
+
+Lewat Docker (Linux), `docker compose up -d` di folder `backend` sudah menjalankan API, antrean, dan scheduler sekaligus (README, ADR 0003). Langkah untuk server ada di README bagian "Menjalankan di server".
 
 ## 8. Data, rahasia, dan dependensi
 

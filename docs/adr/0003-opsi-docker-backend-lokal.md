@@ -17,7 +17,7 @@ Lingkungan lokal yang dicari harus:
 Menambahkan **opsi** menjalankan backend lewat Docker Compose untuk pengembangan lokal. Opsi ini tidak menggantikan cara di ADR 0001.
 
 - `backend/docker/dev.Dockerfile` berisi PHP 8.5 CLI, ekstensi di atas, dan Composer. Kode tidak disalin ke dalam image.
-- `backend/compose.yaml` punya dua layanan, `app` (`php artisan serve` di 127.0.0.1:8000) dan `queue` (`queue:listen`). Keduanya me-mount folder `backend`, sehingga perubahan kode langsung terpakai.
+- `backend/compose.yaml` punya tiga layanan: `app` (`php artisan serve` di 127.0.0.1:8000), `queue` (`queue:listen`), dan `scheduler` (`schedule:work`, untuk pembersihan Tempat Sampah dan notifikasi pagi; ditambahkan 2026-11-21). Ketiganya me-mount folder `backend`, sehingga perubahan kode langsung terpakai.
 - `network_mode: host` dipakai agar container bisa menjangkau MySQL di `127.0.0.1:<port>`, baik MySQL di laptop maupun container MySQL lain yang port-nya dibuka. Dengan cara ini, proxy `/api` di Vite juga tetap menuju `127.0.0.1:8000` tanpa setelan tambahan.
 - Container berjalan dengan UID/GID pengguna (bawaan 1000), sehingga file buatan `artisan` dan `composer` tetap milik pengguna.
 - MySQL tidak termasuk di compose ini. Setiap orang mengisi `DB_HOST`, `DB_PORT`, dan kredensialnya di `.env` sesuai MySQL yang dipakai.
