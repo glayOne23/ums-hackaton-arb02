@@ -1,12 +1,14 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, CircleCheck, MessageCircle, Search, Store, Wallet } from 'lucide-react'
+import { CircleAlert, CircleCheck, MessageCircle, Plus, Search, Store, Wallet } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatCurrencyCompact } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { whatsappLink } from '@/lib/whatsapp'
+import { usePermission } from '@/stores/session'
 import { useWorkPackage } from '../api'
 import { daysSince, isDue } from '../calc'
 import type { PackageOutlet } from '../types'
@@ -21,6 +23,7 @@ type Filter = 'all' | 'due' | 'unpaid'
  * from the work package.
  */
 export function FieldOutletList() {
+  const canPropose = usePermission('outlet.propose')
   const pkg = useWorkPackage()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
@@ -93,6 +96,16 @@ export function FieldOutletList() {
             <OutletRow key={outlet.id} outlet={outlet} done={visitedToday.has(outlet.id)} />
           ))}
         </ul>
+      )}
+
+      {/* OT-05: a new shop met on the road */}
+      {canPropose && (
+        <Button asChild variant="outline" className="self-start">
+          <Link to="/field/propose">
+            <Plus aria-hidden />
+            Usulkan outlet baru
+          </Link>
+        </Button>
       )}
     </section>
   )

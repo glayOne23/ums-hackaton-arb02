@@ -80,3 +80,54 @@ export const SALE_MODES: { value: SaleModeValue; label: string }[] = [
   { value: 'cash', label: 'Beli langsung' },
   { value: 'credit', label: 'Tempo' },
 ]
+
+/** OT-03 / W2: what the profile shows besides the outlet data (GET /outlets/{id}/overview). */
+export interface OutletOverview {
+  last_visit_at: string | null
+  visit_cycle_days: number
+  next_visit_due: string | null
+  visit_overdue: boolean
+  stock: {
+    product: { id: string; code: string; name: string; unit: string }
+    qty: number
+    nearest_expiry: string | null
+    near_expiry_qty: number
+    /** OT-07 stok standar; null = none */
+    target_qty: number | null
+    sold_3_months: number
+  }[]
+  stock_total: number
+  visits: {
+    id: string
+    number: string
+    type: { value: string; label: string }
+    status: { value: 'active' | 'corrected' | 'void'; label: string }
+    transacted_at: string
+    sales: string
+    sold_qty: number
+    total: number
+    needs_review: boolean
+  }[]
+  invoices: { id: string; number: string; invoice_date: string; due_date: string; owed: number; overdue: boolean }[]
+  owed_total: number
+}
+
+/** OT-05: an outlet proposed by a sales from the field. */
+export interface OutletProposal {
+  id: string
+  code: string
+  name: string
+  outlet_type: string | null
+  region: string | null
+  district: string
+  address: string | null
+  whatsapp_number: string | null
+  sale_mode: { value: SaleModeValue; label: string }
+  status: 'pending' | 'approved' | 'rejected'
+  note: string | null
+  proposed_by: string | null
+  created_at: string
+  decided_at: string | null
+  decision_note: string | null
+  similar: { id: string; code: string; name: string }[]
+}

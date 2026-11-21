@@ -28,6 +28,13 @@ use Illuminate\Support\Carbon;
  * @property array<string, mixed>|null $custom_fields
  * @property Carbon|null $deleted_at
  * @property string|null $merged_into_id the outlet/product this duplicate was merged into (KR-08)
+ * @property string|null $proposal_status null = a real outlet; pending | rejected = a sales' proposal (OT-05)
+ * @property int|null $proposed_by
+ * @property string|null $proposal_note
+ * @property int|null $proposal_decided_by
+ * @property Carbon|null $proposal_decided_at
+ * @property string|null $proposal_decision_note
+ * @property Carbon $created_at
  */
 #[Fillable([
     'name', 'outlet_type_id', 'region_id', 'district', 'address',
@@ -38,7 +45,22 @@ class Outlet extends Model
     /** @use HasFactory<OutletFactory> */
     use HasFactory, HasUlids, SoftDeletes;
 
+    /**
+     * Proposals from the field (OT-05) are not outlets yet: hidden from every
+     * query unless asked for with withoutGlobalScope(self::PROPOSALS).
+     */
+    public const PROPOSALS = 'without_proposals';
+
+    public const PROPOSAL_PENDING = 'pending';
+
+    public const PROPOSAL_REJECTED = 'rejected';
+
     protected $table = 'crm_outlets';
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(self::PROPOSALS, fn (Builder $query) => $query->whereNull('crm_outlets.proposal_status'));
+    }
 
     protected function casts(): array
     {
@@ -47,6 +69,9 @@ class Outlet extends Model
             'visit_cycle_days' => 'integer',
             'is_active' => 'boolean',
             'custom_fields' => 'array',
+            'proposed_by' => 'integer',
+            'proposal_decided_by' => 'integer',
+            'proposal_decided_at' => 'datetime',
         ];
     }
 
@@ -108,5 +133,17 @@ class Outlet extends Model
     public function mergedInto(): BelongsTo
     {
         return $this->belongsTo(Outlet::class, 'merged_into_id')->withTrashed();
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function proposer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'proposed_by');
+    }
+
+    /** @return HasMany<OutletStockTarget, $this> */
+    public function stockTargets(): HasMany
+    {
+        return $this->hasMany(OutletStockTarget::class);
     }
 }

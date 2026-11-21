@@ -18,6 +18,8 @@ export interface VisitLine {
   discountPercent: number
   /** What the sales carries of this product */
   carried: number
+  /** Optional stok standar of this outlet (OT-07): refill up to it instead of back to the consignment */
+  target?: number | null
 }
 
 /** What the sales changed on one line; anything left out follows the suggestion. */
@@ -62,6 +64,7 @@ export function visitLines(outlet: PackageOutlet, pkg: WorkPackage): { shelf: Vi
     price: outlet.prices[productId]?.price ?? 0,
     discountPercent: outlet.prices[productId]?.discount_percent ?? 0,
     carried: carried.get(productId) ?? 0,
+    target: outlet.stock_targets?.[productId] ?? null,
   })
 
   const shelf = outlet.stock
@@ -78,8 +81,9 @@ export function visitLines(outlet: PackageOutlet, pkg: WorkPackage): { shelf: Vi
 
 /**
  * sold = opening − remaining (BR-01); withdrawal suggested for near-expiry
- * goods (BR-03); refill suggested back to the previous consignment, limited
- * by what the sales carries (KS-05); closing = remaining − withdrawn + refill.
+ * goods (BR-03); refill suggested back to the previous consignment, or up
+ * to the outlet's stok standar when it has one (OT-07), limited by what the
+ * sales carries (KS-05); closing = remaining − withdrawn + refill.
  */
 export function computeLine(line: VisitLine, input: LineInput = {}): LineResult {
   const typed = input.remaining ?? line.opening
@@ -87,7 +91,8 @@ export function computeLine(line: VisitLine, input: LineInput = {}): LineResult 
   const sold = line.opening - remaining
   const suggestedWithdrawal = Math.min(line.nearExpiryQty, remaining)
   const withdrawn = Math.min(input.withdrawn ?? suggestedWithdrawal, remaining)
-  const suggestedRefill = Math.min(Math.max(0, line.opening - (remaining - withdrawn)), line.carried)
+  const level = line.target ?? line.opening
+  const suggestedRefill = Math.min(Math.max(0, level - (remaining - withdrawn)), line.carried)
   const refill = input.refill ?? suggestedRefill
 
   return {

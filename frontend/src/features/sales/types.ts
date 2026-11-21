@@ -34,6 +34,8 @@ export interface PackageOutlet {
   last_visit_at: string | null
   unpaid: number
   stock: ProductStock[]
+  /** Optional stok standar per product (OT-07); missing = none */
+  stock_targets?: Record<string, number>
   prices: Record<string, OutletPrice>
 }
 

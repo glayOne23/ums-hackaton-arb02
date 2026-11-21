@@ -14,6 +14,7 @@ import { Route as FieldRouteRouteImport } from './routes/field/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OfficeRouteRouteImport } from './routes/office/route'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
+import { Route as FieldProposeRouteImport } from './routes/field/propose'
 import { Route as FieldRequestRouteImport } from './routes/field/request'
 import { Route as FieldTodayRouteImport } from './routes/field/today'
 import { Route as OfficeIndexRouteImport } from './routes/office/index'
@@ -77,6 +78,11 @@ const OfficeRouteRoute = OfficeRouteRouteImport.update({
 const FieldIndexRoute = FieldIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => FieldRouteRoute,
+} as any)
+const FieldProposeRoute = FieldProposeRouteImport.update({
+  id: '/propose',
+  path: '/propose',
   getParentRoute: () => FieldRouteRoute,
 } as any)
 const FieldRequestRoute = FieldRequestRouteImport.update({
@@ -292,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
   '/office/corrections': typeof OfficeCorrectionsRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
   '/office/corrections': typeof OfficeCorrectionsRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
   '/office/corrections': typeof OfficeCorrectionsRoute
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/office'
     | '/login'
+    | '/field/propose'
     | '/field/request'
     | '/field/today'
     | '/office/corrections'
@@ -475,6 +485,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/field/propose'
     | '/field/request'
     | '/field/today'
     | '/office/corrections'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/office'
     | '/login'
+    | '/field/propose'
     | '/field/request'
     | '/field/today'
     | '/office/corrections'
@@ -605,6 +617,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/field/'
       preLoaderRoute: typeof FieldIndexRouteImport
+      parentRoute: typeof FieldRouteRoute
+    }
+    '/field/propose': {
+      id: '/field/propose'
+      path: '/propose'
+      fullPath: '/field/propose'
+      preLoaderRoute: typeof FieldProposeRouteImport
       parentRoute: typeof FieldRouteRoute
     }
     '/field/request': {
@@ -884,6 +903,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface FieldRouteRouteChildren {
+  FieldProposeRoute: typeof FieldProposeRoute
   FieldRequestRoute: typeof FieldRequestRoute
   FieldTodayRoute: typeof FieldTodayRoute
   FieldIndexRoute: typeof FieldIndexRoute
@@ -894,6 +914,7 @@ interface FieldRouteRouteChildren {
 }
 
 const FieldRouteRouteChildren: FieldRouteRouteChildren = {
+  FieldProposeRoute: FieldProposeRoute,
   FieldRequestRoute: FieldRequestRoute,
   FieldTodayRoute: FieldTodayRoute,
   FieldIndexRoute: FieldIndexRoute,

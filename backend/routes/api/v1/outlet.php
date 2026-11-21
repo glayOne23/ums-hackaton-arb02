@@ -3,6 +3,7 @@
 use App\Modules\Outlet\Http\Controllers\OutletAssignmentController;
 use App\Modules\Outlet\Http\Controllers\OutletController;
 use App\Modules\Outlet\Http\Controllers\OutletMergeController;
+use App\Modules\Outlet\Http\Controllers\OutletProposalController;
 use App\Modules\Outlet\Http\Controllers\ReferenceController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch("{$path}/{id}", [ReferenceController::class, 'update'])
             ->middleware('can:setting.manage')->defaults('reference_table', $table)->whereUlid('id');
     }
+
+    // OT-05: proposals from the field (who sees which is decided in the controller)
+    Route::get('outlet-proposals', [OutletProposalController::class, 'index']);
+    Route::post('outlet-proposals', [OutletProposalController::class, 'store'])->middleware('can:outlet.propose');
+    Route::post('outlet-proposals/{outlet}/approve', [OutletProposalController::class, 'approve'])
+        ->middleware('can:outlet.manage')->whereUlid('outlet');
+    Route::post('outlet-proposals/{outlet}/reject', [OutletProposalController::class, 'reject'])
+        ->middleware('can:outlet.manage')->whereUlid('outlet');
 
     Route::prefix('outlets')->group(function () {
         Route::get('similar', [OutletController::class, 'similar'])->middleware('can:outlet.manage');

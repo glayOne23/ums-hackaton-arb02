@@ -63,10 +63,11 @@ final class SaveOutlet
         });
     }
 
-    /** Next code after the highest one, deleted outlets included, so codes are never reused. */
+    /** Next code after the highest one, deleted outlets and proposals included, so codes are never reused. */
     private function nextCode(): string
     {
         $last = Outlet::withTrashed()
+            ->withoutGlobalScope(Outlet::PROPOSALS)
             ->where('code', 'like', self::CODE_PREFIX.'%')
             ->orderByRaw('LENGTH(code) DESC')
             ->orderByDesc('code')
