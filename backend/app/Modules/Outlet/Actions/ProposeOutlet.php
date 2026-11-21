@@ -3,6 +3,8 @@
 namespace App\Modules\Outlet\Actions;
 
 use App\Core\History\History;
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Outlet\Models\Outlet;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +31,12 @@ final class ProposeOutlet
                 'proposal_note' => filled($note) ? trim((string) $note) : null,
             ])->save();
             History::record($outlet, 'Mengusulkan outlet baru dari lapangan', [], $outlet->proposal_note, $sales);
+            app(Notifier::class)->toPermission('outlet.manage', new Alert(
+                'Usulan outlet baru',
+                "{$outlet->name} ({$outlet->district}) dari {$sales->name}",
+                '/office/outlets',
+                'approval',
+            ), $sales);
 
             return $outlet;
         });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Notify\DailyDigest;
 use App\Core\Trash\PurgeTrash;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -16,3 +17,10 @@ Artisan::command('sigap:purge-trash', function (PurgeTrash $purge) {
 })->purpose('Hapus permanen isi Tempat Sampah yang lewat masa simpan');
 
 Schedule::command('sigap:purge-trash')->dailyAt('02:00');
+
+// PW-08: morning messages about goods near expiry and invoices past due
+Artisan::command('sigap:daily-notifications', function (DailyDigest $digest) {
+    $this->info('Notifikasi terkirim: '.$digest->handle());
+})->purpose('Kirim notifikasi harian ED dekat dan tagihan lewat jatuh tempo');
+
+Schedule::command('sigap:daily-notifications')->dailyAt('07:00');

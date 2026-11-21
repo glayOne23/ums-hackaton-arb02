@@ -3,6 +3,8 @@
 namespace App\Modules\Sales\Actions;
 
 use App\Core\History\History;
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Outlet\Models\Outlet;
 use App\Modules\Sales\Enums\CorrectionKind;
@@ -76,6 +78,13 @@ final class RequestCorrection
                     $kind === CorrectionKind::Void ? 'Mengajukan pembatalan' : 'Mengajukan koreksi',
                     $changes, $reason, $actor,
                 );
+                $transaction->loadMissing('outlet');
+                app(Notifier::class)->toPermission(CorrectionRules::APPROVE, new Alert(
+                    "{$kind->label()} nota menunggu persetujuan",
+                    "Nota {$transaction->number} · {$transaction->outlet->name}, diajukan {$actor->name}: {$reason}",
+                    '/office/corrections?tab=persetujuan',
+                    'approval',
+                ), $actor);
 
                 return $correction;
             }

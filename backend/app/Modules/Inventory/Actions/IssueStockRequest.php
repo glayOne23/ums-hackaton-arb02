@@ -2,6 +2,8 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Enums\StockRequestStatus;
@@ -54,6 +56,13 @@ final class IssueStockRequest
                 'issued_by' => $actor->id,
                 'issued_at' => now(),
             ])->save();
+
+            app(Notifier::class)->toUser($request->salesUser, new Alert(
+                'Barang siap diambil',
+                "Permintaan {$request->number} sudah keluar dari gudang".($request->warehouse_note ? ": {$request->warehouse_note}" : '.'),
+                '/field/today',
+                'request',
+            ), $actor);
 
             return $request;
         });

@@ -2,6 +2,8 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Models\StockBalance;
@@ -93,6 +95,13 @@ final class PrepareStockRequest
             if (! Setting::bool('approve_stock_request') || $actor->can(self::APPROVE_PERMISSION)) {
                 return $this->issue->handle($request, $actor);
             }
+
+            app(Notifier::class)->toPermission(self::APPROVE_PERMISSION, new Alert(
+                'Barang keluar menunggu persetujuan',
+                "{$request->number} sudah disiapkan {$actor->name}",
+                '/office/inventory/requests',
+                'approval',
+            ), $actor);
 
             return $request;
         });

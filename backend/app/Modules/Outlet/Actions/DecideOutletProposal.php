@@ -3,6 +3,8 @@
 namespace App\Modules\Outlet\Actions;
 
 use App\Core\History\History;
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Models\User;
 use App\Modules\Outlet\Models\Assignment;
 use App\Modules\Outlet\Models\Outlet;
@@ -39,6 +41,12 @@ final class DecideOutletProposal
                 ]);
             }
             History::record($outlet, 'Menyetujui usulan outlet', $proposer ? ["Ditugaskan ke {$proposer->name}"] : [], by: $actor);
+            app(Notifier::class)->toUser($proposer, new Alert(
+                'Usulan outlet disetujui',
+                "{$outlet->name} sudah masuk daftar outlet Anda.",
+                '/field',
+                'assignment',
+            ), $actor);
 
             return $outlet;
         });
@@ -60,6 +68,12 @@ final class DecideOutletProposal
                 'proposal_decision_note' => $note,
             ])->save();
             History::record($outlet, 'Menolak usulan outlet', [], $note, $actor);
+            app(Notifier::class)->toUser($outlet->proposed_by, new Alert(
+                'Usulan outlet ditolak',
+                "{$outlet->name}: {$note}",
+                '/field/propose',
+                'assignment',
+            ), $actor);
 
             return $outlet;
         });

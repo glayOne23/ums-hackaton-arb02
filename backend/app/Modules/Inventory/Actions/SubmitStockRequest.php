@@ -2,6 +2,8 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Notify\Alert;
+use App\Core\Notify\Notifier;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\StockRequestStatus;
@@ -34,6 +36,13 @@ final class SubmitStockRequest
                     'requested_qty' => (int) $lines->sum('qty'),
                 ]);
             }
+
+            app(Notifier::class)->toPermission('stock_request.prepare', new Alert(
+                'Permintaan barang baru',
+                "{$request->number} dari {$sales->name}: ".count($items).' produk',
+                '/office/inventory/requests',
+                'request',
+            ), $sales);
 
             return $request;
         });

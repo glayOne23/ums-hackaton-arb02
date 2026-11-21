@@ -4,6 +4,7 @@ import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
 import { LogoutButton } from '@/components/layout/LogoutButton'
 import { OfficeBottomNav, OfficeSideNav } from '@/components/layout/OfficeNav'
 import { requireArea } from '@/features/auth/guard'
+import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { useSession } from '@/stores/session'
 
 /** Office area: admin, warehouse, manager (W1–W13). Menu items follow the user's permissions. */
@@ -24,14 +25,16 @@ function OfficeLayout() {
           <span className="grid size-9 place-items-center rounded-md bg-primary text-primary-foreground">
             <Leaf className="size-5" aria-hidden />
           </span>
-          <span className="text-lg font-semibold">SIGAP</span>
+          {/* Phones: the logo alone, so the bell and "Keluar" still fit in 360 px */}
+          <span className="hidden text-lg font-semibold min-[400px]:inline">SIGAP</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1 sm:gap-4">
           <ConnectionStatus />
           <div className="hidden text-right sm:block">
             <p className="font-medium">{user?.name}</p>
             <p className="text-sm text-muted-foreground">{roles}</p>
           </div>
+          <NotificationBell />
           <LogoutButton />
         </div>
       </header>

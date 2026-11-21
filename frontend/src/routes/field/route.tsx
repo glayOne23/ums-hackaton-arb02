@@ -3,6 +3,7 @@ import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
 import { FieldNav } from '@/components/layout/FieldNav'
 import { LogoutButton } from '@/components/layout/LogoutButton'
 import { requireArea } from '@/features/auth/guard'
+import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { ReceiptSync } from '@/features/sales/components/ReceiptSync'
 import { useSession } from '@/stores/session'
 
@@ -23,7 +24,10 @@ function FieldLayout() {
           <p className="truncate text-lg font-semibold">Halo, {name?.split(' ')[0]}</p>
           <ConnectionStatus />
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <LogoutButton />
+        </div>
       </header>
       <main className="flex-1 px-4 py-4">
         <Outlet />

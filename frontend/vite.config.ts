@@ -19,6 +19,8 @@ export default defineConfig({
       workbox: {
         // Cache the Inter latin subset too so screens look the same without a signal (UI guide §3)
         globPatterns: ['**/*.{js,css,html,svg}', '**/inter-latin-wght-normal-*.woff2'],
+        // PW-08: push messages and taps on them (public/push-sw.js)
+        importScripts: ['push-sw.js'],
       },
       manifest: {
         name: 'SIGAP — CV Arba\'in',
