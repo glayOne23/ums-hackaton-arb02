@@ -2,7 +2,13 @@ import { formatCurrency, formatDate, formatTime } from '@/lib/format'
 import { uuid } from '@/lib/uuid'
 import { sumMoney } from './calc'
 import type { Receipt, ReceiptLine } from './offline/db'
-import type { PackageOutlet, PaymentMethodValue, TransactionItemInput, TransactionTypeValue } from './types'
+import type {
+  PackageOutlet,
+  PackageSettings,
+  PaymentMethodValue,
+  TransactionItemInput,
+  TransactionTypeValue,
+} from './types'
 
 interface Draft {
   userId: number
@@ -13,6 +19,7 @@ interface Draft {
   paid: number
   method: PaymentMethodValue
   photo: Blob | null
+  settings: PackageSettings
 }
 
 /** A visit or sale as saved on the phone, ready to send (KS-11). */
@@ -44,6 +51,12 @@ export function buildReceipt(draft: Draft, now: Date = new Date()): Receipt {
     transaction: null,
     photo: draft.photo,
     photo_status: draft.photo ? 'queued' : 'none',
+    photo_wifi_only: draft.settings.data_saver,
+    company: {
+      name: draft.settings.company_name,
+      address: draft.settings.company_address,
+      whatsapp: draft.settings.company_whatsapp,
+    },
     created_at: now.toISOString(),
     sent_at: null,
   }
@@ -71,7 +84,9 @@ export function receiptText(receipt: Receipt): string {
     })
 
   return [
-    "*CV Arba'in Jaya Mandiri*",
+    `*${receipt.company?.name || "CV Arba'in Jaya Mandiri"}*`,
+    receipt.company?.address || null,
+    receipt.company?.whatsapp ? `WA ${receipt.company.whatsapp}` : null,
     `Nota ${number}`,
     `${receipt.outlet.name} · ${formatDate(at)} ${formatTime(at)}`,
     '',

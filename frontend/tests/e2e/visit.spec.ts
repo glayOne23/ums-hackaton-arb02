@@ -1,38 +1,17 @@
-import { type Browser, expect, type Page, test, type TestInfo } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+import { openOutletWithShelfStock, pageAs } from './support/accounts'
 
 // Sample accounts and outlets from the seeders (fictional data). SRS §7.4–7.5:
 // a visit with something sold, then "Tidak ada yang laku" without a signal.
 // Each project uses its own sales, so phone and desktop never visit the same outlet.
 test.describe.configure({ mode: 'serial' })
 
-const PASSWORD = 'sigap123'
-
 let sales: Page
 let office: Page
 
-async function signedInPage(browser: Browser, testInfo: TestInfo, login: string, area: RegExp): Promise<Page> {
-  const { baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor } = testInfo.project.use
-  const context = await browser.newContext({
-    baseURL,
-    viewport,
-    locale,
-    isMobile,
-    hasTouch,
-    userAgent,
-    deviceScaleFactor,
-  })
-  const page = await context.newPage()
-  await page.goto('/login')
-  await page.getByLabel('Nomor HP atau username').fill(login)
-  await page.getByLabel('Kata sandi', { exact: true }).fill(PASSWORD)
-  await page.getByRole('button', { name: 'Masuk' }).click()
-  await expect(page).toHaveURL(area)
-  return page
-}
-
 test.beforeAll(async ({ browser }, testInfo) => {
-  sales = await signedInPage(browser, testInfo, testInfo.project.name === 'phone' ? 'sales1' : 'sales2', /\/field$/)
-  office = await signedInPage(browser, testInfo, 'pimpinan', /\/office$/)
+  sales = await pageAs(browser, testInfo, testInfo.project.name === 'phone' ? 'sales1' : 'sales2')
+  office = await pageAs(browser, testInfo, 'pimpinan')
 })
 
 test.afterAll(async () => {
@@ -40,16 +19,8 @@ test.afterAll(async () => {
   await office?.context().close()
 })
 
-/** Open the first consignment outlet (not visited today ones come first; a second visit the same day is fine). */
-async function openConsignmentOutlet(page: Page) {
-  await page.getByRole('link', { name: 'Outlet', exact: true }).click()
-  const outlet = page.locator('a[href^="/field/visit/"]').first()
-  await outlet.click()
-  await expect(page).toHaveURL(/\/field\/visit\//)
-}
-
 test('a sales counts the shelf, gets paid, and sees the nota (KS-02, KS-04, KS-08)', async () => {
-  await openConsignmentOutlet(sales)
+  await openOutletWithShelfStock(sales)
   const fewer = sales.locator('button[aria-label^="Kurangi Sisa"]:enabled').first()
   if (await fewer.count()) await fewer.click()
   await sales.getByRole('button', { name: 'Lanjut' }).click()
@@ -65,7 +36,7 @@ test('a sales counts the shelf, gets paid, and sees the nota (KS-02, KS-04, KS-0
 })
 
 test('"Tidak ada yang laku" saves without a signal and sends later (KS-03, KS-11)', async () => {
-  await openConsignmentOutlet(sales)
+  await openOutletWithShelfStock(sales)
   await sales.context().setOffline(true)
   await sales.getByRole('button', { name: 'Tidak ada yang laku' }).click()
 

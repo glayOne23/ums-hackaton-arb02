@@ -34,7 +34,7 @@ async function send(queryClient: QueryClient, userId: number): Promise<void> {
       current = result
       sent = true
     }
-    if (current.photo_status === 'queued' && current.photo && current.transaction) {
+    if (current.photo_status === 'queued' && current.photo && current.transaction && photoMayGo(current)) {
       if ((await sendPhoto(current)) === 'stop') break
     }
   }
@@ -82,6 +82,16 @@ async function sendPhoto(receipt: Receipt): Promise<'ok' | 'stop'> {
     }
     return 'stop'
   }
+}
+
+/**
+ * Hemat data (NF-02): a photo waits until the phone is on Wi-Fi. Chrome on
+ * Android tells the connection type; where the browser does not, it is sent.
+ */
+function photoMayGo(receipt: Receipt): boolean {
+  if (!receipt.photo_wifi_only) return true
+  const type = (navigator as Navigator & { connection?: { type?: string } }).connection?.type
+  return type === undefined || type === 'wifi' || type === 'ethernet'
 }
 
 /** "Kirim ulang" for a visit the server refused. */

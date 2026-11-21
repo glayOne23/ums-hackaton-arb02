@@ -1,11 +1,11 @@
-import { type Browser, expect, type Page, test, type TestInfo } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+import { pageAs } from './support/accounts'
 
 // Sample accounts and products from the seeders (fictional data). P1 → P2 → P6 → P7 in order,
 // sharing one signed-in page per account (the login limit counts every attempt).
 // The test batch "E2E…" is counted back to 0 at the end; requested goods are returned.
 test.describe.configure({ mode: 'serial' })
 
-const PASSWORD = 'sigap123'
 const PRODUCT = 'Jahe Merah Instan Contoh'
 const batch = `E2E${Date.now().toString().slice(-7)}`
 
@@ -14,22 +14,11 @@ let sales: Page
 // Each project (phone, desktop) runs in parallel, so each uses its own sales: their requests never mix
 let salesName = ''
 
-async function signedInPage(browser: Browser, testInfo: TestInfo, login: string, area: RegExp): Promise<Page> {
-  const { baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor } = testInfo.project.use
-  const page = await browser.newPage({ baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor })
-  await page.goto('/login')
-  await page.getByLabel('Nomor HP atau username').fill(login)
-  await page.getByLabel('Kata sandi', { exact: true }).fill(PASSWORD)
-  await page.getByRole('button', { name: 'Masuk' }).click()
-  await expect(page).toHaveURL(area)
-  return page
-}
-
 test.beforeAll(async ({ browser }, testInfo) => {
-  warehouse = await signedInPage(browser, testInfo, 'gudang', /\/office$/)
+  warehouse = await pageAs(browser, testInfo, 'gudang')
   const phone = testInfo.project.name === 'phone'
   salesName = phone ? 'Sales Satu (contoh)' : 'Sales Dua (contoh)'
-  sales = await signedInPage(browser, testInfo, phone ? 'sales1' : 'sales2', /\/field$/)
+  sales = await pageAs(browser, testInfo, phone ? 'sales1' : 'sales2')
 })
 
 test.afterAll(async () => {

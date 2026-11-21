@@ -34,6 +34,8 @@ frontend/dev-dist/
 frontend/coverage/
 frontend/playwright-report/
 frontend/test-results/
+# Session tokens written by the e2e global setup
+frontend/tests/e2e/.auth/
 frontend/.env.local
 
 # Editor & OS

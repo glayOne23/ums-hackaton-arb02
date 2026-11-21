@@ -26,7 +26,9 @@ final class WorkPackage
     /** Settings the phone needs to show the same suggestions as the server */
     private const SETTINGS = [
         'billing_threshold', 'billing_threshold_unit', 'expiry_withdrawal_months',
-        'visit_cycle_days', 'credit_term_days', 'form_photo_required',
+        'visit_cycle_days', 'credit_term_days', 'form_photo_required', 'data_saver',
+        // Printed on the nota (PG-09)
+        'company_name', 'company_address', 'company_whatsapp',
     ];
 
     public function __construct(

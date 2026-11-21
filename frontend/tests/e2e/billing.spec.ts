@@ -1,32 +1,20 @@
-import { type Browser, expect, type Page, test, type TestInfo } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+import { openOutletWithShelfStock, pageAs } from './support/accounts'
 
 // Sample accounts from the seeders (fictional data). P5: a sales collects part of a
 // bill in cash; the office records and voids a payment, then takes the cash (TG-01–03).
 // Each project uses its own sales, so their remittances never mix.
 test.describe.configure({ mode: 'serial' })
 
-const PASSWORD = 'sigap123'
-
 let sales: Page
 let office: Page
 let salesName = ''
 
-async function signedInPage(browser: Browser, testInfo: TestInfo, login: string, area: RegExp): Promise<Page> {
-  const { baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor } = testInfo.project.use
-  const page = await browser.newPage({ baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor })
-  await page.goto('/login')
-  await page.getByLabel('Nomor HP atau username').fill(login)
-  await page.getByLabel('Kata sandi', { exact: true }).fill(PASSWORD)
-  await page.getByRole('button', { name: 'Masuk' }).click()
-  await expect(page).toHaveURL(area)
-  return page
-}
-
 test.beforeAll(async ({ browser }, testInfo) => {
   const phone = testInfo.project.name === 'phone'
   salesName = phone ? 'Sales Satu (contoh)' : 'Sales Dua (contoh)'
-  sales = await signedInPage(browser, testInfo, phone ? 'sales1' : 'sales2', /\/field$/)
-  office = await signedInPage(browser, testInfo, 'kantor', /\/office$/)
+  sales = await pageAs(browser, testInfo, phone ? 'sales1' : 'sales2')
+  office = await pageAs(browser, testInfo, 'kantor')
 })
 
 test.afterAll(async () => {
@@ -35,7 +23,7 @@ test.afterAll(async () => {
 })
 
 test('a sales collects Rp 1.000 of the bill in cash (KS-08)', async () => {
-  await sales.locator('a[href^="/field/visit/"]').first().click()
+  await openOutletWithShelfStock(sales)
   const fewer = sales.locator('button[aria-label^="Kurangi Sisa"]:enabled').first()
   await expect(fewer).toBeVisible()
   await fewer.click()

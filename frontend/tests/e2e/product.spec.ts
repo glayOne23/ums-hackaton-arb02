@@ -1,4 +1,5 @@
-import { type Browser, expect, type Page, test, type TestInfo } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+import { pageAs } from './support/accounts'
 
 // Sample accounts, categories, and outlet types from the seeders (fictional data).
 // Adds one "Produk Uji E2E" product and one discount per run and project; the last
@@ -7,7 +8,6 @@ import { type Browser, expect, type Page, test, type TestInfo } from '@playwrigh
 // so the tests run in order and share their signed-in pages.
 test.describe.configure({ mode: 'serial' })
 
-const PASSWORD = 'sigap123'
 const stamp = Date.now().toString().slice(-7)
 const code = `UJI${stamp}`
 const name = `Produk Uji E2E ${stamp}`
@@ -16,20 +16,9 @@ const alias = `ALIAS UJI ${stamp}`
 let office: Page
 let manager: Page
 
-async function signedInPage(browser: Browser, testInfo: TestInfo, login: string): Promise<Page> {
-  const { baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor } = testInfo.project.use
-  const page = await browser.newPage({ baseURL, viewport, locale, isMobile, hasTouch, userAgent, deviceScaleFactor })
-  await page.goto('/login')
-  await page.getByLabel('Nomor HP atau username').fill(login)
-  await page.getByLabel('Kata sandi', { exact: true }).fill(PASSWORD)
-  await page.getByRole('button', { name: 'Masuk' }).click()
-  await expect(page).toHaveURL(/\/office$/)
-  return page
-}
-
 test.beforeAll(async ({ browser }, testInfo) => {
-  office = await signedInPage(browser, testInfo, 'kantor')
-  manager = await signedInPage(browser, testInfo, 'pimpinan')
+  office = await pageAs(browser, testInfo, 'kantor')
+  manager = await pageAs(browser, testInfo, 'pimpinan')
 })
 
 test.afterAll(async () => {

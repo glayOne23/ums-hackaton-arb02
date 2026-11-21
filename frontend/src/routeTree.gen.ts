@@ -19,6 +19,7 @@ import { Route as FieldTodayRouteImport } from './routes/field/today'
 import { Route as OfficeIndexRouteImport } from './routes/office/index'
 import { Route as OfficeMenuRouteImport } from './routes/office/menu'
 import { Route as OfficePriceListRouteImport } from './routes/office/price-list'
+import { Route as OfficeSettingsRouteImport } from './routes/office/settings'
 import { Route as FieldReceiptClientUuidRouteImport } from './routes/field/receipt/$clientUuid'
 import { Route as FieldSaleOutletIdRouteImport } from './routes/field/sale/$outletId'
 import { Route as FieldVisitOutletIdRouteImport } from './routes/field/visit/$outletId'
@@ -94,6 +95,11 @@ const OfficeMenuRoute = OfficeMenuRouteImport.update({
 const OfficePriceListRoute = OfficePriceListRouteImport.update({
   id: '/price-list',
   path: '/price-list',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeSettingsRoute = OfficeSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
 const FieldReceiptClientUuidRoute = FieldReceiptClientUuidRouteImport.update({
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/field/today': typeof FieldTodayRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
+  '/office/settings': typeof OfficeSettingsRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/field/today': typeof FieldTodayRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
+  '/office/settings': typeof OfficeSettingsRoute
   '/field': typeof FieldIndexRoute
   '/office': typeof OfficeIndexRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
@@ -323,6 +331,7 @@ export interface FileRoutesById {
   '/field/today': typeof FieldTodayRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
+  '/office/settings': typeof OfficeSettingsRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/field/today'
     | '/office/menu'
     | '/office/price-list'
+    | '/office/settings'
     | '/field/'
     | '/office/'
     | '/field/receipt/$clientUuid'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/field/today'
     | '/office/menu'
     | '/office/price-list'
+    | '/office/settings'
     | '/field'
     | '/office'
     | '/field/receipt/$clientUuid'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/field/today'
     | '/office/menu'
     | '/office/price-list'
+    | '/office/settings'
     | '/field/'
     | '/office/'
     | '/field/receipt/$clientUuid'
@@ -544,6 +556,13 @@ declare module '@tanstack/react-router' {
       path: '/price-list'
       fullPath: '/office/price-list'
       preLoaderRoute: typeof OfficePriceListRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/settings': {
+      id: '/office/settings'
+      path: '/settings'
+      fullPath: '/office/settings'
+      preLoaderRoute: typeof OfficeSettingsRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
     '/field/receipt/$clientUuid': {
@@ -756,6 +775,7 @@ const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
 interface OfficeRouteRouteChildren {
   OfficeMenuRoute: typeof OfficeMenuRoute
   OfficePriceListRoute: typeof OfficePriceListRoute
+  OfficeSettingsRoute: typeof OfficeSettingsRoute
   OfficeIndexRoute: typeof OfficeIndexRoute
   OfficeBillingRemittancesRoute: typeof OfficeBillingRemittancesRoute
   OfficeDiscountsNewRoute: typeof OfficeDiscountsNewRoute
@@ -785,6 +805,7 @@ interface OfficeRouteRouteChildren {
 const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
   OfficeMenuRoute: OfficeMenuRoute,
   OfficePriceListRoute: OfficePriceListRoute,
+  OfficeSettingsRoute: OfficeSettingsRoute,
   OfficeIndexRoute: OfficeIndexRoute,
   OfficeBillingRemittancesRoute: OfficeBillingRemittancesRoute,
   OfficeDiscountsNewRoute: OfficeDiscountsNewRoute,

@@ -1,20 +1,13 @@
-import { expect, type Page, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { signInAs } from './support/accounts'
 
 // Sample accounts and outlets from SampleUserSeeder / SampleOutletSeeder (fictional data).
 // Adds one "AP Sumber Waras Contoh <timestamp>" outlet per run and project, and leaves it
 // in the trash at the end so it does not show up in any list.
 // Each account signs in once per project: the login limit (6/min per account) counts every attempt.
-const PASSWORD = 'sigap123'
-
-async function signIn(page: Page, login: string) {
-  await page.goto('/login')
-  await page.getByLabel('Nomor HP atau username').fill(login)
-  await page.getByLabel('Kata sandi', { exact: true }).fill(PASSWORD)
-  await page.getByRole('button', { name: 'Masuk' }).click()
-}
 
 test('office admin adds an outlet, sees the similar-name warning, and assigns a sales', async ({ page }) => {
-  await signIn(page, 'kantor')
+  await signInAs(page, 'kantor')
   await expect(page).toHaveURL(/\/office$/)
 
   await page.goto('/office/outlets')
@@ -81,7 +74,7 @@ test('office admin adds an outlet, sees the similar-name warning, and assigns a 
 })
 
 test('sales sees only their own outlets and cannot open the office list', async ({ page }) => {
-  await signIn(page, 'sales2')
+  await signInAs(page, 'sales2')
   await expect(page).toHaveURL(/\/field$/)
 
   await expect(page.getByText('AP Sehat Sentosa Contoh')).toBeVisible()
