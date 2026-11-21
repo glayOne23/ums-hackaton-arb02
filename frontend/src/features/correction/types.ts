@@ -92,3 +92,11 @@ export interface DeviceSync {
   reported_at: string
   last_sent_at: string | null
 }
+
+/** What merging a duplicate into a kept outlet or product will do (KR-08). */
+export interface MergePreview {
+  from: { id: string; code: string; name: string }
+  moves: string[]
+  notes: string[]
+  blocked: string | null
+}

@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property int $min_stock_qty
  * @property bool $is_active
  * @property Carbon|null $deleted_at
+ * @property string|null $merged_into_id the outlet/product this duplicate was merged into (KR-08)
  */
 #[Fillable(['code', 'name', 'category_id', 'bpom_number', 'unit', 'selling_price', 'min_stock_qty', 'is_active'])]
 class Product extends Model
@@ -73,5 +74,11 @@ class Product extends Model
     protected static function newFactory(): ProductFactory
     {
         return ProductFactory::new();
+    }
+
+    /** @return BelongsTo<Product, $this> */
+    public function mergedInto(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'merged_into_id')->withTrashed();
     }
 }

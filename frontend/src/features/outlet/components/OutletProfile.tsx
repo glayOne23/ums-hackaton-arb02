@@ -13,6 +13,7 @@ import type { Outlet } from '../types'
 import { AssignmentEditor } from './AssignmentEditor'
 import { DeleteOutletButton } from './DeleteOutletButton'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
+import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
 
 /**
  * W2 — outlet profile (OT-03). This first version shows the outlet data and
@@ -82,6 +83,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
                   Ubah data
                 </Link>
               </Button>
+              <MergeDuplicateButton kind="outlet" kept={outlet} />
               <DeleteOutletButton outlet={outlet} />
             </>
           )}

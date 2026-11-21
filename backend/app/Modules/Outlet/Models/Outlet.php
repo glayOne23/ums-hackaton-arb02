@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property array<string, mixed>|null $custom_fields
  * @property Carbon|null $deleted_at
+ * @property string|null $merged_into_id the outlet/product this duplicate was merged into (KR-08)
  */
 #[Fillable([
     'name', 'outlet_type_id', 'region_id', 'district', 'address',
@@ -101,5 +102,11 @@ class Outlet extends Model
     protected static function newFactory(): OutletFactory
     {
         return OutletFactory::new();
+    }
+
+    /** @return BelongsTo<Outlet, $this> */
+    public function mergedInto(): BelongsTo
+    {
+        return $this->belongsTo(Outlet::class, 'merged_into_id')->withTrashed();
     }
 }
