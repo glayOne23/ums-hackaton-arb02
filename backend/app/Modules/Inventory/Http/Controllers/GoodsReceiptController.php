@@ -32,6 +32,7 @@ class GoodsReceiptController extends Controller
     public function store(Request $request, ReceiveGoods $receive): JsonResponse
     {
         $data = $request->validate([
+            'client_uuid' => ['nullable', 'uuid'],
             'received_date' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
             'note' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1', 'max:100'],
@@ -56,10 +57,11 @@ class GoodsReceiptController extends Controller
 
         /** @var User $user */
         $user = $request->user();
-        /** @var array{received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>} $data */
+        /** @var array{client_uuid?: ?string, received_date?: ?string, note?: ?string, items: list<array{product_id: string, batch_number: string, expiry_date: string, production_date?: ?string, qty: int}>} $data */
         $receipt = $receive->handle($data, $user);
 
-        return (new GoodsReceiptResource($receipt->load(self::RELATIONS)))->response()->setStatusCode(201);
+        // 200 when this device already sent it (PW-06)
+        return (new GoodsReceiptResource($receipt->load(self::RELATIONS)))->response()->setStatusCode($receipt->wasRecentlyCreated ? 201 : 200);
     }
 
     /** KR-04: void a receipt entered by mistake; its stock leaves the warehouse again. */

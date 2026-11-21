@@ -86,12 +86,17 @@ function CountForm({ counts, setCounts, reason, setReason }: CountFormProps) {
     save.mutate(
       { reason, items: changed.map((r) => ({ batch_id: r.batch.id, physical_qty: counts[r.batch.id] })) },
       {
-        onSuccess: (adjustment) => {
-          toast.success(
-            adjustment.status.value === 'applied'
-              ? `Opname ${adjustment.number} tersimpan, stok disesuaikan`
-              : `Opname ${adjustment.number} menunggu persetujuan`,
-          )
+        onSuccess: (result) => {
+          if (result.queued) {
+            toast.info('Opname tersimpan di perangkat. Terkirim otomatis saat ada sinyal.')
+          } else {
+            const adjustment = result.data
+            toast.success(
+              adjustment.status.value === 'applied'
+                ? `Opname ${adjustment.number} tersimpan, stok disesuaikan`
+                : `Opname ${adjustment.number} menunggu persetujuan`,
+            )
+          }
           setCounts({})
           setReason('')
         },

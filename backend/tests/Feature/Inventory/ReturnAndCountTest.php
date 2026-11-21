@@ -203,3 +203,39 @@ it('will not void a return whose goods already left the warehouse again', functi
         ->assertUnprocessable()
         ->assertJsonPath('errors.stock.0', fn (string $m) => str_contains($m, 'Barangnya sudah berpindah'));
 });
+
+it('takes a warehouse document sent again from an offline device only once (PW-06)', function () {
+    $b1 = Batch::query()->where('batch_number', 'B1')->value('id');
+    $uuid = '8a6f3c2e-1d4b-4c8a-9f7e-2b5d6c7e8f90';
+    $send = fn () => $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/adjustments', [
+        'client_uuid' => $uuid,
+        'items' => [['batch_id' => $b1, 'physical_qty' => 6]],
+        'reason' => 'Dihitung tanpa sinyal',
+    ]);
+
+    $first = $send()->assertCreated()->json('data.id');
+    $send()->assertOk()->assertJsonPath('data.id', $first);
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(6);
+
+    $returnUuid = '1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
+    $return = fn () => $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/returns', [
+        'client_uuid' => $returnUuid,
+        'sales_user_id' => $this->sales->id,
+        'items' => [['product_id' => $this->madu->id, 'qty' => 2, 'condition' => 'sellable']],
+    ]);
+    $return()->assertCreated();
+    $return()->assertOk();
+    // The sales carried 12; taken back once, not twice
+    expect(qtyAt(locations()->forSales($this->sales), 'B1'))->toBe(10);
+
+    $receipt = fn (User $by) => $this->actingAs($by)->postJson('/api/v1/inventory/goods-receipts', [
+        'client_uuid' => '9f8e7d6c-5b4a-4321-8fed-cba987654321',
+        'items' => [['product_id' => $this->madu->id, 'batch_number' => 'OFF-1', 'expiry_date' => '2029-01-31', 'qty' => 5]],
+    ]);
+    $receipt($this->warehouse)->assertCreated();
+    $receipt($this->warehouse)->assertOk();
+    expect(qtyAt(locations()->warehouse(), 'OFF-1'))->toBe(5);
+    // Another person cannot claim the same device id
+    $other = User::factory()->create()->assignRole(Roles::WAREHOUSE_ADMIN);
+    $receipt($other)->assertJsonValidationErrors('client_uuid');
+});

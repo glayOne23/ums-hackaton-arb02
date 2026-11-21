@@ -22,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $voided_at
  * @property string|null $void_reason
  */
-#[Fillable(['number', 'received_date', 'note', 'created_by'])]
+#[Fillable(['client_uuid', 'number', 'received_date', 'note', 'created_by'])]
 class GoodsReceipt extends Model
 {
     use HasUlids;

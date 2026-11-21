@@ -30,6 +30,7 @@ class StockReturnController extends Controller
     public function store(Request $request, ReceiveReturn $receive): JsonResponse
     {
         $data = $request->validate([
+            'client_uuid' => ['nullable', 'uuid'],
             'sales_user_id' => ['required', 'integer', Rule::exists('auth_users', 'id')],
             'received_date' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
             'note' => ['nullable', 'string', 'max:255'],
@@ -48,10 +49,11 @@ class StockReturnController extends Controller
 
         /** @var User $user */
         $user = $request->user();
-        /** @var array{sales_user_id: int, received_date?: ?string, note?: ?string, items: list<array{product_id: string, qty: int, condition: string}>} $data */
+        /** @var array{client_uuid?: ?string, sales_user_id: int, received_date?: ?string, note?: ?string, items: list<array{product_id: string, qty: int, condition: string}>} $data */
         $return = $receive->handle($data, $user);
 
-        return (new StockReturnResource($return->load(self::RELATIONS)))->response()->setStatusCode(201);
+        // 200 when this device already sent it (PW-06)
+        return (new StockReturnResource($return->load(self::RELATIONS)))->response()->setStatusCode($return->wasRecentlyCreated ? 201 : 200);
     }
 
     /** KR-04: void a return entered by mistake; the goods go back to the sales. */

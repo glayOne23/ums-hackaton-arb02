@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $voided_at
  * @property string|null $void_reason
  */
-#[Fillable(['number', 'sales_user_id', 'received_date', 'note', 'created_by'])]
+#[Fillable(['client_uuid', 'number', 'sales_user_id', 'received_date', 'note', 'created_by'])]
 class StockReturn extends Model
 {
     use HasUlids;

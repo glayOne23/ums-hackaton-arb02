@@ -20,8 +20,9 @@ function NewReceiptPage() {
         </Link>
         <h1 className="text-2xl font-semibold">Catat barang masuk</h1>
         <GoodsReceiptForm
-          onSaved={(receipt) => {
-            toast.success(`${receipt.number} tersimpan, stok gudang bertambah ${receipt.total_qty}`)
+          onSaved={(result) => {
+            if (result.queued) toast.info('Barang masuk tersimpan di perangkat. Terkirim otomatis saat ada sinyal.')
+            else toast.success(`${result.data.number} tersimpan, stok gudang bertambah ${result.data.total_qty}`)
             navigate({ to: '/office/inventory/receipts' })
           }}
           onCancel={() => navigate({ to: '/office/inventory/receipts' })}

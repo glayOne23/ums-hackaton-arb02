@@ -1,5 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
+import { sendOrQueue } from '@/lib/offline/outbox'
+import { useSession } from '@/stores/session'
 import { toQueryString } from '@/lib/api/query'
 import type {
   GoodsReceipt,
@@ -137,11 +139,19 @@ export interface ReceiptLineInput {
   qty: number
 }
 
+/** PW-06: saved on the device when there is no signal, sent once it is back (lib/offline/outbox). */
 export function useReceiveGoods() {
   const invalidate = useInvalidateInventory()
+  const userId = useSession((s) => s.user?.id ?? 0)
   return useMutation({
     mutationFn: (body: { received_date: string; note: string; items: ReceiptLineInput[] }) =>
-      api<{ data: GoodsReceipt }>('/inventory/goods-receipts', { method: 'POST', body }).then((r) => r.data),
+      sendOrQueue<GoodsReceipt>({
+        userId,
+        kind: 'goods_receipt',
+        label: `Barang masuk ${body.received_date} · ${body.items.length} produk`,
+        path: '/inventory/goods-receipts',
+        body,
+      }),
     networkMode: 'always',
     onSuccess: invalidate,
   })
@@ -202,24 +212,43 @@ export function useVoidStockReturn() {
   })
 }
 
+/** PW-06: saved on the device when there is no signal, sent once it is back. */
 export function useReceiveReturn() {
   const invalidate = useInvalidateInventory()
+  const userId = useSession((s) => s.user?.id ?? 0)
   return useMutation({
     mutationFn: (body: {
       sales_user_id: number
       note: string
       items: { product_id: string; qty: number; condition: ReturnConditionValue }[]
-    }) => api<{ data: StockReturn }>('/inventory/returns', { method: 'POST', body }).then((r) => r.data),
+      /** Who it is from, for the list of documents waiting on the device */
+      sales_name?: string
+    }) =>
+      sendOrQueue<StockReturn>({
+        userId,
+        kind: 'return',
+        label: `Retur dari ${body.sales_name ?? 'sales'} · ${body.items.length} produk`,
+        path: '/inventory/returns',
+        body: { sales_user_id: body.sales_user_id, note: body.note, items: body.items },
+      }),
     networkMode: 'always',
     onSuccess: invalidate,
   })
 }
 
+/** PW-06: saved on the device when there is no signal, sent once it is back (the server compares with its stock then). */
 export function useSaveStockCount() {
   const invalidate = useInvalidateInventory()
+  const userId = useSession((s) => s.user?.id ?? 0)
   return useMutation({
     mutationFn: (body: { reason: string; items: { batch_id: string; physical_qty: number }[] }) =>
-      api<{ data: StockAdjustment }>('/inventory/adjustments', { method: 'POST', body }).then((r) => r.data),
+      sendOrQueue<StockAdjustment>({
+        userId,
+        kind: 'stock_count',
+        label: `Opname · ${body.items.length} selisih`,
+        path: '/inventory/adjustments',
+        body,
+      }),
     networkMode: 'always',
     onSuccess: invalidate,
   })
