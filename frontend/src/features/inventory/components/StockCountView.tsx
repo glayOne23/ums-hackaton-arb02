@@ -1,5 +1,5 @@
-import { CircleAlert, CircleCheck, CircleX, Hourglass, LoaderCircle } from 'lucide-react'
-import { useState } from 'react'
+import { CircleAlert, CircleCheck, CircleX, Hourglass, LoaderCircle, RotateCcw, Undo2 } from 'lucide-react'
+import { type Dispatch, type SetStateAction, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
@@ -15,6 +15,7 @@ import { formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
 import { usePermission } from '@/stores/session'
 import {
   useDecideAdjustment,
+  useReopenAdjustment,
   useSaveStockCount,
   useStockAdjustments,
   useTodayMovements,
@@ -26,6 +27,16 @@ import { InventoryTabs } from './InventoryTabs'
 /** W5 / GD-06 — stock count: system numbers are filled in, change only what differs. */
 export function StockCountView() {
   const canManage = usePermission('inventory.manage')
+  // Shared with the history: "Buka ulang" puts that count's numbers back into the form (KR-13)
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const [reason, setReason] = useState('')
+  const formRef = useRef<HTMLDivElement>(null)
+
+  const reopened = (adjustment: StockAdjustment) => {
+    setCounts(Object.fromEntries(adjustment.items.map((item) => [item.batch_id, item.physical_qty])))
+    setReason(adjustment.reason)
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
@@ -36,17 +47,26 @@ export function StockCountView() {
         </p>
       </header>
       <InventoryTabs />
-      {canManage && <CountForm />}
-      <AdjustmentHistory />
+      {canManage && (
+        <div ref={formRef} className="scroll-mt-20">
+          <CountForm counts={counts} setCounts={setCounts} reason={reason} setReason={setReason} />
+        </div>
+      )}
+      <AdjustmentHistory onReopened={reopened} />
     </section>
   )
 }
 
-function CountForm() {
+interface CountFormProps {
+  counts: Record<string, number>
+  setCounts: Dispatch<SetStateAction<Record<string, number>>>
+  reason: string
+  setReason: (reason: string) => void
+}
+
+function CountForm({ counts, setCounts, reason, setReason }: CountFormProps) {
   const stock = useWarehouseStock()
   const save = useSaveStockCount()
-  const [counts, setCounts] = useState<Record<string, number>>({})
-  const [reason, setReason] = useState('')
   const [search, setSearch] = useState('')
 
   const rows = (stock.data?.data ?? []).flatMap((row) =>
@@ -170,7 +190,7 @@ function CountForm() {
   )
 }
 
-function AdjustmentHistory() {
+function AdjustmentHistory({ onReopened }: { onReopened: (adjustment: StockAdjustment) => void }) {
   const adjustments = useStockAdjustments()
 
   return (
@@ -185,7 +205,7 @@ function AdjustmentHistory() {
       ) : (
         <ul className="flex flex-col gap-3">
           {adjustments.data.map((adjustment) => (
-            <AdjustmentCard key={adjustment.id} adjustment={adjustment} />
+            <AdjustmentCard key={adjustment.id} adjustment={adjustment} onReopened={onReopened} />
           ))}
         </ul>
       )}
@@ -193,7 +213,13 @@ function AdjustmentHistory() {
   )
 }
 
-function AdjustmentCard({ adjustment }: { adjustment: StockAdjustment }) {
+function AdjustmentCard({
+  adjustment,
+  onReopened,
+}: {
+  adjustment: StockAdjustment
+  onReopened: (adjustment: StockAdjustment) => void
+}) {
   const canApprove = usePermission('stock_adjustment.approve')
   const decide = useDecideAdjustment()
   const [rejectOpen, setRejectOpen] = useState(false)
@@ -212,6 +238,10 @@ function AdjustmentCard({ adjustment }: { adjustment: StockAdjustment }) {
         {pending ? (
           <StatusChip variant="info" icon={Hourglass}>
             Menunggu persetujuan
+          </StatusChip>
+        ) : adjustment.status.value === 'reopened' ? (
+          <StatusChip variant="neutral" icon={RotateCcw}>
+            Dibuka ulang
           </StatusChip>
         ) : adjustment.status.value === 'applied' ? (
           <StatusChip variant="success" icon={CircleCheck}>
@@ -237,6 +267,13 @@ function AdjustmentCard({ adjustment }: { adjustment: StockAdjustment }) {
         ))}
       </ul>
       {adjustment.decision_note && <p className="text-sm text-danger-text">Catatan: {adjustment.decision_note}</p>}
+      {adjustment.reopened && (
+        <p className="text-sm text-muted-foreground">
+          Dibuka ulang{adjustment.reopened.by && ` oleh ${adjustment.reopened.by}`}
+          {adjustment.reopened.reason && `: ${adjustment.reopened.reason}`}. Selisihnya sudah dibalik.
+        </p>
+      )}
+      {adjustment.can_reopen && <ReopenButton adjustment={adjustment} onReopened={onReopened} />}
       {canApprove && pending && (
         <div className="flex flex-wrap gap-2">
           <Button
@@ -274,5 +311,65 @@ function AdjustmentCard({ adjustment }: { adjustment: StockAdjustment }) {
         </div>
       )}
     </li>
+  )
+}
+
+/** KR-13: today's count only; later days are fixed with a new count and its reason. */
+function ReopenButton({
+  adjustment,
+  onReopened,
+}: {
+  adjustment: StockAdjustment
+  onReopened: (adjustment: StockAdjustment) => void
+}) {
+  const reopen = useReopenAdjustment()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const applied = adjustment.status.value === 'applied'
+
+  return (
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (!next) reopen.reset()
+      }}
+      trigger={
+        <Button variant="ghost" className="self-start text-leaf-700">
+          <Undo2 aria-hidden />
+          Buka ulang
+        </Button>
+      }
+      title={`Buka ulang opname ${adjustment.number}?`}
+      description={
+        (applied
+          ? 'Selisih yang sudah dibukukan dibalik, jadi stok kembali seperti sebelum opname ini. '
+          : 'Opname ini belum disetujui, jadi stok tidak berubah. ') +
+        'Hitungannya diisi lagi di form di atas: ubah yang salah, lalu simpan sebagai opname baru. Catatan opname ini tetap ada.'
+      }
+      confirmLabel="Buka ulang"
+      pending={reopen.isPending}
+      error={reopen.error?.message}
+      onConfirm={() =>
+        reopen.mutate(
+          { id: adjustment.id, reason: reason.trim() || undefined },
+          {
+            onSuccess: (result) => {
+              setOpen(false)
+              toast.success(`Opname ${adjustment.number} dibuka ulang. Hitung lagi lalu simpan.`)
+              onReopened(result)
+            },
+          },
+        )
+      }
+    >
+      <Textarea
+        aria-label="Alasan (boleh kosong)"
+        placeholder="Alasan (boleh kosong), misalnya: rak B belum dihitung"
+        rows={2}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+      />
+    </ConfirmDialog>
   )
 }

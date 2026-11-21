@@ -212,6 +212,19 @@ export function useSaveStockCount() {
   })
 }
 
+/** KR-13: open today's count again; its difference is reversed. */
+export function useReopenAdjustment() {
+  const invalidate = useInvalidateInventory()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      api<{ data: StockAdjustment }>(`/inventory/adjustments/${id}/reopen`, { method: 'POST', body: { reason } }).then(
+        (r) => r.data,
+      ),
+    networkMode: 'always',
+    onSuccess: invalidate,
+  })
+}
+
 export function useDecideAdjustment() {
   const invalidate = useInvalidateInventory()
   return useMutation({

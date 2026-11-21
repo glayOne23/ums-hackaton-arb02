@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Http\Resources;
 
+use App\Modules\Inventory\Actions\ReopenStockAdjustment;
 use App\Modules\Inventory\Models\StockAdjustment;
 use App\Modules\Inventory\Models\StockAdjustmentItem;
 use Illuminate\Http\Request;
@@ -27,7 +28,14 @@ class StockAdjustmentResource extends JsonResource
             'decided_by' => $this->decider?->name,
             'decided_at' => $this->decided_at,
             'decision_note' => $this->decision_note,
+            'reopened' => $this->reopened_at ? [
+                'by' => $this->reopener?->name,
+                'at' => $this->reopened_at->toIso8601String(),
+                'reason' => $this->reopen_reason,
+            ] : null,
+            'can_reopen' => ReopenStockAdjustment::mayReopen($this->resource) && (bool) $request->user()?->can('inventory.manage'),
             'items' => $this->items->map(fn (StockAdjustmentItem $item) => [
+                'batch_id' => $item->batch_id,
                 'product' => ['id' => $item->batch->product->id, 'code' => $item->batch->product->code, 'name' => $item->batch->product->name],
                 'batch_number' => $item->batch->batch_number,
                 'expiry_date' => $item->batch->expiry_date->toDateString(),

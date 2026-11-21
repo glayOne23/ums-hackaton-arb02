@@ -44,4 +44,7 @@ Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
         ->middleware('can:stock_adjustment.approve')->whereUlid('stockAdjustment');
     Route::post('adjustments/{stockAdjustment}/reject', [StockAdjustmentController::class, 'reject'])
         ->middleware('can:stock_adjustment.approve')->whereUlid('stockAdjustment');
+    // KR-13: open today's count again
+    Route::post('adjustments/{stockAdjustment}/reopen', [StockAdjustmentController::class, 'reopen'])
+        ->middleware('can:inventory.manage')->whereUlid('stockAdjustment');
 });
