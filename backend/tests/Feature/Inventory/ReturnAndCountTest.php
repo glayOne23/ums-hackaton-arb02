@@ -155,3 +155,51 @@ it('does not reopen a count from an earlier day', function () {
         ->assertUnprocessable()
         ->assertJsonPath('errors.adjustment.0', fn (string $m) => str_contains($m, 'bukan dari hari ini'));
 });
+
+it('voids a return entered wrongly: the goods go back to the sales, then the right one is entered (KR-04)', function () {
+    $wrong = $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/returns', [
+        'sales_user_id' => $this->sales->id,
+        'items' => [['product_id' => $this->madu->id, 'qty' => 3, 'condition' => 'sellable']],
+    ])->json('data');
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(11);
+
+    $void = fn (?string $reason) => $this->actingAs($this->warehouse)
+        ->postJson("/api/v1/inventory/returns/{$wrong['id']}/void", ['reason' => $reason]);
+    $void(null)->assertJsonValidationErrors('reason');
+    $this->actingAs($this->sales)->postJson("/api/v1/inventory/returns/{$wrong['id']}/void", ['reason' => 'x'])->assertForbidden();
+
+    $void('Kondisi salah, harusnya rusak')
+        ->assertOk()
+        ->assertJsonPath('data.status', 'void')
+        ->assertJsonPath('data.voided.reason', 'Kondisi salah, harusnya rusak');
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(8)
+        ->and(qtyAt(locations()->forSales($this->sales), 'B1'))->toBe(12);
+    $void('lagi')->assertJsonValidationErrors('return');
+
+    $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/returns', [
+        'sales_user_id' => $this->sales->id,
+        'items' => [['product_id' => $this->madu->id, 'qty' => 3, 'condition' => 'damaged']],
+    ])->assertCreated();
+    expect(qtyAt(locations()->returns(), 'B1'))->toBe(3);
+
+    $this->actingAs($this->warehouse)->getJson("/api/v1/history/stock_return/{$wrong['id']}")
+        ->assertJsonPath('data.0.title', 'Membatalkan retur');
+});
+
+it('will not void a return whose goods already left the warehouse again', function () {
+    $return = $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/returns', [
+        'sales_user_id' => $this->sales->id,
+        'items' => [['product_id' => $this->madu->id, 'qty' => 2, 'condition' => 'sellable']],
+    ])->json('data');
+    // B1 back in the warehouse goes out again to the sales (8 + 2 = 10)
+    $request = $this->actingAs($this->sales)->postJson('/api/v1/inventory/stock-requests', [
+        'items' => [['product_id' => $this->madu->id, 'qty' => 30]],
+    ])->json('data');
+    $this->actingAs($this->warehouse)->postJson("/api/v1/inventory/stock-requests/{$request['id']}/prepare", [
+        'items' => [['id' => $request['items'][0]['id'], 'issued_qty' => 30]],
+    ])->assertOk();
+
+    $this->actingAs($this->warehouse)->postJson("/api/v1/inventory/returns/{$return['id']}/void", ['reason' => 'salah'])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.stock.0', fn (string $m) => str_contains($m, 'Barangnya sudah berpindah'));
+});

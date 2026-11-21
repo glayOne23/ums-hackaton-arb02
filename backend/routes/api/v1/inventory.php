@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
 
     Route::get('returns', [StockReturnController::class, 'index'])->middleware('can:inventory.view');
     Route::post('returns', [StockReturnController::class, 'store'])->middleware('can:inventory.manage');
+    Route::post('returns/{stockReturn}/void', [StockReturnController::class, 'void'])
+        ->middleware('can:inventory.manage')->whereUlid('stockReturn');
 
     Route::get('adjustments', [StockAdjustmentController::class, 'index'])->middleware('can:inventory.view');
     Route::get('adjustments/today', [StockAdjustmentController::class, 'today'])->middleware('can:inventory.manage');

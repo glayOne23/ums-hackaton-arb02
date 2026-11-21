@@ -1,10 +1,17 @@
 import { Link } from '@tanstack/react-router'
-import { Plus, Undo2 } from 'lucide-react'
+import { Ban, Plus, Undo2 } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { formatNumber, formatTableDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { usePermission } from '@/stores/session'
-import { useStockReturns } from '../api'
+import { useStockReturns, useVoidStockReturn } from '../api'
+import type { StockReturn } from '../types'
 import { InventoryTabs } from './InventoryTabs'
 
 /** History of returns from sales (GD-05). */
@@ -41,14 +48,27 @@ export function ReturnList() {
           {returns.data.data.map((ret) => (
             <li key={ret.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
               <span className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-lg font-semibold">
-                  {ret.number} · {ret.sales.name}
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className={cn('text-lg font-semibold', ret.status === 'void' && 'line-through')}>
+                    {ret.number} · {ret.sales.name}
+                  </span>
+                  {ret.status === 'void' && (
+                    <StatusChip variant="danger" icon={Ban}>
+                      Dibatalkan
+                    </StatusChip>
+                  )}
                 </span>
                 <span className="text-muted-foreground">
                   {formatTableDate(new Date(ret.received_date))} · diterima {ret.created_by}
                 </span>
               </span>
-              <ul className="flex flex-col text-sm">
+              {ret.voided && (
+                <span className="text-sm text-danger-text">
+                  Dibatalkan{ret.voided.by && ` oleh ${ret.voided.by}`} · {formatTableDate(new Date(ret.voided.at))}:{' '}
+                  {ret.voided.reason}. Barangnya sudah kembali ke bawaan sales.
+                </span>
+              )}
+              <ul className={cn('flex flex-col text-sm', ret.status === 'void' && 'opacity-70')}>
                 {ret.items.map((item, i) => (
                   <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
                     <span>
@@ -60,6 +80,7 @@ export function ReturnList() {
                   </li>
                 ))}
               </ul>
+              {canManage && ret.status === 'active' && <VoidReturnButton stockReturn={ret} />}
             </li>
           ))}
         </ul>
@@ -76,5 +97,52 @@ export function ReturnList() {
         </div>
       )}
     </section>
+  )
+}
+
+/** KR-04 (BPM P10): a return entered wrongly is voided, then the right one is entered. */
+function VoidReturnButton({ stockReturn }: { stockReturn: StockReturn }) {
+  const voidReturn = useVoidStockReturn()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const qty = stockReturn.items.reduce((sum, item) => sum + item.qty, 0)
+
+  return (
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (!next) voidReturn.reset()
+      }}
+      trigger={
+        <Button variant="danger-outline" className="self-start">
+          Batalkan
+        </Button>
+      }
+      title={`Batalkan retur ${stockReturn.number}?`}
+      description={`${formatNumber(qty)} barang kembali ke bawaan ${stockReturn.sales.name}. Hanya bisa bila barangnya masih di tempat tujuan retur. Catatan ini tetap terlihat, dicoret. Setelah itu catat retur yang benar.`}
+      confirmLabel="Batalkan retur"
+      pending={voidReturn.isPending}
+      error={voidReturn.error?.message}
+      onConfirm={() =>
+        voidReturn.mutate(
+          { id: stockReturn.id, reason },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              toast.success(`${stockReturn.number} dibatalkan`)
+            },
+          },
+        )
+      }
+    >
+      <Textarea
+        aria-label="Alasan (wajib)"
+        placeholder="Alasan (wajib), misalnya: kondisi salah pilih, harusnya rusak"
+        rows={2}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+      />
+    </ConfirmDialog>
   )
 }

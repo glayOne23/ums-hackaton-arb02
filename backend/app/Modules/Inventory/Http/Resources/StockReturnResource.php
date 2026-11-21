@@ -24,6 +24,12 @@ class StockReturnResource extends JsonResource
             'received_date' => $this->received_date->toDateString(),
             'note' => $this->note,
             'created_by' => $this->creator?->name,
+            'status' => $this->status,
+            'voided' => $this->voided_at ? [
+                'by' => $this->voider?->name,
+                'at' => $this->voided_at->toIso8601String(),
+                'reason' => $this->void_reason,
+            ] : null,
             'items' => $this->items->map(fn (StockReturnItem $item) => [
                 'product' => ['id' => $item->batch->product->id, 'code' => $item->batch->product->code, 'name' => $item->batch->product->name],
                 'batch_number' => $item->batch->batch_number,

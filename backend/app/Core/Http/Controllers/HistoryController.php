@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Modules\Inventory\Models\GoodsReceipt;
 use App\Modules\Inventory\Models\StockAdjustment;
 use App\Modules\Inventory\Models\StockRequest;
+use App\Modules\Inventory\Models\StockReturn;
 use App\Modules\Outlet\Models\Outlet;
 use App\Modules\Product\Models\Product;
 use App\Modules\Sales\Enums\TransactionType;
@@ -33,6 +34,7 @@ class HistoryController extends Controller
             'outlet' => $this->simple(Outlet::withTrashed()->findOrFail($id), $user->can('outlet.view')),
             'product' => $this->simple(Product::withTrashed()->findOrFail($id), $user->can('product.view')),
             'goods_receipt' => $this->simple(GoodsReceipt::query()->findOrFail($id), $user->can('inventory.view')),
+            'stock_return' => $this->simple(StockReturn::query()->findOrFail($id), $user->can('inventory.view')),
             'stock_adjustment' => $this->simple(StockAdjustment::query()->findOrFail($id), $user->can('inventory.view')),
             'stock_request' => $this->stockRequest(StockRequest::query()->findOrFail($id), $user),
             'transaction' => $this->transaction(Transaction::query()->findOrFail($id), $user),
