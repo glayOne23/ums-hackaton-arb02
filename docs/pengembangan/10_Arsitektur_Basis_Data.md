@@ -23,7 +23,7 @@ Dokumen ini adalah **sumber kebenaran untuk nama tabel dan kolom**. Dokumen 04 d
 | `inv_` | Gudang dan stok: lokasi, batch, saldo, mutasi, dokumen gudang | `Inventory` | `inventory` | `inventory` |
 | `sls_` | Kunjungan titip jual dan penjualan langsung | `Sales` | `sales` | `sales` |
 | `bil_` | Tagihan, pembayaran, setoran | `Billing` | `billing` | `billing` |
-| `rpt_` | Dicadangkan untuk tabel rekap laporan bila nanti dibutuhkan | `Report` | `report` | `report` |
+| `rpt_` | Dicadangkan untuk tabel rekap laporan bila nanti dibutuhkan. Laporan sekarang dihitung langsung dari tabel transaksi, tagihan, dan stok (`Report\Reports\*`) tanpa tabel sendiri | `Report` | `report` | `report` |
 | `mfg_` | Maklon (fase 4, dokumen 06) | `Manufacturing` | `manufacturing` | `manufacturing` |
 
 Prefix ditulis huruf kecil, 3–4 huruf, lalu garis bawah. Jangan membuat prefix baru tanpa ADR.
@@ -163,6 +163,7 @@ Mutasi stok hanya dibuat lewat satu Action, `App\Modules\Inventory\Actions\Recor
 | --- | --- | --- | --- |
 | `sls_transactions` | `transaksi` | `client_uuid` (unik, dari HP untuk kirim ulang tanpa dobel), `number` (`NT-yymm-0001`), `type` (`consignment_visit`, `direct_sale`), `outlet_id`, `sales_user_id`, `transacted_at` (jam di HP), `subtotal`, `discount_total`, `total`, `form_photo_path` (disk privat, dilihat lewat API), `status` (`active`, `corrected`, `void`), `corrects_id`, `voided_by`, `voided_at`, `void_reason`, `needs_review`, `review_notes` (alasan "Perlu dicek"), `client_payload` (salinan data HP saat konflik), `import_batch_id`. Dicatat lewat `Sales\Actions\RecordTransaction`: server menghitung ulang semua angka; angka HP yang usang tidak ditolak, tetapi dicatat sebisanya dan ditandai `needs_review`. Outlet/produk yang punya transaksi tidak bisa dihapus (`Sales\Usage\*`) | ada |
 | `sls_transaction_items` | `transaksi_detail` | `transaction_id`, `product_id`, `product_name`, `opening_qty`, `remaining_qty`, `sold_qty`, `withdrawn_qty`, `refill_qty`, `closing_qty`, `unit_price`, `discount_percent`, `line_total`. Kolom titip (`opening_qty`, `remaining_qty`, `closing_qty`) kosong untuk beli langsung | ada |
+| `sls_targets` | `target_sales` (PG-10) | `sales_user_id`, `month` (teks `2026-11`, sama di MySQL dan SQLite), `visit_target`, `revenue_target`, `updated_by`; unik (`sales_user_id`, `month`). Diisi lewat `Sales\Actions\SaveSalesTargets` (izin `target.manage`); perubahan masuk riwayat (`log_name = target`). Dipakai Ringkasan pimpinan (LP-01) dan Performa sales (LP-02) | ada |
 
 Padanan kolom rekap Excel mitra (A-M-R-L-S, dokumen 04 §3.2): A = `opening_qty`, M = `refill_qty`, R = `remaining_qty`, L = `sold_qty`, S = `closing_qty`; tarik = `withdrawn_qty`.
 
