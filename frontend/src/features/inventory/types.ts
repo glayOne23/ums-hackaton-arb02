@@ -71,6 +71,8 @@ export interface GoodsReceipt {
   received_date: string
   note: string | null
   created_by: string | null
+  status: 'active' | 'void'
+  voided: { by: string | null; at: string; reason: string | null } | null
   total_qty: number
   items: { product: ProductRef; batch_number: string; expiry_date: string; qty: number }[]
   created_at: string

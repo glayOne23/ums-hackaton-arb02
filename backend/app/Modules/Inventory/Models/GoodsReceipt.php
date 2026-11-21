@@ -17,17 +17,25 @@ use Illuminate\Support\Carbon;
  * @property string $number
  * @property Carbon $received_date
  * @property string|null $note
+ * @property string $status
+ * @property int|null $voided_by
+ * @property Carbon|null $voided_at
+ * @property string|null $void_reason
  */
 #[Fillable(['number', 'received_date', 'note', 'created_by'])]
 class GoodsReceipt extends Model
 {
     use HasUlids;
 
+    public const ACTIVE = 'active';
+
+    public const VOID = 'void';
+
     protected $table = 'inv_goods_receipts';
 
     protected function casts(): array
     {
-        return ['received_date' => 'date'];
+        return ['received_date' => 'date', 'voided_at' => 'datetime', 'voided_by' => 'integer'];
     }
 
     /** @return HasMany<GoodsReceiptItem, $this> */
@@ -40,5 +48,11 @@ class GoodsReceipt extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function voider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
     }
 }

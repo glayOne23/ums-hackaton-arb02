@@ -13,6 +13,8 @@ enum MovementType: string
     case Return = 'return';
     case Disposal = 'disposal';
     case Adjustment = 'adjustment';
+    /** Undoes an earlier movement (reverses_id) when its document is corrected or voided (KR-03, KR-04) */
+    case Correction = 'correction';
 
     public function label(): string
     {
@@ -25,6 +27,7 @@ enum MovementType: string
             self::Return => 'Retur ke gudang',
             self::Disposal => 'Musnah',
             self::Adjustment => 'Opname',
+            self::Correction => 'Koreksi',
         };
     }
 }

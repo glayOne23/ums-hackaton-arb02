@@ -1,4 +1,4 @@
-import { Check, ClipboardList, LoaderCircle, PackageCheck } from 'lucide-react'
+import { Check, ClipboardList, LoaderCircle, PackageCheck, Undo2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -16,6 +16,7 @@ import { useStockRequestAction, useStockRequests } from '../api'
 import type { StockRequest } from '../types'
 import { InventoryTabs } from './InventoryTabs'
 import { StockRequestStatusChip } from './StockRequestStatusChip'
+import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 
 const FILTERS = [
   { value: 'open', label: 'Perlu diproses' },
@@ -81,7 +82,8 @@ function RequestCard({ request }: { request: StockRequest }) {
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectNote, setRejectNote] = useState('')
 
-  const editing = canPrepare && request.status.value === 'submitted'
+  // Prepared again after "Ubah status" (KR-05): the numbers may change before approving
+  const editing = canPrepare && (request.status.value === 'submitted' || request.status.value === 'prepared')
   const fieldErrors = action.error instanceof ApiError ? action.error.fieldErrors : {}
   const generalError = action.error
     ? (fieldErrors.request?.[0] ?? (Object.keys(fieldErrors).length === 0 ? action.error.message : null))
@@ -194,7 +196,7 @@ function RequestCard({ request }: { request: StockRequest }) {
         {editing && (
           <Button disabled={action.isPending} onClick={prepare}>
             {action.isPending ? <LoaderCircle className="animate-spin" aria-hidden /> : <PackageCheck aria-hidden />}
-            {canApprove ? 'Siapkan & keluarkan' : 'Siapkan'}
+            {canApprove ? 'Siapkan & keluarkan' : request.status.value === 'prepared' ? 'Siapkan ulang' : 'Siapkan'}
           </Button>
         )}
         {canApprove && request.status.value === 'prepared' && (
@@ -251,7 +253,74 @@ function RequestCard({ request }: { request: StockRequest }) {
             </div>
           </ConfirmDialog>
         )}
+        {canPrepare && request.status.value !== 'submitted' && <RevertStatusButton request={request} />}
       </div>
+      <HistoryPanel type="stock_request" id={request.id} />
     </li>
+  )
+}
+
+const BACK: Record<string, { label: string; impact: (r: StockRequest) => string }> = {
+  issued: {
+    label: 'Kembalikan ke Disiapkan',
+    impact: (r) =>
+      `Barang ditarik lagi dari bawaan ${r.sales.name} ke gudang, lalu jumlahnya bisa diubah dan disetujui ulang. Hanya bisa bila barangnya masih dibawa.`,
+  },
+  prepared: { label: 'Kembalikan ke Diajukan', impact: () => 'Batch yang sudah disiapkan dilepas lagi.' },
+  rejected: { label: 'Buka lagi permintaan', impact: () => 'Permintaan kembali ke Diajukan dan bisa disiapkan.' },
+}
+
+/** KR-05 "Ubah status": one step back, with a reason. */
+function RevertStatusButton({ request }: { request: StockRequest }) {
+  const action = useStockRequestAction()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const back = BACK[request.status.value]
+  if (!back) return null
+
+  return (
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (!next) action.reset()
+      }}
+      trigger={
+        <Button variant="ghost" className="text-leaf-700">
+          <Undo2 aria-hidden />
+          Ubah status
+        </Button>
+      }
+      title={`${back.label}: ${request.number}?`}
+      description={back.impact(request)}
+      confirmLabel={back.label}
+      pending={action.isPending}
+      error={action.error?.message}
+      onConfirm={() =>
+        action.mutate(
+          { id: request.id, action: 'revert-status', body: { reason } },
+          {
+            onSuccess: (result) => {
+              setOpen(false)
+              toast.success(`${request.number} sekarang ${result.status.label}`)
+            },
+          },
+        )
+      }
+    >
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={`revert-${request.id}`} className="text-base">
+          Alasan (wajib)
+        </Label>
+        <Textarea
+          id={`revert-${request.id}`}
+          rows={2}
+          value={reason}
+          maxLength={255}
+          placeholder="Misalnya: jumlah yang disiapkan salah"
+          onChange={(e) => setReason(e.target.value)}
+        />
+      </div>
+    </ConfirmDialog>
   )
 }

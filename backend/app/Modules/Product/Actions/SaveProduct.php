@@ -2,7 +2,9 @@
 
 namespace App\Modules\Product\Actions;
 
+use App\Core\History\History;
 use App\Models\User;
+use App\Modules\Product\Models\Category;
 use App\Modules\Product\Models\Product;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +16,12 @@ use Illuminate\Support\Facades\DB;
  */
 final class SaveProduct
 {
+    private const LABELS = [
+        'code' => 'Kode', 'name' => 'Nama', 'category_id' => 'Kategori', 'bpom_number' => 'No. BPOM',
+        'unit' => 'Satuan', 'selling_price' => 'Harga jual', 'min_stock_qty' => 'Batas stok gudang',
+        'is_active' => 'Aktif', 'aliases' => 'Nama lain',
+    ];
+
     /**
      * @param  array<string, mixed>  $data  validated fields (SaveProductRequest); "aliases" = complete list when sent
      */
@@ -21,6 +29,7 @@ final class SaveProduct
     {
         return DB::transaction(function () use ($data, $actor, $product) {
             $product ??= new Product;
+            $before = $product->exists ? $this->snapshot($product) : null;
 
             $product->fill(Arr::except($data, ['aliases']));
             if (isset($data['code'])) {
@@ -37,8 +46,26 @@ final class SaveProduct
                 $this->syncAliases($product, (array) $data['aliases']);
             }
 
+            if ($before === null) {
+                History::record($product, 'Membuat produk', by: $actor);
+            } elseif ($changes = History::diff(self::LABELS, $before, $this->snapshot($product), [
+                'category_id' => fn ($id) => $id ? (string) Category::query()->whereKey($id)->value('name') : '(kosong)',
+                'selling_price' => fn ($price) => $price === null ? '(kosong)' : 'Rp '.number_format((float) $price, 0, ',', '.'),
+            ])) {
+                History::record($product, 'Mengubah data produk', $changes, by: $actor);
+            }
+
             return $product;
         });
+    }
+
+    /** @return array<string, mixed> */
+    private function snapshot(Product $product): array
+    {
+        return [
+            ...$product->only(array_keys(self::LABELS)),
+            'aliases' => $product->aliases()->orderBy('alias')->pluck('alias')->all(),
+        ];
     }
 
     /**

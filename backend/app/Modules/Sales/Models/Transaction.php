@@ -34,11 +34,20 @@ use Illuminate\Support\Carbon;
  * @property bool $needs_review
  * @property list<string>|null $review_notes
  * @property array<string, mixed>|null $client_payload
+ * @property string|null $corrects_id
+ * @property int|null $voided_by
+ * @property Carbon|null $voided_at
+ * @property string|null $void_reason
+ * @property int|null $reviewed_by
+ * @property Carbon|null $reviewed_at
  * @property Carbon $created_at
+ * @property-read Outlet $outlet
+ * @property-read User $salesUser
+ * @property-read Invoice|null $invoice
  */
 #[Fillable([
     'client_uuid', 'number', 'type', 'outlet_id', 'sales_user_id', 'transacted_at',
-    'subtotal', 'discount_total', 'total', 'status', 'needs_review', 'review_notes', 'client_payload',
+    'subtotal', 'discount_total', 'total', 'status', 'needs_review', 'review_notes', 'client_payload', 'corrects_id',
 ])]
 class Transaction extends Model
 {
@@ -59,6 +68,10 @@ class Transaction extends Model
             'needs_review' => 'boolean',
             'review_notes' => 'array',
             'client_payload' => 'array',
+            'voided_by' => 'integer',
+            'voided_at' => 'datetime',
+            'reviewed_by' => 'integer',
+            'reviewed_at' => 'datetime',
         ];
     }
 
@@ -94,5 +107,43 @@ class Transaction extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * The nota this one replaces (KR-03).
+     *
+     * @return BelongsTo<Transaction, $this>
+     */
+    public function corrects(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class, 'corrects_id');
+    }
+
+    /**
+     * The nota that replaced this one.
+     *
+     * @return HasOne<Transaction, $this>
+     */
+    public function replacement(): HasOne
+    {
+        return $this->hasOne(Transaction::class, 'corrects_id');
+    }
+
+    /** @return HasMany<TransactionCorrection, $this> */
+    public function corrections(): HasMany
+    {
+        return $this->hasMany(TransactionCorrection::class)->latest();
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function voider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

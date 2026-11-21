@@ -1,13 +1,23 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronLeft, CircleAlert, ImageOff } from 'lucide-react'
+import { Ban, Check, ChevronLeft, CircleAlert, CircleCheck, History, ImageOff, LoaderCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
+import { StatusChip } from '@/components/common/StatusChip'
+import { Button } from '@/components/ui/button'
+import { useMarkReviewed } from '@/features/correction/api'
+import { CorrectionPanel } from '@/features/correction/components/CorrectionPanel'
 import { formatCurrency, formatDate, formatDiscountPercent, formatTableDate, formatTime } from '@/lib/format'
+import { cn } from '@/lib/utils'
+import { usePermission } from '@/stores/session'
 import { useTransaction, useTransactionPhoto } from '../api'
 import type { Transaction } from '../types'
 
-/** Office view of one nota: shelf numbers per product, bill, payment, form photo, review notes. */
-export function VisitDetail({ transactionId }: { transactionId: string }) {
+/**
+ * Office view of one nota: shelf numbers per product, bill, payment, form
+ * photo, review notes, and the correction buttons (W11) with the history (W12).
+ */
+export function VisitDetail({ transactionId, fromPhone = false }: { transactionId: string; fromPhone?: boolean }) {
   const transaction = useTransaction(transactionId)
 
   return (
@@ -21,41 +31,58 @@ export function VisitDetail({ transactionId }: { transactionId: string }) {
       ) : transaction.isError ? (
         <ErrorState message={transaction.error.message} onRetry={() => transaction.refetch()} />
       ) : (
-        <Detail transaction={transaction.data} />
+        <Detail key={transaction.data.id} transaction={transaction.data} fromPhone={fromPhone} />
       )}
     </section>
   )
 }
 
-function Detail({ transaction: t }: { transaction: Transaction }) {
+function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromPhone: boolean }) {
   const consignment = t.type.value === 'consignment_visit'
   const at = new Date(t.transacted_at)
+  const struck = t.status.value !== 'active'
 
   return (
     <>
-      <header>
-        <h1 className="text-2xl font-semibold wrap-break-word">{t.outlet?.name}</h1>
+      <header className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className={cn('text-2xl font-semibold wrap-break-word', struck && 'line-through decoration-2')}>
+            {t.outlet?.name}
+          </h1>
+          {t.status.value === 'void' && (
+            <StatusChip variant="danger" icon={Ban}>
+              {t.status.label}
+            </StatusChip>
+          )}
+          {t.status.value === 'corrected' && (
+            <StatusChip variant="neutral" icon={History}>
+              {t.status.label}
+            </StatusChip>
+          )}
+        </div>
         <p className="text-muted-foreground">
           Nota {t.number} · {t.type.label} · {formatDate(at)} {formatTime(at)} · {t.sales?.name}
         </p>
       </header>
 
-      {t.needs_review && (
-        <div className="flex flex-col gap-1 rounded-lg bg-warning-soft p-4 text-warning-text" role="note">
-          <p className="flex items-center gap-2 font-semibold">
-            <CircleAlert className="size-5" aria-hidden />
-            Perlu dicek: angka dari HP berbeda dengan server
-          </p>
-          <ul className="list-disc pl-6">
-            {t.review_notes.map((note) => (
-              <li key={note}>{note}</li>
-            ))}
-          </ul>
-        </div>
+      {t.needs_review && <ReviewNotice transaction={t} />}
+      {!t.needs_review && t.reviewed && t.review_notes.length > 0 && (
+        <p className="flex items-start gap-2 text-muted-foreground">
+          <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
+          Sudah dicek{t.reviewed.by && ` oleh ${t.reviewed.by}`} · {formatDate(new Date(t.reviewed.at))}:{' '}
+          {t.review_notes.join(' ')}
+        </p>
       )}
 
+      <CorrectionPanel transaction={t} allowOutletChange startWithPhone={fromPhone && !!t.client_items?.length} />
+
       {/* Phones: one card per product, no sideways scrolling (UI guide §5) */}
-      <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card sm:hidden">
+      <ul
+        className={cn(
+          'flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card sm:hidden',
+          struck && 'opacity-70',
+        )}
+      >
         {t.items?.map((item) => (
           <li key={item.id} className="flex flex-col gap-1 p-3">
             <span className="flex justify-between gap-3">
@@ -73,7 +100,12 @@ function Detail({ transaction: t }: { transaction: Transaction }) {
         ))}
       </ul>
 
-      <div className="hidden overflow-x-auto rounded-lg border border-border bg-card sm:block">
+      <div
+        className={cn(
+          'hidden overflow-x-auto rounded-lg border border-border bg-card sm:block',
+          struck && 'opacity-70',
+        )}
+      >
         <table className="w-full text-left">
           <thead className="bg-muted text-sm">
             <tr>
@@ -134,6 +166,47 @@ function Detail({ transaction: t }: { transaction: Transaction }) {
         <FormPhoto transaction={t} />
       </div>
     </>
+  )
+}
+
+/** KR-11: why the nota needs a look, and "Pakai data server" for when the server numbers are right. */
+function ReviewNotice({ transaction: t }: { transaction: Transaction }) {
+  const review = useMarkReviewed()
+  const mayCheck = usePermission('visit.correct')
+
+  return (
+    <div className="flex flex-col gap-2 rounded-lg bg-warning-soft p-4 text-warning-text" role="note">
+      <p className="flex items-center gap-2 font-semibold">
+        <CircleAlert className="size-5" aria-hidden />
+        Perlu dicek: angka dari HP berbeda dengan server
+      </p>
+      <ul className="list-disc pl-6">
+        {t.review_notes.map((note) => (
+          <li key={note}>{note}</li>
+        ))}
+      </ul>
+      {mayCheck && t.status.value === 'active' && (
+        <div className="flex flex-col gap-2 pt-1 text-foreground">
+          <p className="text-sm">
+            Angka server sudah benar? Tandai sudah dicek. Angka HP yang benar? Pakai "Perbaiki pakai data HP" di bawah.
+          </p>
+          <Button
+            variant="outline"
+            className="self-start"
+            disabled={review.isPending}
+            onClick={() =>
+              review.mutate(t.id, {
+                onSuccess: () => toast.success('Ditandai sudah dicek'),
+                onError: (error) => toast.error(error.message),
+              })
+            }
+          >
+            {review.isPending ? <LoaderCircle className="animate-spin" aria-hidden /> : <Check aria-hidden />}
+            Pakai data server, tandai sudah dicek
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }
 

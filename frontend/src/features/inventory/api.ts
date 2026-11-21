@@ -161,6 +161,7 @@ type RequestAction =
   | { id: string; action: 'prepare'; body: { note: string; items: { id: string; issued_qty: number }[] } }
   | { id: string; action: 'approve' }
   | { id: string; action: 'reject'; body: { note: string } }
+  | { id: string; action: 'revert-status'; body: { reason: string } }
 
 export function useStockRequestAction() {
   const invalidate = useInvalidateInventory()
@@ -170,6 +171,19 @@ export function useStockRequestAction() {
         method: 'POST',
         body: 'body' in input ? input.body : undefined,
       }).then((r) => r.data),
+    networkMode: 'always',
+    onSuccess: invalidate,
+  })
+}
+
+/** KR-04: void goods received by mistake; the stock leaves the warehouse again. */
+export function useVoidGoodsReceipt() {
+  const invalidate = useInvalidateInventory()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      api<{ data: GoodsReceipt }>(`/inventory/goods-receipts/${id}/void`, { method: 'POST', body: { reason } }).then(
+        (r) => r.data,
+      ),
     networkMode: 'always',
     onSuccess: invalidate,
   })

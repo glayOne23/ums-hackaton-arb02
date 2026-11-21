@@ -23,6 +23,12 @@ class GoodsReceiptResource extends JsonResource
             'received_date' => $this->received_date->toDateString(),
             'note' => $this->note,
             'created_by' => $this->creator?->name,
+            'status' => $this->status,
+            'voided' => $this->voided_at ? [
+                'by' => $this->voider?->name,
+                'at' => $this->voided_at->toIso8601String(),
+                'reason' => $this->void_reason,
+            ] : null,
             'total_qty' => (int) $this->items->sum('qty'),
             'items' => $this->items->map(fn (GoodsReceiptItem $item) => [
                 'product' => ['id' => $item->batch->product->id, 'code' => $item->batch->product->code, 'name' => $item->batch->product->name],

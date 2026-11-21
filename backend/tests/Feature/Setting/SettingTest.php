@@ -65,7 +65,7 @@ it('refuses values outside the limits, unknown keys, and rules not built yet', f
         ->assertJsonPath('errors', fn (array $errors) => str_contains($errors['values.visit_cycle_days'][0], 'paling sedikit 1'));
     saveSettings($this->admin, ['billing_threshold_unit' => 'kg'])->assertJsonValidationErrors('values.billing_threshold_unit');
     saveSettings($this->admin, ['not_a_rule' => 1])->assertJsonValidationErrors('values.not_a_rule');
-    saveSettings($this->admin, ['trash_retention_days' => 10])->assertJsonValidationErrors('values.trash_retention_days');
+    saveSettings($this->admin, ['period_closing_enabled' => true])->assertJsonValidationErrors('values.period_closing_enabled');
 
     expect(Setting::int('visit_cycle_days'))->toBe(30);
 });

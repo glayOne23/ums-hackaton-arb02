@@ -3,9 +3,13 @@
 namespace App\Modules\Sales\Http\Resources;
 
 use App\Core\Support\Money;
+use App\Models\User;
 use App\Modules\Billing\Enums\PaymentStatus;
 use App\Modules\Billing\Models\Payment;
+use App\Modules\Sales\Actions\CorrectionRules;
+use App\Modules\Sales\Enums\CorrectionStatus;
 use App\Modules\Sales\Models\Transaction;
+use App\Modules\Sales\Models\TransactionCorrection;
 use App\Modules\Sales\Models\TransactionItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,6 +24,9 @@ class TransactionResource extends JsonResource
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
+        /** @var User|null $user */
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'client_uuid' => $this->client_uuid,
@@ -66,6 +73,29 @@ class TransactionResource extends JsonResource
                 ->filter(fn (Payment $payment) => $payment->status === PaymentStatus::Valid)
                 ->sum(fn (Payment $payment) => Money::toCents($payment->amount)) / 100),
             'created_at' => $this->created_at->toIso8601String(),
+            'corrects' => $this->whenLoaded('corrects', fn () => $this->corrects ? ['id' => $this->corrects->id, 'number' => $this->corrects->number] : null),
+            'replaced_by' => $this->whenLoaded('replacement', fn () => $this->replacement ? ['id' => $this->replacement->id, 'number' => $this->replacement->number] : null),
+            'voided' => $this->voided_at ? [
+                'by' => $this->whenLoaded('voider', fn () => $this->voider?->name),
+                'at' => $this->voided_at->toIso8601String(),
+                'reason' => $this->void_reason,
+            ] : null,
+            'reviewed' => $this->reviewed_at ? [
+                'by' => $this->whenLoaded('reviewer', fn () => $this->reviewer?->name),
+                'at' => $this->reviewed_at->toIso8601String(),
+            ] : null,
+            // What the phone sent, for "Pakai data HP" on a Perlu dicek nota (KR-11)
+            'client_items' => $this->when(
+                $this->client_payload !== null && $user?->can('visit.view'),
+                fn () => array_values((array) ($this->client_payload['items'] ?? [])),
+            ),
+            // W11: which buttons this user gets
+            'correction' => $this->whenLoaded('corrections', fn () => $user ? [
+                ...app(CorrectionRules::class)->summary($this->resource, $user),
+                'pending' => ($pending = $this->corrections->first(fn (TransactionCorrection $c) => $c->status === CorrectionStatus::Pending))
+                    ? (new TransactionCorrectionResource($pending->setRelation('transaction', $this->resource)))->toArray($request)
+                    : null,
+            ] : null),
         ];
     }
 }

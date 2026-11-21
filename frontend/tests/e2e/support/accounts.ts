@@ -43,8 +43,11 @@ export async function pageAs(browser: Browser, testInfo: TestInfo, account: Acco
  * goods on the shelf. Repeated runs sell from the sample shelves, so the very
  * first outlet may be empty. Moves inside the app (no page reload), so code
  * already loaded stays available when a test then goes offline.
+ *
+ * `fromEnd` searches from the last outlet, so a spec that runs next to the
+ * visit spec with the same sales does not visit the same outlet at once.
  */
-export async function openOutletWithShelfStock(page: Page): Promise<void> {
+export async function openOutletWithShelfStock(page: Page, { fromEnd = false } = {}): Promise<void> {
   const outletTab = page.getByRole('link', { name: 'Outlet', exact: true })
   if (await outletTab.count()) await outletTab.click()
   else await page.goto('/field')
@@ -53,8 +56,8 @@ export async function openOutletWithShelfStock(page: Page): Promise<void> {
   await expect(links.first()).toBeVisible()
   const count = await links.count()
 
-  for (let i = 0; i < count; i++) {
-    await links.nth(i).click()
+  for (let n = 0; n < count; n++) {
+    await links.nth(fromEnd ? count - 1 - n : n).click()
     await expect(
       page.getByRole('button', { name: 'Lanjut' }).or(page.getByText('Belum ada titipan')).first(),
     ).toBeVisible()

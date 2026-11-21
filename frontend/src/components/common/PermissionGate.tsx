@@ -2,15 +2,16 @@ import { Link } from '@tanstack/react-router'
 import { Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import { usePermission } from '@/stores/session'
+import { useSession } from '@/stores/session'
 
 /**
  * Shows children only with the permission; otherwise the "no access" state from
  * UI guide §7.8. The server still checks every request — this only spares the
- * user a screen full of errors.
+ * user a screen full of errors. A list means any one of them is enough.
  */
-export function PermissionGate({ permission, children }: { permission: string; children: ReactNode }) {
-  const allowed = usePermission(permission)
+export function PermissionGate({ permission, children }: { permission: string | string[]; children: ReactNode }) {
+  const wanted = Array.isArray(permission) ? permission : [permission]
+  const allowed = useSession((s) => wanted.some((p) => s.user?.permissions.includes(p) ?? false))
 
   if (allowed) return children
 

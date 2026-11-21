@@ -12,6 +12,7 @@ import { useOutlet } from '../api'
 import type { Outlet } from '../types'
 import { AssignmentEditor } from './AssignmentEditor'
 import { DeleteOutletButton } from './DeleteOutletButton'
+import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 
 /**
  * W2 — outlet profile (OT-03). This first version shows the outlet data and
@@ -130,6 +131,8 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
           <p className="text-muted-foreground">Outlet ini belum dipegang sales mana pun.</p>
         )}
       </section>
+
+      <HistoryPanel type="outlet" id={outlet.id} />
 
       <p className="text-sm text-muted-foreground">
         Stok titipan, riwayat kunjungan, dan tagihan outlet akan tampil di sini setelah modul gudang, kunjungan, dan

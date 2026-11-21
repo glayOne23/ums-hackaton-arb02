@@ -12,6 +12,7 @@ import { formatCurrency, formatNumber } from '@/lib/format'
 import { usePermission } from '@/stores/session'
 import { productKeys, useDeleteProduct, useProduct } from '../api'
 import type { Product } from '../types'
+import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 
 /** Product data, readable by everyone with product.view; change and delete with product.manage. */
 export function ProductDetail({ productId }: { productId: string }) {
@@ -77,6 +78,8 @@ function Content({ product }: { product: Product }) {
         <Info label="Stok minimum gudang" value={`${formatNumber(product.min_stock_qty)} ${product.unit}`} />
         <Info label="Nama lain di Excel lama" value={product.aliases?.join(', ') || null} />
       </section>
+
+      <HistoryPanel type="product" id={product.id} />
 
       <p className="text-sm text-muted-foreground">
         Harga setelah potongan per jenis outlet ada di{' '}

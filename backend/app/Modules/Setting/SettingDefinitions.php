@@ -25,6 +25,7 @@ final class SettingDefinitions
         'visit' => 'Kunjungan',
         'approval' => 'Persetujuan',
         'report' => 'Laporan',
+        'correction' => 'Koreksi & tempat sampah',
         'company' => 'Data perusahaan di nota',
         'later' => 'Belum dipakai',
     ];
@@ -94,12 +95,19 @@ final class SettingDefinitions
             'label' => 'Nomor WhatsApp',
         ],
         'edit_window_days' => [
-            'section' => 'later', 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 30, 'suffix' => 'hari',
-            'label' => 'Batas perbaikan langsung oleh pembuat transaksi', 'editable' => false,
+            'section' => 'correction', 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 30, 'suffix' => 'hari',
+            'label' => 'Pembuat nota boleh memperbaiki langsung sampai',
+            'help' => '0 = hanya di hari yang sama. Lewat batas ini perbaikan diajukan sebagai koreksi dengan alasan (KR-01, KR-02).',
+        ],
+        'approve_correction' => [
+            'section' => 'correction', 'type' => 'bool', 'default' => true,
+            'label' => 'Koreksi dan pembatalan nota perlu disetujui',
+            'help' => 'Disetujui oleh pemegang izin "Setujui koreksi & pembatalan nota".',
         ],
         'trash_retention_days' => [
-            'section' => 'later', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 365, 'suffix' => 'hari',
-            'label' => 'Masa simpan Tempat Sampah', 'editable' => false,
+            'section' => 'correction', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 365, 'suffix' => 'hari',
+            'label' => 'Data di Tempat Sampah dihapus permanen setelah',
+            'help' => 'Selama itu outlet dan produk yang terhapus masih bisa dipulihkan (KR-09).',
         ],
         'period_closing_enabled' => [
             'section' => 'later', 'type' => 'bool', 'default' => false,

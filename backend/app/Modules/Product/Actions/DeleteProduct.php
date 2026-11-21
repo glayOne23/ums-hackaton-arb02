@@ -2,6 +2,7 @@
 
 namespace App\Modules\Product\Actions;
 
+use App\Core\History\History;
 use App\Models\User;
 use App\Modules\Product\Contracts\ProductUsage;
 use App\Modules\Product\Models\Product;
@@ -32,6 +33,7 @@ final class DeleteProduct
         DB::transaction(function () use ($product, $actor) {
             $product->forceFill(['deleted_by' => $actor->id])->save();
             $product->delete();
+            History::record($product, 'Memindahkan ke Tempat Sampah', by: $actor);
         });
     }
 }

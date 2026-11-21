@@ -19,6 +19,8 @@ Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
 
     Route::get('goods-receipts', [GoodsReceiptController::class, 'index'])->middleware('can:inventory.view');
     Route::post('goods-receipts', [GoodsReceiptController::class, 'store'])->middleware('can:inventory.manage');
+    Route::post('goods-receipts/{goodsReceipt}/void', [GoodsReceiptController::class, 'void'])
+        ->middleware('can:inventory.manage')->whereUlid('goodsReceipt');
 
     Route::get('stock-requests', [StockRequestController::class, 'index']);
     Route::post('stock-requests', [StockRequestController::class, 'store'])->middleware('can:stock_request.create');
@@ -28,6 +30,8 @@ Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
     Route::post('stock-requests/{stockRequest}/approve', [StockRequestController::class, 'approve'])
         ->middleware('can:stock_request.approve')->whereUlid('stockRequest');
     Route::post('stock-requests/{stockRequest}/reject', [StockRequestController::class, 'reject'])
+        ->middleware('can:stock_request.prepare')->whereUlid('stockRequest');
+    Route::post('stock-requests/{stockRequest}/revert-status', [StockRequestController::class, 'revertStatus'])
         ->middleware('can:stock_request.prepare')->whereUlid('stockRequest');
 
     Route::get('returns', [StockReturnController::class, 'index'])->middleware('can:inventory.view');

@@ -44,6 +44,37 @@ async function send(queryClient: QueryClient, userId: number): Promise<void> {
     await queryClient.invalidateQueries({ queryKey: ['inventory'] })
     await queryClient.invalidateQueries({ queryKey: ['sales'] })
   }
+
+  await reportQueue(userId)
+}
+
+const REPORT_EVERY_MS = 10 * 60_000
+let lastReport = { key: '', at: 0 }
+
+/**
+ * KR-12: tell the office how many visits are still on this phone (waiting or
+ * refused), when that changed or every 10 minutes. Without a signal it simply
+ * tries again next time.
+ */
+async function reportQueue(userId: number): Promise<void> {
+  const mine = await salesDb.receipts.where('user_id').equals(userId).toArray()
+  const queued = mine.filter((r) => r.status === 'queued')
+  const failed = mine.filter((r) => r.status === 'failed')
+  const body = {
+    queued: queued.length,
+    failed: failed.length,
+    last_error: failed.at(-1)?.error ?? null,
+    oldest_waiting_at: [...queued, ...failed].map((r) => r.created_at).sort()[0] ?? null,
+  }
+  const key = JSON.stringify(body)
+  if (key === lastReport.key && Date.now() - lastReport.at < REPORT_EVERY_MS) return
+
+  try {
+    await api('/sales/sync-status', { method: 'POST', body })
+    lastReport = { key, at: Date.now() }
+  } catch {
+    // No signal or server down: the next round reports it
+  }
 }
 
 async function sendTransaction(receipt: Receipt): Promise<Receipt | 'failed' | 'stop'> {
