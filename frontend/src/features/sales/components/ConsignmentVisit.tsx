@@ -85,6 +85,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
       paid: payment.amount,
       method: payment.method,
       photo: payment.photo,
+      settings: pkg.settings,
     })
     await saveReceipt(receipt)
     await navigate({ to: '/field/receipt/$clientUuid', params: { clientUuid: receipt.client_uuid }, replace: true })

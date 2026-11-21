@@ -34,6 +34,10 @@ export interface Receipt {
   transaction: Transaction | null
   photo: Blob | null
   photo_status: 'none' | 'queued' | 'sent'
+  /** Hemat data was on when saved: the photo waits for Wi-Fi */
+  photo_wifi_only?: boolean
+  /** Company lines for the nota (PG-09); missing on notas saved before the setting existed */
+  company?: { name: string; address: string; whatsapp: string }
   created_at: string
   sent_at: string | null
 }

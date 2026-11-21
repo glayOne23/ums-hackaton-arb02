@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { billingSuggestion, computeLine, daysSince, isDue, sumMoney, type VisitLine } from '@/features/sales/calc'
 import type { Receipt } from '@/features/sales/offline/db'
 import { applyPending } from '@/features/sales/offline/pending'
-import { owedAfter } from '@/features/sales/receipt'
+import { owedAfter, receiptText } from '@/features/sales/receipt'
 import type { PackageOutlet, PackageSettings, WorkPackage } from '@/features/sales/types'
 
 const madu: VisitLine = {
@@ -24,6 +24,10 @@ const settings: PackageSettings = {
   visit_cycle_days: 30,
   credit_term_days: 30,
   form_photo_required: false,
+  data_saver: false,
+  company_name: "CV Arba'in Jaya Mandiri",
+  company_address: '',
+  company_whatsapp: '',
 }
 
 describe('computeLine (SDD §4.1)', () => {
@@ -154,6 +158,13 @@ describe('applyPending (NF-01: visits saved offline show at once)', () => {
     expect(applyPending(pkg, [receipt('sent', { sent_at: '2026-11-20T18:30:00Z' })])).not.toBe(pkg)
     // 17:30Z = 00:30 +07:00: before the package → already in it
     expect(applyPending(pkg, [receipt('sent', { sent_at: '2026-11-20T17:30:00Z' })])).toBe(pkg)
+  })
+
+  it('puts the company from Settings at the top of the WhatsApp nota (PG-09)', () => {
+    const text = receiptText(
+      receipt('queued', { company: { name: 'CV Contoh', address: 'Jl. Contoh 1', whatsapp: '0811' } }),
+    )
+    expect(text.split('\n').slice(0, 3)).toEqual(['*CV Contoh*', 'Jl. Contoh 1', 'WA 0811'])
   })
 
   it('works out what is still owed after the nota', () => {

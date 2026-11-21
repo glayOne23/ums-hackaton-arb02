@@ -7,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  // Each sample account signs in once per run (tests/e2e/support/global-setup.ts)
+  globalSetup: './tests/e2e/support/global-setup.ts',
   outputDir: './test-results',
   fullyParallel: false,
   reporter: [['list']],

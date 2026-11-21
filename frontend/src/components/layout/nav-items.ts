@@ -5,6 +5,7 @@ import {
   type LucideIcon,
   Package,
   Percent,
+  Settings,
   Store,
   Warehouse,
 } from 'lucide-react'
@@ -19,6 +20,7 @@ export interface NavItem {
     | '/office/products'
     | '/office/discounts'
     | '/office/inventory'
+    | '/office/settings'
   label: string
   icon: LucideIcon
   /** Shown when the user has any of these permissions */
@@ -36,6 +38,7 @@ const ITEMS: NavItem[] = [
   { to: '/office/products', label: 'Produk', icon: Package, permissions: ['product.view'] },
   { to: '/office/discounts', label: 'Potongan', icon: Percent, permissions: ['product.view'] },
   { to: '/office/inventory', label: 'Gudang', icon: Warehouse, permissions: ['inventory.view', 'stock_request.view'] },
+  { to: '/office/settings', label: 'Pengaturan', icon: Settings, permissions: ['setting.manage'] },
 ]
 
 export function useNavItems(): NavItem[] {

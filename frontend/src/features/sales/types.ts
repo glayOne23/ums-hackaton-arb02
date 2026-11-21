@@ -42,6 +42,12 @@ export interface PackageSettings {
   visit_cycle_days: number
   credit_term_days: number
   form_photo_required: boolean
+  /** Send form photos over Wi-Fi only (NF-02) */
+  data_saver: boolean
+  /** Printed on the nota (PG-09) */
+  company_name: string
+  company_address: string
+  company_whatsapp: string
 }
 
 /** Everything the phone needs for a day in the field (GET /sales/work-package). */

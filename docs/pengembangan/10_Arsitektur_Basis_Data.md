@@ -90,7 +90,7 @@ Kolom **Status**: **ada** = sudah ada migrasinya; **MVP** = dibuat untuk purwaru
 | `sys_migrations` | Catatan migrasi Laravel | ada |
 | `sys_cache`, `sys_cache_locks` | Cache dan kunci (driver database) | ada |
 | `sys_jobs`, `sys_job_batches`, `sys_failed_jobs` | Antrean (driver database) | ada |
-| `sys_activity_log` | Riwayat perubahan: siapa, kapan, nilai lama/baru (spatie/laravel-activitylog, AK-03). Atur `table_name` di `config/activitylog.php` sebelum migrasi | MVP |
+| `sys_activity_log` | Riwayat perubahan: siapa, kapan, nilai lama/baru (spatie/laravel-activitylog, AK-03). Versi 5 tidak punya opsi nama tabel, jadi `config/activitylog.php` menunjuk model `App\Core\Models\Activity` yang memakai tabel ini. `subject_id` berupa string (ULID) | ada |
 | `sys_push_subscriptions` | Langganan Web Push per perangkat (PW-08). Atur `table_name` di config webpush | nanti |
 | `sys_features` | Feature flag Laravel Pennant. Atur `stores.database.table` di `config/pennant.php` | nanti |
 
@@ -120,7 +120,7 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
-| `cfg_settings` | `pengaturan` (§3.1) | `key` (PK, string), `value`, `type` (`int`, `bool`, `string`, `json`), `description` (Indonesia, untuk layar Pengaturan), `updated_by` | MVP |
+| `cfg_settings` | `pengaturan` (§3.1) | `key` (PK, string), `value` (JSON, sehingga angka tetap angka dan saklar tetap true/false), `updated_by`. Hanya kunci yang pernah diubah admin yang disimpan; tipe, batas, nilai awal, dan label layar ada di kode (`Setting\SettingDefinitions`). Disimpan lewat `Setting\Actions\SaveSettings`; setiap perubahan masuk riwayat (`sys_activity_log`, `log_name = setting`) | ada |
 | `cfg_custom_fields` | Field kustom (§12, FP-06) | `entity` (`outlet`, `product`, `mfg_order`), `key`, `label`, `type`, `options` (JSON), `is_required`, `sort_order` | nanti |
 
 ### 5.5 `crm_` — outlet
@@ -212,9 +212,11 @@ Kunci memakai snake_case Bahasa Inggris. Kunci persetujuan mengikuti pola `appro
 | `edit_window_days` | `batas_ubah_hari` | 0 (hari yang sama) |
 | `trash_retention_days` | `masa_tempat_sampah_hari` | 30 |
 | `period_closing_enabled` | `tutup_buku` | false |
+| `data_saver` | `hemat_data` (foto form hanya lewat Wi-Fi, NF-02) | false |
+| `company_name`, `company_address`, `company_whatsapp` | Data perusahaan di nota (PG-09) | `CV Arba'in Jaya Mandiri`, kosong, kosong |
 | `mfg_*` | `maklon_*` (dokumen 06 §6), misalnya `mfg_sample_fee`, `mfg_max_sample_revisions` | — |
 
-Di kode, nilai dibaca lewat `App\Modules\Setting\Setting::value('billing_threshold')` (atau `::int()`, `::bool()`). Angka aturan tidak boleh ditulis mati. Selama tabel `cfg_settings` belum dibuat, kelas itu mengembalikan nilai bawaan di tabel ini; saat modul Pengaturan dibuat, hanya kelas itu yang berubah.
+Di kode, nilai dibaca lewat `App\Modules\Setting\Setting::value('billing_threshold')` (atau `::int()`, `::bool()`, `::string()`). Angka aturan tidak boleh ditulis mati. Nilainya dari `cfg_settings`, atau nilai awal di `SettingDefinitions` bila belum pernah diubah; dibaca sekali per request. Kunci baru: tambahkan di tabel ini dan di `SettingDefinitions::ALL`.
 
 ## 7. Glosarium: istilah lapangan → nama di kode
 
