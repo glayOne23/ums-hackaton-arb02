@@ -51,7 +51,7 @@ final class Roles
                 'product.view', 'product.manage', 'stock_request.view',
                 'visit.view', 'visit.correct',
                 'invoice.view', 'invoice.manage', 'remittance.receive',
-                'setting.manage', 'user.manage',
+                'setting.manage', 'data.import', 'user.manage',
             ],
             self::WAREHOUSE_ADMIN => [
                 'report.view', 'product.view', 'inventory.view', 'inventory.manage',

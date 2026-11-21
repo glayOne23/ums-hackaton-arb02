@@ -17,6 +17,7 @@ import { Route as FieldIndexRouteImport } from './routes/field/index'
 import { Route as FieldRequestRouteImport } from './routes/field/request'
 import { Route as FieldTodayRouteImport } from './routes/field/today'
 import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as OfficeImportsRouteImport } from './routes/office/imports'
 import { Route as OfficeMenuRouteImport } from './routes/office/menu'
 import { Route as OfficePriceListRouteImport } from './routes/office/price-list'
 import { Route as OfficeSettingsRouteImport } from './routes/office/settings'
@@ -89,6 +90,11 @@ const FieldTodayRoute = FieldTodayRouteImport.update({
 const OfficeIndexRoute = OfficeIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
+const OfficeImportsRoute = OfficeImportsRouteImport.update({
+  id: '/imports',
+  path: '/imports',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
 const OfficeMenuRoute = OfficeMenuRouteImport.update({
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
@@ -361,6 +369,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
@@ -406,6 +415,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
@@ -490,6 +501,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
@@ -590,6 +602,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/office/'
       preLoaderRoute: typeof OfficeIndexRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
+    '/office/imports': {
+      id: '/office/imports'
+      path: '/imports'
+      fullPath: '/office/imports'
+      preLoaderRoute: typeof OfficeImportsRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
     '/office/menu': {
@@ -849,6 +868,7 @@ const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
 )
 
 interface OfficeRouteRouteChildren {
+  OfficeImportsRoute: typeof OfficeImportsRoute
   OfficeMenuRoute: typeof OfficeMenuRoute
   OfficePriceListRoute: typeof OfficePriceListRoute
   OfficeSettingsRoute: typeof OfficeSettingsRoute
@@ -883,6 +903,7 @@ interface OfficeRouteRouteChildren {
 }
 
 const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
+  OfficeImportsRoute: OfficeImportsRoute,
   OfficeMenuRoute: OfficeMenuRoute,
   OfficePriceListRoute: OfficePriceListRoute,
   OfficeSettingsRoute: OfficeSettingsRoute,

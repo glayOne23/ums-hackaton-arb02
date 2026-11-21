@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Plus, Store } from 'lucide-react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { Button } from '@/components/ui/button'
+import { ExportButton } from '@/features/import/components/ExportButton'
 import { formatNumber } from '@/lib/format'
 import { usePermission } from '@/stores/session'
 import { useOutlets } from '../api'
@@ -33,14 +34,17 @@ export function OutletList({ filters, onFiltersChange }: Props) {
           <h1 className="text-2xl font-semibold">Outlet</h1>
           {meta && <p className="text-muted-foreground">{formatNumber(meta.total)} outlet</p>}
         </div>
-        {canManage && (
-          <Button asChild className="hidden sm:inline-flex">
-            <Link to="/office/outlets/new">
-              <Plus aria-hidden />
-              Tambah outlet
-            </Link>
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          <ExportButton type="outlets" title="Outlet" />
+          {canManage && (
+            <Button asChild className="hidden sm:inline-flex">
+              <Link to="/office/outlets/new">
+                <Plus aria-hidden />
+                Tambah outlet
+              </Link>
+            </Button>
+          )}
+        </div>
       </header>
 
       <OutletFilterBar filters={filters} onChange={onFiltersChange} />

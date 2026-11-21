@@ -38,6 +38,7 @@ final class Permissions
         'payment.record' => 'Catat pembayaran dari outlet',
         'remittance.receive' => 'Terima setoran sales',
         'setting.manage' => 'Ubah pengaturan aturan bisnis',
+        'data.import' => 'Impor data dari Excel',
         'user.manage' => 'Kelola pengguna, peran & izin',
     ];
 
@@ -55,7 +56,7 @@ final class Permissions
         'Produk, harga & potongan' => ['product.view', 'product.manage', 'discount.approve'],
         'Gudang' => ['inventory.view', 'inventory.manage', 'stock_adjustment.approve'],
         'Permintaan barang' => ['stock_request.view', 'stock_request.create', 'stock_request.prepare', 'stock_request.approve'],
-        'Pengaturan' => ['setting.manage', 'user.manage'],
+        'Pengaturan' => ['setting.manage', 'data.import', 'user.manage'],
     ];
 
     /** The permission that must stay with at least one active user, or nobody can fix roles again. */
