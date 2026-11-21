@@ -9,7 +9,7 @@ import { ApiError } from '@/lib/api/client'
 import { formatDate, formatNumber, formatTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { downloadFile, usePreviewImport, useRevertImport, useRunImport, useImports } from '../api'
-import type { ImportBatchItem, ImportPreview, ImportTypeInfo, ImportTypeKey, RowStatus } from '../types'
+import type { ImportBatchItem, ImportPreview, ImportTypeInfo, ImportTypeKey, RowStatus, PreviewRow } from '../types'
 
 /** Rows drawn at once; the rest are counted, and still imported. */
 const SHOWN_ROWS = 200
@@ -171,20 +171,17 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
   const [filter, setFilter] = useState<RowStatus | 'all'>(() =>
     preview.counts.error + preview.counts.similar > 0 ? (preview.counts.error > 0 ? 'error' : 'similar') : 'all',
   )
-  const [included, setIncluded] = useState<Set<number>>(new Set())
+  // Per "mirip" row: skip (default), import as new, or join an existing record ([Gabung])
+  const [choices, setChoices] = useState<Record<number, string>>({})
+  const included = Object.entries(choices)
+    .filter(([, c]) => c === NEW)
+    .map(([line]) => Number(line))
+  const merge = Object.fromEntries(Object.entries(choices).filter(([, c]) => c !== NEW && c !== SKIP))
   const { counts } = preview
-  const total = counts.ready + included.size
+  const total = counts.ready + included.length + Object.keys(merge).length
   const rows = preview.rows.filter((r) => filter === 'all' || r.status === filter)
   const shownColumns = preview.columns.slice(0, 4)
   const runError = run.error instanceof ApiError ? (run.error.fieldErrors.token?.[0] ?? run.error.message) : null
-
-  const toggle = (line: number, on: boolean) =>
-    setIncluded((all) => {
-      const next = new Set(all)
-      if (on) next.add(line)
-      else next.delete(line)
-      return next
-    })
 
   return (
     <div className="flex flex-col gap-4">
@@ -197,8 +194,9 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
       </p>
       {counts.similar > 0 && (
         <p className="text-muted-foreground">
-          Baris "mirip" tidak diimpor kecuali Anda centang <strong>Tetap impor</strong>, misalnya bila memang outlet
-          yang berbeda.
+          Baris "mirip" dilewati kecuali Anda pilih <strong>Impor sebagai data baru</strong> (memang berbeda) atau{' '}
+          <strong>Gabung</strong> ke data yang sudah ada: baris itu tidak dibuat baru, tetapi melengkapi isian yang
+          masih kosong di data lama.
         </p>
       )}
       {counts.error > 0 && (
@@ -259,15 +257,12 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
                   </span>
                 ))}
                 {row.status === 'similar' && (
-                  <label className="flex min-h-11 items-center gap-3 self-start">
-                    <input
-                      type="checkbox"
-                      className="size-6 accent-primary"
-                      checked={included.has(row.line)}
-                      onChange={(e) => toggle(row.line, e.target.checked)}
-                    />
-                    Tetap impor baris {row.line}
-                  </label>
+                  <SimilarChoice
+                    row={row}
+                    noun={type.title.toLowerCase()}
+                    value={choices[row.line] ?? SKIP}
+                    onChange={(value) => setChoices((all) => ({ ...all, [row.line]: value }))}
+                  />
                 )}
               </div>
               <RowChip status={row.status} />
@@ -293,11 +288,12 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
           disabled={total === 0 || run.isPending}
           onClick={() =>
             run.mutate(
-              { type: preview.type, token: preview.token, includeSimilar: [...included] },
+              { type: preview.type, token: preview.token, includeSimilar: included, merge },
               {
                 onSuccess: (r) => {
                   toast.success(
                     `${formatNumber(r.data.imported_count)} ${type.title.toLowerCase()} diimpor` +
+                      (r.data.merged_count ? `, ${formatNumber(r.data.merged_count)} digabung` : '') +
                       (r.data.skipped_count ? `, ${formatNumber(r.data.skipped_count)} baris dilewati.` : '.'),
                   )
                   onDone()
@@ -314,6 +310,47 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
         </Button>
       </div>
     </div>
+  )
+}
+
+const SKIP = 'skip'
+const NEW = 'new'
+
+/** W10: what to do with a "mirip" row — skip it, import it as new, or [Gabung] into a record that exists. */
+function SimilarChoice({
+  row,
+  noun,
+  value,
+  onChange,
+}: {
+  row: PreviewRow
+  noun: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  const name = `similar-${row.line}`
+  const options = [
+    { value: SKIP, label: 'Lewati' },
+    ...row.merge_into.map((m) => ({ value: m.id, label: `Gabung ke ${m.name} (${m.code})` })),
+    { value: NEW, label: `Impor sebagai ${noun} baru` },
+  ]
+
+  return (
+    <fieldset className="flex flex-col gap-1 pt-1">
+      <legend className="sr-only">Baris {row.line}</legend>
+      {options.map((o) => (
+        <label key={o.value} className="flex min-h-11 items-center gap-3 self-start sm:min-h-9">
+          <input
+            type="radio"
+            name={name}
+            className="size-5 shrink-0 accent-primary"
+            checked={value === o.value}
+            onChange={() => onChange(o.value)}
+          />
+          <span className="wrap-break-word">{o.label}</span>
+        </label>
+      ))}
+    </fieldset>
   )
 }
 
@@ -377,6 +414,7 @@ function HistoryRow({ batch }: { batch: ImportBatchItem }) {
         </p>
         <p className="text-sm text-muted-foreground">
           {formatNumber(batch.imported_count)} diimpor
+          {batch.merged_count > 0 && `, ${formatNumber(batch.merged_count)} digabung`}
           {batch.skipped_count > 0 && `, ${formatNumber(batch.skipped_count)} dilewati`} · {batch.created_by} ·{' '}
           {formatDate(at)} {formatTime(at)}
           {reverted &&
@@ -397,7 +435,12 @@ function HistoryRow({ batch }: { batch: ImportBatchItem }) {
             </Button>
           }
           title={`Batalkan impor ${batch.type_title.toLowerCase()}?`}
-          description={`${formatNumber(batch.imported_count)} ${batch.type_title.toLowerCase()} dari ${batch.file_name} akan dihapus lagi. Hanya bisa bila datanya belum dipakai transaksi.`}
+          description={
+            `${formatNumber(batch.imported_count)} ${batch.type_title.toLowerCase()} dari ${batch.file_name} akan dihapus lagi. Hanya bisa bila datanya belum dipakai transaksi.` +
+            (batch.merged_count > 0
+              ? ` Isian yang dilengkapi lewat Gabung (${formatNumber(batch.merged_count)} baris) dikembalikan kosong, kecuali yang sudah diubah orang sejak itu.`
+              : '')
+          }
           confirmLabel="Batalkan impor"
           open={open}
           onOpenChange={(next) => {

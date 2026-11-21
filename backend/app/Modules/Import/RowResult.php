@@ -18,6 +18,13 @@ final class RowResult
     public array $similar = [];
 
     /**
+     * Existing records this row may be merged into instead of created (W10 [Gabung]).
+     *
+     * @var list<array{id: string, code: string, name: string}>
+     */
+    public array $mergeInto = [];
+
+    /**
      * @param  array<string, mixed>  $values  cells as read (for the preview)
      * @param  array<string, mixed>  $data  cleaned values to save
      */
@@ -46,6 +53,7 @@ final class RowResult
             'values' => $this->values,
             'problems' => $this->problems,
             'similar' => $this->similar,
+            'merge_into' => $this->mergeInto,
         ];
     }
 }

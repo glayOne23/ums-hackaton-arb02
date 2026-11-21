@@ -44,6 +44,7 @@ class ImportController extends Controller
                 'file_name' => $batch->file_name,
                 'row_count' => $batch->row_count,
                 'imported_count' => $batch->imported_count,
+                'merged_count' => $batch->merged_count,
                 'skipped_count' => $batch->skipped_count,
                 'status' => $batch->status,
                 'created_by' => $batch->creator?->name,
@@ -79,13 +80,21 @@ class ImportController extends Controller
             'token' => ['required', 'string'],
             'include_similar' => ['sometimes', 'array'],
             'include_similar.*' => ['integer'],
+            // W10 [Gabung]: line => id of the existing record the row joins
+            'merge' => ['sometimes', 'array'],
+            'merge.*' => ['string'],
         ]);
 
-        $batch = $run->handle($this->type($type), $data['token'], array_map('intval', $data['include_similar'] ?? []), $this->user($request));
+        $merge = [];
+        foreach ($data['merge'] ?? [] as $line => $id) {
+            $merge[(int) $line] = (string) $id;
+        }
+        $batch = $run->handle($this->type($type), $data['token'], array_map('intval', $data['include_similar'] ?? []), $this->user($request), $merge);
 
         return response()->json(['data' => [
             'id' => $batch->id,
             'imported_count' => $batch->imported_count,
+            'merged_count' => $batch->merged_count,
             'skipped_count' => $batch->skipped_count,
         ]], 201);
     }

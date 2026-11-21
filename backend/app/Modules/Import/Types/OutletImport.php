@@ -2,6 +2,7 @@
 
 namespace App\Modules\Import\Types;
 
+use App\Core\History\History;
 use App\Core\Models\ImportBatch;
 use App\Core\Support\PhoneNumber;
 use App\Models\User;
@@ -23,7 +24,10 @@ use Illuminate\Validation\ValidationException;
 /**
  * Outlets (OT-01) with their sales. A row whose name looks like an outlet in
  * the same district, in SIGAP or higher up in the file, is held back as
- * "mirip" until the admin says it is a different outlet (OT-02).
+ * "mirip" until the admin says it is a different outlet (OT-02), or joins
+ * it to the existing outlet with [Gabung] (OT-06): the row then only fills
+ * what that outlet is missing (address, WhatsApp, visit cycle) and assigns
+ * its sales.
  */
 final class OutletImport extends ImportType
 {
@@ -154,6 +158,7 @@ final class OutletImport extends ImportType
                     if ($outlet->region_id === $region->id && Cell::key((string) $outlet->district) === Cell::key($district)
                         && FindSimilarOutlets::isSimilar($key, FindSimilarOutlets::normalizeName($outlet->name))) {
                         $result->similar[] = "Mirip {$outlet->name} ({$outlet->code}) yang sudah ada";
+                        $result->mergeInto[] = ['id' => $outlet->id, 'code' => $outlet->code, 'name' => $outlet->name];
                     }
                 }
                 foreach ($seen[$place] ?? [] as $above) {
@@ -198,6 +203,88 @@ final class OutletImport extends ImportType
                     'created_by' => $actor->id,
                 ]);
             }
+        }
+    }
+
+    /** Fields a merged row may fill when the existing outlet has them empty */
+    private const FILLABLE = ['address' => 'Alamat', 'whatsapp_number' => 'WhatsApp', 'visit_cycle_days' => 'Siklus kunjungan (hari)'];
+
+    public function merge(array $rows, ImportBatch $batch, User $actor): array
+    {
+        $log = [];
+        foreach ($rows as [$row, $outletId]) {
+            $outlet = Outlet::query()->lockForUpdate()->findOrFail($outletId);
+            $data = $row->data;
+            if ($data['whatsapp_number'] ?? null) {
+                $data['whatsapp_number'] = PhoneNumber::normalize((string) $data['whatsapp_number']);
+            }
+
+            $filled = [];
+            $changes = [];
+            foreach (self::FILLABLE as $field => $label) {
+                if (blank($outlet->{$field}) && filled($data[$field] ?? null)) {
+                    $outlet->{$field} = $data[$field];
+                    $filled[$field] = $data[$field];
+                    $changes[] = "{$label}: (kosong) → {$data[$field]}";
+                }
+            }
+            if ($filled !== []) {
+                $outlet->forceFill(['updated_by' => $actor->id])->save();
+            }
+
+            $assignmentId = null;
+            $salesId = $data['sales_user_id'] ?? null;
+            if ($salesId && ! $outlet->activeAssignments()->where('sales_user_id', $salesId)->exists()) {
+                $assignmentId = Assignment::query()->create([
+                    'outlet_id' => $outlet->id,
+                    'sales_user_id' => $salesId,
+                    'start_date' => now()->toDateString(),
+                    'reason' => 'Impor Excel (gabung)',
+                    'created_by' => $actor->id,
+                ])->id;
+                $changes[] = 'Sales ditambah: '.User::query()->whereKey($salesId)->value('name');
+            }
+
+            History::record(
+                $outlet,
+                "Digabung dengan baris {$row->line} \"{$data['name']}\" dari impor {$batch->file_name}",
+                $changes ?: ['Tidak ada isian baru: data outlet ini sudah lengkap.'],
+                by: $actor,
+            );
+            $log[] = ['outlet_id' => $outlet->id, 'line' => $row->line, 'filled' => $filled, 'assignment_id' => $assignmentId];
+        }
+
+        return $log;
+    }
+
+    public function revertMerges(array $merges, ImportBatch $batch, User $actor): void
+    {
+        foreach ($merges as $merge) {
+            $outlet = Outlet::withTrashed()->find($merge['outlet_id'] ?? null);
+            if (! $outlet) {
+                continue;
+            }
+
+            $changes = [];
+            foreach ((array) ($merge['filled'] ?? []) as $field => $value) {
+                // Only what still holds the imported value: a later correction by hand stays
+                if (array_key_exists($field, self::FILLABLE) && (string) $outlet->{$field} === (string) $value) {
+                    $outlet->{$field} = null;
+                    $changes[] = self::FILLABLE[$field].": {$value} → (kosong)";
+                }
+            }
+            if ($changes !== []) {
+                $outlet->forceFill(['updated_by' => $actor->id])->save();
+            }
+            if ($id = $merge['assignment_id'] ?? null) {
+                $assignment = Assignment::query()->find($id);
+                if ($assignment) {
+                    $changes[] = 'Penugasan sales dari impor dihapus';
+                    $assignment->delete();
+                }
+            }
+
+            History::record($outlet, "Impor {$batch->file_name} dibatalkan: isian gabungan dikembalikan", $changes, by: $actor);
         }
     }
 

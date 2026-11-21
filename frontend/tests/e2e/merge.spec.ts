@@ -33,7 +33,12 @@ test.beforeAll(async ({ browser }, testInfo) => {
   office = await pageAs(browser, testInfo, 'kantor')
   const regions = await call<{ data: { id: string }[] }>(office, 'GET', '/regions')
   const types = await call<{ data: { id: string }[] }>(office, 'GET', '/outlet-types')
-  const base = { outlet_type_id: types.data[0].id, region_id: regions.data[0].id, district: 'Gading', sale_mode: 'consignment' }
+  const base = {
+    outlet_type_id: types.data[0].id,
+    region_id: regions.data[0].id,
+    district: 'Gading',
+    sale_mode: 'consignment',
+  }
   keptId = (await call<{ data: { id: string } }>(office, 'POST', '/outlets', { ...base, name: KEPT })).data.id
   await call(office, 'POST', '/outlets', { ...base, name: DOUBLE, address: 'Jl. Gabung 1' })
 })

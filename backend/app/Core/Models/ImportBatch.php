@@ -17,14 +17,16 @@ use Illuminate\Support\Carbon;
  * @property string $file_name
  * @property int $row_count
  * @property int $imported_count
+ * @property int $merged_count rows merged into existing data (W10 [Gabung])
  * @property int $skipped_count
+ * @property list<array<string, mixed>>|null $merges what each merged row filled in, for undo
  * @property string $status imported | reverted
  * @property int $created_by
  * @property int|null $reverted_by
  * @property Carbon|null $reverted_at
  * @property Carbon $created_at
  */
-#[Fillable(['type', 'file_name', 'row_count', 'imported_count', 'skipped_count', 'status', 'created_by'])]
+#[Fillable(['type', 'file_name', 'row_count', 'imported_count', 'merged_count', 'skipped_count', 'merges', 'status', 'created_by'])]
 class ImportBatch extends Model
 {
     use HasUlids;
@@ -40,6 +42,8 @@ class ImportBatch extends Model
         return [
             'row_count' => 'integer',
             'imported_count' => 'integer',
+            'merged_count' => 'integer',
+            'merges' => 'array',
             'skipped_count' => 'integer',
             'reverted_at' => 'datetime',
         ];

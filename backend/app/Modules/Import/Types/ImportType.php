@@ -46,6 +46,27 @@ abstract class ImportType
     abstract public function revert(ImportBatch $batch, User $actor): void;
 
     /**
+     * W10 [Gabung]: use similar rows to complete records that already exist
+     * instead of creating new ones. Returns what was filled in per row, kept
+     * on the session so revertMerges() can put it back. Only kinds that fill
+     * RowResult::$mergeInto are asked.
+     *
+     * @param  list<array{0: RowResult, 1: string}>  $rows  row and the id of the record it joins
+     * @return list<array<string, mixed>>
+     */
+    public function merge(array $rows, ImportBatch $batch, User $actor): array
+    {
+        throw new \LogicException("Import {$this->key()} cannot merge rows.");
+    }
+
+    /**
+     * Undo what merge() filled in, where nobody has changed it since.
+     *
+     * @param  list<array<string, mixed>>  $merges
+     */
+    public function revertMerges(array $merges, ImportBatch $batch, User $actor): void {}
+
+    /**
      * Valid choices to show on the template's second sheet, e.g. outlet types.
      *
      * @return array<string, list<string>> heading => values
