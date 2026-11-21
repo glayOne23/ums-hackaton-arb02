@@ -1,5 +1,7 @@
 /** Shapes of the Sales API (backend: App\Modules\Sales). */
 
+import type { CorrectionSummary } from '@/features/correction/types'
+
 export type SaleModeValue = 'consignment' | 'cash' | 'credit'
 export type TransactionTypeValue = 'consignment_visit' | 'direct_sale'
 export type PaymentMethodValue = 'cash' | 'transfer'
@@ -121,6 +123,15 @@ export interface Transaction {
   } | null
   paid_now?: number
   created_at: string
+  /** The nota this one replaces / the one that replaced it (KR-03) */
+  corrects?: { id: string; number: string } | null
+  replaced_by?: { id: string; number: string } | null
+  voided?: { by: string | null; at: string; reason: string | null } | null
+  reviewed?: { by: string | null; at: string } | null
+  /** What the phone sent, on a "Perlu dicek" nota (office only) */
+  client_items?: TransactionItemInput[]
+  /** Which correction buttons this user gets (detail only) */
+  correction?: CorrectionSummary | null
 }
 
 export interface Paginated<T> {

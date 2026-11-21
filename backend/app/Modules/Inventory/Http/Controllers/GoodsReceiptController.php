@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Inventory\Actions\ReceiveGoods;
+use App\Modules\Inventory\Actions\VoidGoodsReceipt;
 use App\Modules\Inventory\Http\Resources\GoodsReceiptResource;
 use App\Modules\Inventory\Models\GoodsReceipt;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,7 @@ use Illuminate\Validation\Rule;
 
 class GoodsReceiptController extends Controller
 {
-    private const RELATIONS = ['items.batch.product', 'creator'];
+    private const RELATIONS = ['items.batch.product', 'creator', 'voider'];
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -59,5 +60,15 @@ class GoodsReceiptController extends Controller
         $receipt = $receive->handle($data, $user);
 
         return (new GoodsReceiptResource($receipt->load(self::RELATIONS)))->response()->setStatusCode(201);
+    }
+
+    /** KR-04: void a receipt entered by mistake; its stock leaves the warehouse again. */
+    public function void(Request $request, GoodsReceipt $goodsReceipt, VoidGoodsReceipt $void): GoodsReceiptResource
+    {
+        $reason = (string) ($request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? '');
+        /** @var User $user */
+        $user = $request->user();
+
+        return new GoodsReceiptResource($void->handle($goodsReceipt, $reason, $user)->load(self::RELATIONS));
     }
 }

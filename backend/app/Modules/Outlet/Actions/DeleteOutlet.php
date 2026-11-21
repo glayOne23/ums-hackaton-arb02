@@ -2,6 +2,7 @@
 
 namespace App\Modules\Outlet\Actions;
 
+use App\Core\History\History;
 use App\Models\User;
 use App\Modules\Outlet\Contracts\OutletUsage;
 use App\Modules\Outlet\Models\Outlet;
@@ -15,8 +16,8 @@ use Illuminate\Validation\ValidationException;
  * be deactivated or merged instead, so its history stays intact.
  *
  * Assignments are kept as they are, so restoring the outlet brings back the
- * same sales. Permanent removal after the trash retention period
- * (trash_retention_days, PG-13) comes with the Setting module.
+ * same sales. It is removed for good after trash_retention_days (KR-09,
+ * PurgeTrash).
  */
 final class DeleteOutlet
 {
@@ -36,6 +37,7 @@ final class DeleteOutlet
         DB::transaction(function () use ($outlet, $actor) {
             $outlet->forceFill(['deleted_by' => $actor->id])->save();
             $outlet->delete();
+            History::record($outlet, 'Memindahkan ke Tempat Sampah', by: $actor);
         });
     }
 }

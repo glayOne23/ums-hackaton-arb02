@@ -29,6 +29,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -42,6 +43,10 @@ use Illuminate\Validation\ValidationException;
  * used up offline), the transaction is still saved with what is possible and
  * marked "Perlu dicek" with the reasons and the phone's copy (KR-11): the
  * sales is never blocked in the field.
+ *
+ * replace() makes the replacement nota of a correction (KR-03) with the same
+ * rules, except that numbers that do not fit are refused instead of noted:
+ * the person correcting is at a screen and can fix them.
  *
  * @phpstan-type ItemInput array{product_id: string, opening_qty?: ?int, remaining_qty?: ?int, withdrawn_qty?: ?int, refill_qty?: ?int, sold_qty?: ?int}
  * @phpstan-type TransactionInput array{client_uuid: string, type: string, outlet_id: string, transacted_at: string, items: list<ItemInput>, payment?: array{amount?: int|float|string|null, method?: ?string}}
@@ -93,21 +98,57 @@ final class RecordTransaction
     }
 
     /**
+     * The replacement of a nota whose stock was just reversed: same sales, same
+     * time, new numbers (and maybe another outlet). Invoice and payments are
+     * the caller's job (ApplyCorrection), so the invoice number can stay.
+     *
+     * @param  list<ItemInput>  $items
+     */
+    public function replace(Transaction $old, Outlet $outlet, array $items, User $actor): Transaction
+    {
+        /** @var User $sales */
+        $sales = $old->salesUser;
+
+        return $this->record([
+            'client_uuid' => (string) Str::uuid(),
+            'type' => $old->type->value,
+            'outlet_id' => $outlet->id,
+            'transacted_at' => $old->transacted_at->toIso8601String(),
+            'items' => $items,
+        ], $sales, $old, $actor);
+    }
+
+    /** When the bill of a sale at this outlet is due. */
+    public static function dueDate(Outlet $outlet, CarbonInterface $at): CarbonInterface
+    {
+        return match ($outlet->sale_mode) {
+            SaleMode::Credit => $at->copy()->addDays(Setting::int('credit_term_days')),
+            // Consignment is collected at the next visit when not now (BR-02): due by then
+            SaleMode::Consignment => $at->copy()->addDays($outlet->visit_cycle_days ?? Setting::int('visit_cycle_days')),
+            SaleMode::Cash => $at->copy(),
+        };
+    }
+
+    /**
      * @param  TransactionInput  $data
      */
-    private function record(array $data, User $sales): Transaction
+    private function record(array $data, User $sales, ?Transaction $corrects = null, ?User $actor = null): Transaction
     {
         $outlet = Outlet::withTrashed()->findOrFail($data['outlet_id']);
         $type = TransactionType::from($data['type']);
+        $strict = $corrects !== null;
+        $actor ??= $sales;
         $notes = [];
 
         $at = Carbon::parse($data['transacted_at'])->setTimezone(config('app.timezone'));
-        if ($at->greaterThan(now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES))) {
+        if (! $strict && $at->greaterThan(now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES))) {
             $notes[] = 'Jam di HP lebih maju dari server; dicatat dengan jam server.';
             $at = now();
         }
 
-        $notes = [...$notes, ...$this->outletNotes($outlet, $type, $sales)];
+        if (! $strict) {
+            $notes = [...$notes, ...$this->outletNotes($outlet, $type, $sales)];
+        }
 
         $transaction = Transaction::query()->create([
             'client_uuid' => $data['client_uuid'],
@@ -117,6 +158,7 @@ final class RecordTransaction
             'sales_user_id' => $sales->id,
             'transacted_at' => $at,
             'status' => TransactionStatus::Active,
+            'corrects_id' => $corrects?->id,
         ]);
 
         $outletLocation = $this->locations->forOutlet($outlet);
@@ -124,8 +166,14 @@ final class RecordTransaction
         $expiryCutoff = $at->copy()->addMonths(Setting::int('expiry_withdrawal_months'));
 
         $lines = $type === TransactionType::ConsignmentVisit
-            ? $this->consignmentLines($data['items'], $outlet, $outletLocation, $salesLocation, $at, $notes)
-            : $this->directSaleLines($data['items'], $outlet, $salesLocation, $at, $notes);
+            ? $this->consignmentLines($data['items'], $outlet, $outletLocation, $salesLocation, $at, $notes, $strict)
+            : $this->directSaleLines($data['items'], $outlet, $salesLocation, $at, $notes, $strict);
+
+        if ($strict && $lines === []) {
+            throw ValidationException::withMessages([
+                'items' => 'Nota pengganti tidak berisi barang apa pun. Bila nota ini memang tidak terjadi, batalkan saja notanya.',
+            ]);
+        }
 
         $subtotal = 0;
         $total = 0;
@@ -134,17 +182,22 @@ final class RecordTransaction
             $subtotal += $line->sold * $line->quote->sellingPriceCents;
             $total += $line->totalCents();
 
-            $this->moveStock($line, $transaction, $sales, $outletLocation, $salesLocation, $expiryCutoff);
+            $this->moveStock($line, $transaction, $actor, $outletLocation, $salesLocation, $expiryCutoff);
+        }
+
+        if ($strict) {
+            $transaction->forceFill([
+                'subtotal' => Money::fromCents($subtotal),
+                'discount_total' => Money::fromCents($subtotal - $total),
+                'total' => Money::fromCents($total),
+                'form_photo_path' => $corrects->form_photo_path,
+            ])->save();
+
+            return $transaction;
         }
 
         if ($total > 0) {
-            $dueDate = match ($outlet->sale_mode) {
-                SaleMode::Credit => $at->copy()->addDays(Setting::int('credit_term_days')),
-                // Consignment is collected at the next visit when not now (BR-02): due by then
-                SaleMode::Consignment => $at->copy()->addDays($outlet->visit_cycle_days ?? Setting::int('visit_cycle_days')),
-                SaleMode::Cash => $at,
-            };
-            $this->createInvoice->handle($transaction->id, $outlet->id, $sales->id, $total, $at, $dueDate);
+            $this->createInvoice->handle($transaction->id, $outlet->id, $sales->id, $total, $at, self::dueDate($outlet, $at));
         }
 
         $paid = Money::toCents((string) ($data['payment']['amount'] ?? 0));
@@ -205,6 +258,7 @@ final class RecordTransaction
         StockLocation $salesLocation,
         CarbonInterface $at,
         array &$notes,
+        bool $strict = false,
     ): array {
         $atOutlet = $this->stock->quantities($outletLocation);
         $carried = $this->stock->quantities($salesLocation);
@@ -224,20 +278,20 @@ final class RecordTransaction
 
             $remaining = (int) ($item['remaining_qty'] ?? $opening);
             if ($remaining > $opening) {
-                $notes[] = "Sisa {$product->name} ({$remaining}) lebih dari titipan ({$opening}); dicatat {$opening}.";
+                $this->capped($notes, $strict, "Sisa {$product->name} ({$remaining}) lebih dari titipan ({$opening})", $opening);
                 $remaining = $opening;
             }
 
             $withdrawn = (int) ($item['withdrawn_qty'] ?? 0);
             if ($withdrawn > $remaining) {
-                $notes[] = "Tarik {$product->name} ({$withdrawn}) lebih dari sisa ({$remaining}); dicatat {$remaining}.";
+                $this->capped($notes, $strict, "Tarik {$product->name} ({$withdrawn}) lebih dari sisa ({$remaining})", $remaining);
                 $withdrawn = $remaining;
             }
 
             $refill = (int) ($item['refill_qty'] ?? 0);
             $available = ($carried[$product->id] ?? 0) + $withdrawn;
             if ($refill > $available) {
-                $notes[] = "Isi ulang {$product->name} ({$refill}) lebih dari stok bawaan ({$available}); dicatat {$available}.";
+                $this->capped($notes, $strict, "Isi ulang {$product->name} ({$refill}) lebih dari stok bawaan sales ({$available})", $available);
                 $refill = $available;
             }
 
@@ -272,6 +326,7 @@ final class RecordTransaction
         StockLocation $salesLocation,
         CarbonInterface $at,
         array &$notes,
+        bool $strict = false,
     ): array {
         $carried = $this->stock->quantities($salesLocation);
         $wanted = collect($items)->keyBy('product_id');
@@ -282,7 +337,7 @@ final class RecordTransaction
             $qty = (int) ($wanted->get($product->id)['sold_qty'] ?? 0);
             $available = $carried[$product->id] ?? 0;
             if ($qty > $available) {
-                $notes[] = "Jual {$product->name} ({$qty}) lebih dari stok bawaan ({$available}); dicatat {$available}.";
+                $this->capped($notes, $strict, "Jual {$product->name} ({$qty}) lebih dari stok bawaan sales ({$available})", $available);
                 $qty = $available;
             }
             if ($qty === 0) {
@@ -293,6 +348,19 @@ final class RecordTransaction
         }
 
         return $lines;
+    }
+
+    /**
+     * A number that does not fit: noted and lowered for the phone, refused for a correction.
+     *
+     * @param  list<string>  $notes
+     */
+    private function capped(array &$notes, bool $strict, string $problem, int $recorded): void
+    {
+        if ($strict) {
+            throw ValidationException::withMessages(['items' => "{$problem}."]);
+        }
+        $notes[] = "{$problem}; dicatat {$recorded}.";
     }
 
     /**

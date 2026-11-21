@@ -1,6 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { CircleCheck, CloudOff, LoaderCircle, MessageCircle, Printer, RotateCw, TriangleAlert } from 'lucide-react'
+import {
+  CircleCheck,
+  CloudOff,
+  LoaderCircle,
+  MessageCircle,
+  PencilLine,
+  Printer,
+  RotateCw,
+  TriangleAlert,
+} from 'lucide-react'
 import { useState } from 'react'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
@@ -158,6 +167,17 @@ function SendStatus({ receipt }: { receipt: Receipt }) {
         <p className="text-muted-foreground">Angka di server berbeda dengan di HP. Admin akan mengecek.</p>
       )}
       {receipt.photo_status === 'queued' && <p className="text-muted-foreground">Foto form menunggu sinyal.</p>}
+      {receipt.transaction && (
+        <p className="flex flex-wrap items-center gap-x-2 print:hidden">
+          Salah input?
+          <Button asChild variant="ghost" className="text-leaf-700">
+            <Link to="/field/fix/$transactionId" params={{ transactionId: receipt.transaction.id }}>
+              <PencilLine aria-hidden />
+              Perbaiki
+            </Link>
+          </Button>
+        </p>
+      )}
     </div>
   )
 }

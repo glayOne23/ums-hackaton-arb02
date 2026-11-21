@@ -2,6 +2,7 @@
 
 namespace App\Modules\Outlet\Actions;
 
+use App\Core\History\History;
 use App\Models\User;
 use App\Modules\Outlet\Models\Assignment;
 use App\Modules\Outlet\Models\Outlet;
@@ -56,6 +57,13 @@ final class AssignOutlet
                     'reason' => $reason,
                     'created_by' => $actor->id,
                 ]);
+            }
+
+            if ($toEnd->isNotEmpty() || $toStart !== []) {
+                $names = fn (array $ids) => User::query()->whereKey($ids)->orderBy('name')->pluck('name')->implode(', ') ?: '(belum ada)';
+                History::record($outlet, 'Mengubah penugasan sales', [
+                    'Sales: '.$names($active->pluck('sales_user_id')->all()).' → '.$names($salesUserIds),
+                ], $reason, $actor);
             }
         });
 

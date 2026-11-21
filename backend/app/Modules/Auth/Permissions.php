@@ -33,6 +33,7 @@ final class Permissions
         'visit.view' => 'Lihat kunjungan & penjualan',
         'visit.create' => 'Catat kunjungan & penjualan',
         'visit.correct' => 'Perbaiki kunjungan & penjualan',
+        'correction.approve' => 'Setujui koreksi & pembatalan nota',
         'invoice.view' => 'Lihat tagihan',
         'invoice.manage' => 'Ubah tagihan & pembayaran',
         'payment.record' => 'Catat pembayaran dari outlet',
@@ -51,7 +52,7 @@ final class Permissions
     public const GROUPS = [
         'Ringkasan & laporan' => ['dashboard.view', 'report.view', 'target.manage'],
         'Outlet' => ['outlet.view', 'outlet.view_all', 'outlet.manage', 'outlet.propose'],
-        'Kunjungan & penjualan' => ['visit.view', 'visit.create', 'visit.correct'],
+        'Kunjungan & penjualan' => ['visit.view', 'visit.create', 'visit.correct', 'correction.approve'],
         'Tagihan & setoran' => ['invoice.view', 'invoice.manage', 'payment.record', 'remittance.receive'],
         'Produk, harga & potongan' => ['product.view', 'product.manage', 'discount.approve'],
         'Gudang' => ['inventory.view', 'inventory.manage', 'stock_adjustment.approve'],

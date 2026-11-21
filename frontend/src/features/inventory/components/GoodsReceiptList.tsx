@@ -1,10 +1,17 @@
 import { Link } from '@tanstack/react-router'
-import { PackagePlus, Plus } from 'lucide-react'
+import { Ban, PackagePlus, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { usePermission } from '@/stores/session'
-import { useGoodsReceipts } from '../api'
+import { useGoodsReceipts, useVoidGoodsReceipt } from '../api'
+import type { GoodsReceipt } from '../types'
 import { InventoryTabs } from './InventoryTabs'
 
 /** History of goods in (GD-01). */
@@ -41,14 +48,30 @@ export function GoodsReceiptList() {
           {receipts.data.data.map((receipt) => (
             <li key={receipt.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
               <span className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-lg font-semibold">{receipt.number}</span>
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className={cn('text-lg font-semibold', receipt.status === 'void' && 'line-through')}>
+                    {receipt.number}
+                  </span>
+                  {receipt.status === 'void' && (
+                    <StatusChip variant="danger" icon={Ban}>
+                      Dibatalkan
+                    </StatusChip>
+                  )}
+                </span>
                 <span className="text-muted-foreground">
                   {formatTableDate(new Date(receipt.received_date))} · {receipt.created_by} ·{' '}
                   {formatNumber(receipt.total_qty)} barang
                 </span>
               </span>
               {receipt.note && <span className="text-sm text-muted-foreground">{receipt.note}</span>}
-              <ul className="flex flex-col text-sm">
+              {receipt.voided && (
+                <span className="text-sm text-danger-text">
+                  Dibatalkan{receipt.voided.by && ` oleh ${receipt.voided.by}`} ·{' '}
+                  {formatTableDate(new Date(receipt.voided.at))}: {receipt.voided.reason}. Stoknya sudah dikeluarkan
+                  lagi.
+                </span>
+              )}
+              <ul className={cn('flex flex-col text-sm', receipt.status === 'void' && 'opacity-70')}>
                 {receipt.items.map((item, i) => (
                   <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
                     <span>
@@ -61,6 +84,7 @@ export function GoodsReceiptList() {
                   </li>
                 ))}
               </ul>
+              {canManage && receipt.status === 'active' && <VoidReceiptButton receipt={receipt} />}
             </li>
           ))}
         </ul>
@@ -77,5 +101,51 @@ export function GoodsReceiptList() {
         </div>
       )}
     </section>
+  )
+}
+
+/** KR-04 (BPM P10 "Barang masuk salah batch/ED"): void, then enter the right one. */
+function VoidReceiptButton({ receipt }: { receipt: GoodsReceipt }) {
+  const voidReceipt = useVoidGoodsReceipt()
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+
+  return (
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (!next) voidReceipt.reset()
+      }}
+      trigger={
+        <Button variant="danger-outline" className="self-start">
+          Batalkan
+        </Button>
+      }
+      title={`Batalkan barang masuk ${receipt.number}?`}
+      description={`${formatNumber(receipt.total_qty)} barang dikeluarkan lagi dari stok gudang. Hanya bisa bila barangnya masih di gudang. Catatan ini tetap terlihat, dicoret. Setelah itu catat barang masuk yang benar.`}
+      confirmLabel="Batalkan barang masuk"
+      pending={voidReceipt.isPending}
+      error={voidReceipt.error?.message}
+      onConfirm={() =>
+        voidReceipt.mutate(
+          { id: receipt.id, reason },
+          {
+            onSuccess: () => {
+              setOpen(false)
+              toast.success(`${receipt.number} dibatalkan`)
+            },
+          },
+        )
+      }
+    >
+      <Textarea
+        aria-label="Alasan (wajib)"
+        placeholder="Alasan (wajib), misalnya: ED salah ketik"
+        rows={2}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+      />
+    </ConfirmDialog>
   )
 }

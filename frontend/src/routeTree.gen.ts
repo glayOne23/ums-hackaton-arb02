@@ -17,10 +17,12 @@ import { Route as FieldIndexRouteImport } from './routes/field/index'
 import { Route as FieldRequestRouteImport } from './routes/field/request'
 import { Route as FieldTodayRouteImport } from './routes/field/today'
 import { Route as OfficeIndexRouteImport } from './routes/office/index'
+import { Route as OfficeCorrectionsRouteImport } from './routes/office/corrections'
 import { Route as OfficeImportsRouteImport } from './routes/office/imports'
 import { Route as OfficeMenuRouteImport } from './routes/office/menu'
 import { Route as OfficePriceListRouteImport } from './routes/office/price-list'
 import { Route as OfficeSettingsRouteImport } from './routes/office/settings'
+import { Route as FieldFixTransactionIdRouteImport } from './routes/field/fix/$transactionId'
 import { Route as FieldReceiptClientUuidRouteImport } from './routes/field/receipt/$clientUuid'
 import { Route as FieldSaleOutletIdRouteImport } from './routes/field/sale/$outletId'
 import { Route as FieldVisitOutletIdRouteImport } from './routes/field/visit/$outletId'
@@ -92,6 +94,11 @@ const OfficeIndexRoute = OfficeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
+const OfficeCorrectionsRoute = OfficeCorrectionsRouteImport.update({
+  id: '/corrections',
+  path: '/corrections',
+  getParentRoute: () => OfficeRouteRoute,
+} as any)
 const OfficeImportsRoute = OfficeImportsRouteImport.update({
   id: '/imports',
   path: '/imports',
@@ -111,6 +118,11 @@ const OfficeSettingsRoute = OfficeSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => OfficeRouteRoute,
+} as any)
+const FieldFixTransactionIdRoute = FieldFixTransactionIdRouteImport.update({
+  id: '/fix/$transactionId',
+  path: '/fix/$transactionId',
+  getParentRoute: () => FieldRouteRoute,
 } as any)
 const FieldReceiptClientUuidRoute = FieldReceiptClientUuidRouteImport.update({
   id: '/receipt/$clientUuid',
@@ -282,12 +294,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/corrections': typeof OfficeCorrectionsRoute
   '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
+  '/field/fix/$transactionId': typeof FieldFixTransactionIdRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
   '/field/sale/$outletId': typeof FieldSaleOutletIdRoute
   '/field/visit/$outletId': typeof FieldVisitOutletIdRoute
@@ -324,12 +338,14 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/corrections': typeof OfficeCorrectionsRoute
   '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
   '/field': typeof FieldIndexRoute
   '/office': typeof OfficeIndexRoute
+  '/field/fix/$transactionId': typeof FieldFixTransactionIdRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
   '/field/sale/$outletId': typeof FieldSaleOutletIdRoute
   '/field/visit/$outletId': typeof FieldVisitOutletIdRoute
@@ -369,12 +385,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
+  '/office/corrections': typeof OfficeCorrectionsRoute
   '/office/imports': typeof OfficeImportsRoute
   '/office/menu': typeof OfficeMenuRoute
   '/office/price-list': typeof OfficePriceListRoute
   '/office/settings': typeof OfficeSettingsRoute
   '/field/': typeof FieldIndexRoute
   '/office/': typeof OfficeIndexRoute
+  '/field/fix/$transactionId': typeof FieldFixTransactionIdRoute
   '/field/receipt/$clientUuid': typeof FieldReceiptClientUuidRoute
   '/field/sale/$outletId': typeof FieldSaleOutletIdRoute
   '/field/visit/$outletId': typeof FieldVisitOutletIdRoute
@@ -415,12 +433,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/corrections'
     | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
     | '/field/'
     | '/office/'
+    | '/field/fix/$transactionId'
     | '/field/receipt/$clientUuid'
     | '/field/sale/$outletId'
     | '/field/visit/$outletId'
@@ -457,12 +477,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/corrections'
     | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
     | '/field'
     | '/office'
+    | '/field/fix/$transactionId'
     | '/field/receipt/$clientUuid'
     | '/field/sale/$outletId'
     | '/field/visit/$outletId'
@@ -501,12 +523,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/field/request'
     | '/field/today'
+    | '/office/corrections'
     | '/office/imports'
     | '/office/menu'
     | '/office/price-list'
     | '/office/settings'
     | '/field/'
     | '/office/'
+    | '/field/fix/$transactionId'
     | '/field/receipt/$clientUuid'
     | '/field/sale/$outletId'
     | '/field/visit/$outletId'
@@ -604,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeIndexRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
+    '/office/corrections': {
+      id: '/office/corrections'
+      path: '/corrections'
+      fullPath: '/office/corrections'
+      preLoaderRoute: typeof OfficeCorrectionsRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
     '/office/imports': {
       id: '/office/imports'
       path: '/imports'
@@ -631,6 +662,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/office/settings'
       preLoaderRoute: typeof OfficeSettingsRouteImport
       parentRoute: typeof OfficeRouteRoute
+    }
+    '/field/fix/$transactionId': {
+      id: '/field/fix/$transactionId'
+      path: '/fix/$transactionId'
+      fullPath: '/field/fix/$transactionId'
+      preLoaderRoute: typeof FieldFixTransactionIdRouteImport
+      parentRoute: typeof FieldRouteRoute
     }
     '/field/receipt/$clientUuid': {
       id: '/field/receipt/$clientUuid'
@@ -849,6 +887,7 @@ interface FieldRouteRouteChildren {
   FieldRequestRoute: typeof FieldRequestRoute
   FieldTodayRoute: typeof FieldTodayRoute
   FieldIndexRoute: typeof FieldIndexRoute
+  FieldFixTransactionIdRoute: typeof FieldFixTransactionIdRoute
   FieldReceiptClientUuidRoute: typeof FieldReceiptClientUuidRoute
   FieldSaleOutletIdRoute: typeof FieldSaleOutletIdRoute
   FieldVisitOutletIdRoute: typeof FieldVisitOutletIdRoute
@@ -858,6 +897,7 @@ const FieldRouteRouteChildren: FieldRouteRouteChildren = {
   FieldRequestRoute: FieldRequestRoute,
   FieldTodayRoute: FieldTodayRoute,
   FieldIndexRoute: FieldIndexRoute,
+  FieldFixTransactionIdRoute: FieldFixTransactionIdRoute,
   FieldReceiptClientUuidRoute: FieldReceiptClientUuidRoute,
   FieldSaleOutletIdRoute: FieldSaleOutletIdRoute,
   FieldVisitOutletIdRoute: FieldVisitOutletIdRoute,
@@ -868,6 +908,7 @@ const FieldRouteRouteWithChildren = FieldRouteRoute._addFileChildren(
 )
 
 interface OfficeRouteRouteChildren {
+  OfficeCorrectionsRoute: typeof OfficeCorrectionsRoute
   OfficeImportsRoute: typeof OfficeImportsRoute
   OfficeMenuRoute: typeof OfficeMenuRoute
   OfficePriceListRoute: typeof OfficePriceListRoute
@@ -903,6 +944,7 @@ interface OfficeRouteRouteChildren {
 }
 
 const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
+  OfficeCorrectionsRoute: OfficeCorrectionsRoute,
   OfficeImportsRoute: OfficeImportsRoute,
   OfficeMenuRoute: OfficeMenuRoute,
   OfficePriceListRoute: OfficePriceListRoute,

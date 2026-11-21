@@ -54,7 +54,7 @@ class TransactionController extends Controller
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('transacted_at', '<=', now()->parse($to)->endOfDay()))
             ->when($filters['outlet_id'] ?? null, fn ($q, $outletId) => $q->where('outlet_id', $outletId))
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))
-            ->when($request->boolean('needs_review'), fn ($q) => $q->where('needs_review', true));
+            ->when($request->boolean('needs_review'), fn ($q) => $q->where('needs_review', true)->where('status', 'active'));
 
         return TransactionResource::collection($query->paginate($filters['per_page'] ?? 25));
     }
@@ -80,7 +80,10 @@ class TransactionController extends Controller
     {
         $this->authorizeView($request, $transaction);
 
-        return new TransactionResource($transaction->load(self::RELATIONS));
+        return new TransactionResource($transaction->load([
+            ...self::RELATIONS, 'corrects', 'replacement', 'voider', 'reviewer',
+            'corrections.requester', 'corrections.decider', 'corrections.outlet',
+        ]));
     }
 
     /** KS-10: photo of the stamped visit form, compressed on the phone (≤ 200 KB). */

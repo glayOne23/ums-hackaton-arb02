@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Modules\Inventory\Actions\IssueStockRequest;
 use App\Modules\Inventory\Actions\PrepareStockRequest;
 use App\Modules\Inventory\Actions\RejectStockRequest;
+use App\Modules\Inventory\Actions\RevertStockRequestStatus;
 use App\Modules\Inventory\Actions\SubmitStockRequest;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Http\Resources\StockRequestResource;
@@ -120,5 +121,15 @@ class StockRequestController extends Controller
         $user = $request->user();
 
         return new StockRequestResource($reject->handle($stockRequest, $request->string('note')->toString(), $user)->load(self::RELATIONS));
+    }
+
+    /** KR-05: move the status one step back, with a reason. */
+    public function revertStatus(Request $request, StockRequest $stockRequest, RevertStockRequestStatus $revert): StockRequestResource
+    {
+        $reason = (string) ($request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? '');
+        /** @var User $user */
+        $user = $request->user();
+
+        return new StockRequestResource($revert->handle($stockRequest, $reason, $user)->load(self::RELATIONS));
     }
 }

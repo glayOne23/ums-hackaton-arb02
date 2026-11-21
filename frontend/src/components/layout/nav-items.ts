@@ -3,6 +3,7 @@ import {
   ClipboardList,
   FileUp,
   LayoutDashboard,
+  LifeBuoy,
   Wallet,
   type LucideIcon,
   Package,
@@ -26,6 +27,7 @@ export interface NavItem {
     | '/office/inventory'
     | '/office/settings'
     | '/office/imports'
+    | '/office/corrections'
     | '/office/users'
   label: string
   icon: LucideIcon
@@ -47,6 +49,12 @@ const ITEMS: NavItem[] = [
   { to: '/office/inventory', label: 'Gudang', icon: Warehouse, permissions: ['inventory.view', 'stock_request.view'] },
   { to: '/office/users', label: 'Pengguna', icon: Users, permissions: ['user.manage'] },
   { to: '/office/imports', label: 'Impor Excel', icon: FileUp, permissions: ['data.import'] },
+  {
+    to: '/office/corrections',
+    label: 'Koreksi',
+    icon: LifeBuoy,
+    permissions: ['visit.correct', 'correction.approve', 'outlet.manage', 'product.manage'],
+  },
   { to: '/office/settings', label: 'Pengaturan', icon: Settings, permissions: ['setting.manage'] },
 ]
 

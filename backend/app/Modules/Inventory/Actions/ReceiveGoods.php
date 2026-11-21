@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\Batch;
 use App\Modules\Inventory\Models\GoodsReceipt;
+use App\Modules\Inventory\Models\StockBalance;
+use App\Modules\Inventory\Models\StockMovement;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -71,6 +73,13 @@ final class ReceiveGoods
             ]);
         }
 
+        if ($batch->expiry_date->toDateString() !== Carbon::parse($line['expiry_date'])->toDateString() && $this->onlyVoided($batch)) {
+            // It only ever came in on receipts that were voided for a wrong ED: take the right one now
+            $batch->forceFill(['expiry_date' => $line['expiry_date'], 'production_date' => $line['production_date'] ?? $batch->production_date])->save();
+
+            return $batch;
+        }
+
         if ($batch->expiry_date->toDateString() !== Carbon::parse($line['expiry_date'])->toDateString()) {
             throw ValidationException::withMessages([
                 "items.{$index}.expiry_date" => "Batch {$number} sudah tercatat dengan ED {$batch->expiry_date->format('d/m/Y')}. Periksa lagi nomor batch atau ED-nya.",
@@ -78,5 +87,20 @@ final class ReceiveGoods
         }
 
         return $batch;
+    }
+
+    /** No stock anywhere, and every movement came from a voided goods receipt (or undid one). */
+    private function onlyVoided(Batch $batch): bool
+    {
+        if (StockBalance::query()->where('batch_id', $batch->id)->where('qty', '>', 0)->exists()) {
+            return false;
+        }
+
+        $voided = GoodsReceipt::query()->where('status', GoodsReceipt::VOID)->select('id');
+
+        return ! StockMovement::query()
+            ->where('batch_id', $batch->id)
+            ->where(fn ($q) => $q->where('source_type', '!=', (new GoodsReceipt)->getMorphClass())->orWhereNull('source_type')->orWhereNotIn('source_id', $voided))
+            ->exists();
     }
 }
