@@ -24,3 +24,8 @@ Artisan::command('sigap:daily-notifications', function (DailyDigest $digest) {
 })->purpose('Kirim notifikasi harian ED dekat dan tagihan lewat jatuh tempo');
 
 Schedule::command('sigap:daily-notifications')->dailyAt('07:00');
+
+// NF-06: daily backup of the database and uploaded files (config/backup.php); old ones cleaned first
+Schedule::command('backup:clean')->dailyAt('01:00');
+Schedule::command('backup:run')->dailyAt('01:30');
+Schedule::command('backup:monitor')->dailyAt('08:00');

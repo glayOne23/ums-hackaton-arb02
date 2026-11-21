@@ -14,8 +14,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt', // PW-09: show "Muat ulang" (reload) when a new version is available
-      includeAssets: ['favicon.svg'],
+      registerType: 'prompt', // PW-09: show "Muat ulang" (reload) when a new version is available (components/layout/UpdatePrompt)
+      includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
       workbox: {
         // Cache the Inter latin subset too so screens look the same without a signal (UI guide §3)
         globPatterns: ['**/*.{js,css,html,svg}', '**/inter-latin-wght-normal-*.woff2'],
@@ -23,16 +23,20 @@ export default defineConfig({
         importScripts: ['push-sw.js'],
       },
       manifest: {
-        name: 'SIGAP — CV Arba\'in',
+        name: "SIGAP — CV Arba'in",
         short_name: 'SIGAP',
-        description: 'Kunjungan sales, stok, dan tagihan CV Arba\'in Jaya Mandiri',
+        description: "Kunjungan sales, stok, dan tagihan CV Arba'in Jaya Mandiri",
         lang: 'id',
         start_url: '/',
         display: 'standalone',
         theme_color: '#15803d',
         background_color: '#fafaf9',
-        // PNG icons 192/512/maskable go into public/icons once the final logo is ready
-        icons: [],
+        // PW-02: made from public/favicon.svg (the leaf logo); replace the PNGs when the final logo is ready
+        icons: [
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
     }),
   ],

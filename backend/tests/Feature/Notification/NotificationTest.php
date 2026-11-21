@@ -127,3 +127,8 @@ it('sends nothing in the morning when there is nothing to say', function () {
 
     expect(app(DailyDigest::class)->handle())->toBe(0);
 });
+
+it('gives the push services a subject they accept: mailto or https (iPhone refuses others)', function () {
+    $subject = (string) config('webpush.vapid.subject');
+    expect(str_starts_with($subject, 'mailto:') || str_starts_with($subject, 'https://'))->toBeTrue();
+});
