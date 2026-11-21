@@ -110,8 +110,9 @@ final class SettingDefinitions
             'help' => 'Selama itu outlet dan produk yang terhapus masih bisa dipulihkan (KR-09).',
         ],
         'period_closing_enabled' => [
-            'section' => 'later', 'type' => 'bool', 'default' => false,
-            'label' => 'Tutup buku per bulan', 'editable' => false,
+            'section' => 'correction', 'type' => 'bool', 'default' => false,
+            'label' => 'Tutup buku per bulan',
+            'help' => 'Bulan yang sudah ditutup tidak bisa diubah lagi; perbaikannya dicatat di bulan berjalan, jadi laporan bulan lalu tidak berubah diam-diam (KR-15).',
         ],
     ];
 
@@ -123,6 +124,15 @@ final class SettingDefinitions
         }
 
         return self::ALL[$key];
+    }
+
+    /** False for a rule whose feature is not built yet (shown locked on the screen). */
+    public static function editable(string $key): bool
+    {
+        /** @var array<string, mixed> $definition */
+        $definition = self::get($key);
+
+        return ($definition['editable'] ?? true) !== false;
     }
 
     /**

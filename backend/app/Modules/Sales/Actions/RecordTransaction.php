@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\DocumentNumber;
 use App\Core\Support\Money;
 use App\Models\User;
@@ -151,6 +152,12 @@ final class RecordTransaction
         $at = Carbon::parse($data['transacted_at'])->setTimezone(config('app.timezone'));
         if (! $strict && $at->greaterThan(now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES))) {
             $notes[] = 'Jam di HP lebih maju dari server; dicatat dengan jam server.';
+            $at = now();
+        }
+
+        // KR-15: a visit sent after its month was closed counts in the current month
+        if (! $strict && app(ClosedPeriods::class)->isClosed($at)) {
+            $notes[] = 'Buku bulan '.ClosedPeriods::monthName($at->format('Y-m')).' sudah ditutup saat nota ini terkirim; dicatat dengan tanggal hari ini.';
             $at = now();
         }
 

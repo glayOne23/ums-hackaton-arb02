@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\Money;
 use App\Models\User;
 use App\Modules\Sales\Models\SalesTarget;
@@ -21,6 +22,7 @@ final class SaveSalesTargets
     public function handle(Carbon $month, array $targets, User $actor): int
     {
         $month = $month->copy()->startOfMonth();
+        app(ClosedPeriods::class)->assertOpen($month, 'Target bulan ini', 'month');
         $names = User::query()->whereIn('id', array_column($targets, 'sales_user_id'))->pluck('name', 'id');
 
         return DB::transaction(function () use ($month, $targets, $actor, $names) {

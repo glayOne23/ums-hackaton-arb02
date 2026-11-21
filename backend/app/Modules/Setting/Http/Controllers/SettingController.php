@@ -78,10 +78,12 @@ class SettingController extends Controller
                     'options' => isset($definition['options'])
                         ? collect($definition['options'])->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])->values()
                         : null,
-                    'editable' => $definition['editable'] ?? true,
+                    'editable' => SettingDefinitions::editable($key),
                 ];
             }
-            $sections[] = ['key' => $section, 'title' => $title, 'items' => $items];
+            if ($items !== []) {
+                $sections[] = ['key' => $section, 'title' => $title, 'items' => $items];
+            }
         }
 
         return [

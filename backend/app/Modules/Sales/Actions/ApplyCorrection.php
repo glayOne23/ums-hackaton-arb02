@@ -3,6 +3,7 @@
 namespace App\Modules\Sales\Actions;
 
 use App\Core\History\History;
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\Money;
 use App\Models\User;
 use App\Modules\Billing\Actions\CreateSalesInvoice;
@@ -145,6 +146,8 @@ final class ApplyCorrection
         if ($transaction->status !== TransactionStatus::Active) {
             throw ValidationException::withMessages(['transaction' => "Nota ini {$transaction->status->label()}."]);
         }
+        // An approval that comes after the month was closed is refused too
+        app(ClosedPeriods::class)->assertOpen($transaction->transacted_at, "Nota {$transaction->number}", 'transaction');
         if ($reason = $this->rules->laterVisit($transaction, $outletId)) {
             throw ValidationException::withMessages(['transaction' => $reason]);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Billing\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\Money;
 use App\Models\User;
 use App\Modules\Billing\Enums\InvoiceStatus;
@@ -45,12 +46,15 @@ final class RecordInvoicePayment
                 ]);
             }
 
+            $paidAt = isset($data['paid_at']) ? Carbon::parse($data['paid_at']) : now();
+            app(ClosedPeriods::class)->assertOpen($paidAt, 'Pembayaran ini', 'paid_at');
+
             $payment = Payment::query()->create([
                 'client_uuid' => $data['client_uuid'] ?? null,
                 'invoice_id' => $invoice->id,
                 'amount' => Money::fromCents($amount),
                 'method' => PaymentMethod::from($data['method']),
-                'paid_at' => isset($data['paid_at']) ? Carbon::parse($data['paid_at']) : now(),
+                'paid_at' => $paidAt,
                 'received_by' => $actor->id,
                 'status' => PaymentStatus::Valid,
                 'note' => $data['note'] ?? null,

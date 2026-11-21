@@ -3,6 +3,7 @@
 namespace App\Modules\Inventory\Actions;
 
 use App\Core\History\History;
+use App\Core\Period\ClosedPeriods;
 use App\Models\User;
 use App\Modules\Inventory\Models\GoodsReceipt;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,7 @@ final class VoidGoodsReceipt
 
         return DB::transaction(function () use ($receipt, $reason, $actor) {
             $receipt = GoodsReceipt::query()->with('items')->lockForUpdate()->findOrFail($receipt->id);
+            app(ClosedPeriods::class)->assertOpen($receipt->received_date, "Barang masuk {$receipt->number}", 'receipt');
             if ($receipt->status === GoodsReceipt::VOID) {
                 throw ValidationException::withMessages(['receipt' => "Barang masuk {$receipt->number} sudah dibatalkan."]);
             }

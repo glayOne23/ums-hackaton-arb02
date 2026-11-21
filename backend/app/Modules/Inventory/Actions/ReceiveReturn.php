@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
@@ -34,6 +35,7 @@ final class ReceiveReturn
         return DB::transaction(function () use ($data, $actor) {
             $sales = User::query()->findOrFail($data['sales_user_id']);
             $date = isset($data['received_date']) ? Carbon::parse($data['received_date']) : now();
+            app(ClosedPeriods::class)->assertOpen($date, 'Retur ini', 'received_date');
             $salesLocation = $this->locations->forSales($sales);
 
             $return = StockReturn::query()->create([

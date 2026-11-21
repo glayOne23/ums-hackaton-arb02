@@ -2,6 +2,7 @@
 
 namespace App\Modules\Billing\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Models\User;
 use App\Modules\Billing\Enums\PaymentStatus;
 use App\Modules\Billing\Models\Payment;
@@ -27,6 +28,8 @@ final class VoidPayment
                 'payment' => 'Uang ini sudah disetor ke kantor. Catat selisihnya lewat setoran, bukan dengan membatalkan pembayaran.',
             ]);
         }
+
+        app(ClosedPeriods::class)->assertOpen($payment->paid_at, 'Pembayaran ini', 'payment');
 
         return DB::transaction(function () use ($payment, $reason, $actor) {
             $payment->forceFill([

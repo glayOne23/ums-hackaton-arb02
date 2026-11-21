@@ -114,7 +114,7 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 | `core_status_transitions` | `aturan_status` (§4.5) | `document_type`, `from_status`, `to_status`, `permission`, `requires_reason` | nanti |
 | `core_status_histories` | `riwayat_status` (§4.5) | `statusable_type` + `statusable_id`, `from_status`, `to_status`, `user_id`, `reason`. Diisi saat status dimundurkan dengan alasan (KR-05), sekarang untuk permintaan barang lewat `Inventory\Actions\RevertStockRequestStatus`: Sudah keluar → Disiapkan (barang ditarik kembali dari bawaan sales), Disiapkan → Diajukan, Ditolak → Diajukan. Aturan per jenis dokumen masih di kode (`core_status_transitions` nanti) | ada |
 | `core_import_batches` | `sesi_impor` (§4.5) | `type` (`outlets`, `products`, `consignment_stock`), `file_name`, `row_count`, `imported_count`, `merged_count`, `skipped_count`, `merges` (JSON: isian yang dilengkapi tiap baris yang digabung, untuk pembatalan), `status` (`imported`, `reverted`), `created_by`, `reverted_by`, `reverted_at`. Outlet dan produk hasil impor menyimpan `import_batch_id`; stok titipan awal dicatat sebagai mutasi `receipt` dengan `source` = sesi impor. Dibuat lewat `Import\Actions\RunImport` setelah pratinjau; dibatalkan lewat `Import\Actions\RevertImport` (KR-14) hanya bila datanya belum dipakai; baris outlet yang mirip outlet lama bisa di-[Gabung] (W10, OT-06): tidak dibuat baru, hanya melengkapi alamat/WA/siklus yang kosong dan menambah penugasan sales; membatalkan sesi mengembalikan isian itu kecuali sudah diubah orang | ada |
-| `core_closed_periods` | `periode_tutup` (§4.5) | `period_date` (tanggal 1 bulan itu), `closed_by`, `closed_at` | nanti |
+| `core_closed_periods` | `periode_tutup` (§4.5, KR-15) | `period` (teks `2026-10`, sama di MySQL dan SQLite), `closed_by`, `closed_at`. Baris terakhir berarti "ditutup sampai": semua bulan sampai bulan itu tertutup. Selama `period_closing_enabled` menyala, dokumen bertanggal di bulan tertutup tidak bisa dibuat, dikoreksi, atau dibatalkan (`App\Core\Period\ClosedPeriods::assertOpen`: nota, pembayaran, barang masuk, retur, barang keluar, impor, target); kunjungan HP yang terlambat terkirim dicatat dengan tanggal hari ini dan ditandai Perlu dicek. Ditutup/dibuka kembali lewat `App\Core\Period\ClosePeriod` di layar Pengaturan; ditolak bila masih ada koreksi, nota perlu dicek, atau opname yang menunggu di bulan itu | ada |
 
 ### 5.4 `cfg_` — pengaturan
 
@@ -215,7 +215,7 @@ Kunci memakai snake_case Bahasa Inggris. Kunci persetujuan mengikuti pola `appro
 | `edit_window_days` | `batas_ubah_hari` | 0 (hari yang sama) |
 | `approve_correction` | `setujui_koreksi` | true |
 | `trash_retention_days` | `masa_tempat_sampah_hari` (dihapus permanen tiap malam oleh `sigap:purge-trash`, `App\Core\Trash\PurgeTrash`) | 30 |
-| `period_closing_enabled` | `tutup_buku` | false |
+| `period_closing_enabled` | `tutup_buku` (KR-15, bagian "Koreksi & tempat sampah") | false |
 | `data_saver` | `hemat_data` (foto form hanya lewat Wi-Fi, NF-02) | false |
 | `company_name`, `company_address`, `company_whatsapp` | Data perusahaan di nota (PG-09) | `CV Arba'in Jaya Mandiri`, kosong, kosong |
 | `mfg_*` | `maklon_*` (dokumen 06 §6), misalnya `mfg_sample_fee`, `mfg_max_sample_revisions` | — |
