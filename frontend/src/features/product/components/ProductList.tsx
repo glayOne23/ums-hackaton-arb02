@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
+import { ExportButton } from '@/features/import/components/ExportButton'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -99,6 +100,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
           {meta && <p className="text-muted-foreground">{formatNumber(meta.total)} produk</p>}
         </div>
         <div className="flex flex-wrap gap-2">
+          <ExportButton type="products" title="Produk" />
           <Button variant="outline" asChild>
             <Link to="/office/price-list">
               <ReceiptText aria-hidden />

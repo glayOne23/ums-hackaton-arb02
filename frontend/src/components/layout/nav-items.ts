@@ -1,6 +1,7 @@
 import {
   ChartColumn,
   ClipboardList,
+  FileUp,
   LayoutDashboard,
   Wallet,
   type LucideIcon,
@@ -24,6 +25,7 @@ export interface NavItem {
     | '/office/discounts'
     | '/office/inventory'
     | '/office/settings'
+    | '/office/imports'
     | '/office/users'
   label: string
   icon: LucideIcon
@@ -44,6 +46,7 @@ const ITEMS: NavItem[] = [
   { to: '/office/discounts', label: 'Potongan', icon: Percent, permissions: ['product.view'] },
   { to: '/office/inventory', label: 'Gudang', icon: Warehouse, permissions: ['inventory.view', 'stock_request.view'] },
   { to: '/office/users', label: 'Pengguna', icon: Users, permissions: ['user.manage'] },
+  { to: '/office/imports', label: 'Impor Excel', icon: FileUp, permissions: ['data.import'] },
   { to: '/office/settings', label: 'Pengaturan', icon: Settings, permissions: ['setting.manage'] },
 ]
 
