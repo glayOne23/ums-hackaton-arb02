@@ -41,7 +41,7 @@ class OutletController extends Controller
 
         $query = $this->visibleOutlets($request->user())
             ->with(['outletType', 'region', 'activeAssignments.salesUser'])
-            ->when($status === 'deleted', fn (Builder $q) => $q->onlyTrashed()->with('deleter'));
+            ->when($status === 'deleted', fn (Builder $q) => $q->onlyTrashed()->whereNull('merged_into_id')->with('deleter'));
 
         $search = trim($request->string('search')->toString());
         if ($search !== '') {

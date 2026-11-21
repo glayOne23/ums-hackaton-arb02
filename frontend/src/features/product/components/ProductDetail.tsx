@@ -13,6 +13,7 @@ import { usePermission } from '@/stores/session'
 import { productKeys, useDeleteProduct, useProduct } from '../api'
 import type { Product } from '../types'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
+import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
 
 /** Product data, readable by everyone with product.view; change and delete with product.manage. */
 export function ProductDetail({ productId }: { productId: string }) {
@@ -67,6 +68,7 @@ function Content({ product }: { product: Product }) {
                 Ubah data
               </Link>
             </Button>
+            <MergeDuplicateButton kind="product" kept={product} />
             <DeleteProductButton product={product} />
           </div>
         )}

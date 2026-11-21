@@ -56,7 +56,8 @@ async function undoTheSale(page: Page) {
   await expect(page.getByRole('dialog').getByText(new RegExp(`Laku ${product}: \\d+ → \\d+`))).toBeVisible()
 }
 
-test('the sales fixes their own nota the same day; the phone shows the new numbers (KR-01)', async ({}, testInfo) => {
+test('the sales fixes their own nota the same day; the phone shows the new numbers (KR-01)', async () => {
+  const testInfo = test.info()
   test.skip(testInfo.project.name !== 'phone', 'Phone: the sales fixes it')
   const before = await sales.getByText(/Nota NT-\d{4}-\d{4}/).textContent()
 
@@ -72,7 +73,8 @@ test('the sales fixes their own nota the same day; the phone shows the new numbe
   await expect(sales.getByRole('link', { name: 'Kirim ke WhatsApp' })).toBeVisible()
 })
 
-test('the office asks for a correction with a reason (KR-02)', async ({}, testInfo) => {
+test('the office asks for a correction with a reason (KR-02)', async () => {
+  const testInfo = test.info()
   test.skip(testInfo.project.name === 'phone', 'Desktop: office and manager')
 
   await office.goto(`/office/visits/${transactionId}`)
@@ -86,7 +88,8 @@ test('the office asks for a correction with a reason (KR-02)', async ({}, testIn
   await expect(office.getByRole('button', { name: 'Ajukan koreksi' })).toHaveCount(0)
 })
 
-test('the manager approves it from the Koreksi menu; the old nota is kept, crossed out (KR-03)', async ({}, testInfo) => {
+test('the manager approves it from the Koreksi menu; the old nota is kept, crossed out (KR-03)', async () => {
+  const testInfo = test.info()
   test.skip(testInfo.project.name === 'phone', 'Desktop: office and manager')
 
   await manager.getByRole('link', { name: 'Koreksi' }).first().click()
@@ -105,7 +108,8 @@ test('the manager approves it from the Koreksi menu; the old nota is kept, cross
   await expect(manager.getByText('Menyetujui koreksi')).toBeVisible()
 })
 
-test('the office sees Perlu dicek and the trash', async ({}, testInfo) => {
+test('the office sees Perlu dicek and the trash', async () => {
+  const testInfo = test.info()
   test.skip(testInfo.project.name === 'phone', 'Desktop: office')
 
   await office.getByRole('link', { name: 'Koreksi' }).first().click()

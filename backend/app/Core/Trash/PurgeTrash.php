@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Anything that got used while it lay in the trash (a phone that was offline
  * recorded a visit to it) is kept: removing it would take history with it.
+ * Merged duplicates are not trash and stay (KR-08).
  */
 final class PurgeTrash
 {
@@ -29,7 +30,7 @@ final class PurgeTrash
         $outlets = 0;
         $products = 0;
 
-        foreach (Outlet::onlyTrashed()->where('deleted_at', '<', $before)->get() as $outlet) {
+        foreach (Outlet::onlyTrashed()->whereNull('merged_into_id')->where('deleted_at', '<', $before)->get() as $outlet) {
             if ($this->outletUsed($outlet)) {
                 continue;
             }
@@ -48,7 +49,7 @@ final class PurgeTrash
             });
         }
 
-        foreach (Product::onlyTrashed()->where('deleted_at', '<', $before)->get() as $product) {
+        foreach (Product::onlyTrashed()->whereNull('merged_into_id')->where('deleted_at', '<', $before)->get() as $product) {
             if ($this->productUsed($product) || DB::table('inv_batches')->where('product_id', $product->id)->exists()) {
                 continue;
             }

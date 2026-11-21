@@ -2,6 +2,7 @@
 
 use App\Modules\Outlet\Http\Controllers\OutletAssignmentController;
 use App\Modules\Outlet\Http\Controllers\OutletController;
+use App\Modules\Outlet\Http\Controllers\OutletMergeController;
 use App\Modules\Outlet\Http\Controllers\ReferenceController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [OutletController::class, 'store'])->middleware('can:outlet.manage');
         Route::get('{outlet}', [OutletController::class, 'show'])->middleware('can:outlet.view')->whereUlid('outlet');
         Route::patch('{outlet}', [OutletController::class, 'update'])->middleware('can:outlet.manage')->whereUlid('outlet');
+        // OT-06: merge a duplicate into this outlet
+        Route::get('{outlet}/merge', [OutletMergeController::class, 'preview'])->middleware('can:outlet.manage')->whereUlid('outlet');
+        Route::post('{outlet}/merge', [OutletMergeController::class, 'store'])->middleware('can:outlet.manage')->whereUlid('outlet');
         Route::delete('{outlet}', [OutletController::class, 'destroy'])->middleware('can:outlet.manage')->whereUlid('outlet');
         Route::post('{outlet}/restore', [OutletController::class, 'restore'])
             ->middleware('can:outlet.manage')->whereUlid('outlet')->withTrashed();

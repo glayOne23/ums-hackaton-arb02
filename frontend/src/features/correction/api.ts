@@ -8,6 +8,7 @@ import type {
   DeviceSync,
   HistoryEntry,
   HistoryType,
+  MergePreview,
   TrashItem,
 } from './types'
 
@@ -127,6 +128,30 @@ export function useRestore() {
   return useMutation({
     mutationFn: (item: Pick<TrashItem, 'type' | 'id'>) =>
       api(`/${item.type === 'outlet' ? 'outlets' : 'products'}/${item.id}/restore`, { method: 'POST', body: {} }),
+    onSuccess: invalidate,
+  })
+}
+
+const MERGE_PATH = { outlet: 'outlets', product: 'products' } as const
+
+/** KR-08: what merging `fromId` into `intoId` would move, before anything is saved. */
+export function useMergePreview(kind: 'outlet' | 'product', intoId: string, fromId: string | null) {
+  return useQuery({
+    queryKey: [...ROOT, 'merge', kind, intoId, fromId] as const,
+    queryFn: ({ signal }) =>
+      api<{ data: MergePreview }>(`/${MERGE_PATH[kind]}/${intoId}/merge?from_id=${fromId}`, { signal }).then(
+        (r) => r.data,
+      ),
+    enabled: fromId !== null,
+    retry: false,
+  })
+}
+
+export function useMerge(kind: 'outlet' | 'product', intoId: string) {
+  const invalidate = useInvalidateAll()
+  return useMutation({
+    mutationFn: (input: { from_id: string; reason?: string }) =>
+      api(`/${MERGE_PATH[kind]}/${intoId}/merge`, { method: 'POST', body: input }),
     onSuccess: invalidate,
   })
 }

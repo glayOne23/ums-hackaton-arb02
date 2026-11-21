@@ -140,6 +140,14 @@ final class RecordTransaction
         $actor ??= $sales;
         $notes = [];
 
+        // A phone that has not refreshed since a merge (KR-08) still uses the duplicate's ids
+        if ($outlet->merged_into_id !== null) {
+            $duplicate = $outlet;
+            $outlet = $this->mergedOutlet($outlet);
+            $notes[] = "Outlet {$duplicate->name} sudah digabung ke {$outlet->name}; dicatat ke {$outlet->name}.";
+        }
+        $data['items'] = $this->mergedProducts($data['items'], $notes);
+
         $at = Carbon::parse($data['transacted_at'])->setTimezone(config('app.timezone'));
         if (! $strict && $at->greaterThan(now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES))) {
             $notes[] = 'Jam di HP lebih maju dari server; dicatat dengan jam server.';
@@ -219,6 +227,62 @@ final class RecordTransaction
         ])->save();
 
         return $transaction;
+    }
+
+    private function mergedOutlet(Outlet $outlet): Outlet
+    {
+        for ($hops = 0; $outlet->merged_into_id !== null && $hops < 10; $hops++) {
+            $outlet = Outlet::withTrashed()->findOrFail($outlet->merged_into_id);
+        }
+
+        return $outlet;
+    }
+
+    /**
+     * Items of merged products count for the product that was kept; two lines
+     * that become the same product are added together.
+     *
+     * @param  list<ItemInput>  $items
+     * @param  list<string>  $notes
+     * @return list<ItemInput>
+     */
+    private function mergedProducts(array $items, array &$notes): array
+    {
+        $merged = Product::onlyTrashed()
+            ->whereIn('id', array_column($items, 'product_id'))
+            ->whereNotNull('merged_into_id')
+            ->get(['id', 'name', 'merged_into_id']);
+        if ($merged->isEmpty()) {
+            return $items;
+        }
+
+        $target = [];
+        foreach ($merged as $product) {
+            $kept = $product;
+            for ($hops = 0; $kept->merged_into_id !== null && $hops < 10; $hops++) {
+                $kept = Product::withTrashed()->findOrFail($kept->merged_into_id);
+            }
+            $target[$product->id] = $kept->id;
+            $notes[] = "Produk {$product->name} sudah digabung ke {$kept->name}; dicatat sebagai {$kept->name}.";
+        }
+
+        $byProduct = [];
+        foreach ($items as $item) {
+            $id = $target[$item['product_id']] ?? $item['product_id'];
+            if (! isset($byProduct[$id])) {
+                $byProduct[$id] = ['product_id' => $id] + $item;
+                $byProduct[$id]['product_id'] = $id;
+
+                continue;
+            }
+            foreach (['opening_qty', 'remaining_qty', 'withdrawn_qty', 'refill_qty', 'sold_qty'] as $field) {
+                if (isset($item[$field])) {
+                    $byProduct[$id][$field] = (int) ($byProduct[$id][$field] ?? 0) + (int) $item[$field];
+                }
+            }
+        }
+
+        return array_values($byProduct);
     }
 
     /**

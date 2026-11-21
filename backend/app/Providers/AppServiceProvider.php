@@ -4,6 +4,15 @@ namespace App\Providers;
 
 use App\Modules\Auth\Actions\Login;
 use App\Modules\Auth\Models\PersonalAccessToken;
+use App\Modules\Billing\Merge\MoveOutletInvoices;
+use App\Modules\Inventory\Merge\MoveOutletStock;
+use App\Modules\Inventory\Merge\MoveProductStock;
+use App\Modules\Outlet\Contracts\OutletMergeStep;
+use App\Modules\Product\Contracts\ProductMergeStep;
+use App\Modules\Product\Merge\MoveOutletDiscounts;
+use App\Modules\Product\Merge\MoveProductDiscounts;
+use App\Modules\Sales\Merge\MoveOutletTransactions;
+use App\Modules\Sales\Merge\MoveProductSales;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,7 +23,11 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // KR-08: each module moves its own rows when duplicates are merged
+        $this->app->tag([
+            MoveOutletTransactions::class, MoveOutletInvoices::class, MoveOutletStock::class, MoveOutletDiscounts::class,
+        ], OutletMergeStep::TAG);
+        $this->app->tag([MoveProductSales::class, MoveProductStock::class, MoveProductDiscounts::class], ProductMergeStep::TAG);
     }
 
     public function boot(): void

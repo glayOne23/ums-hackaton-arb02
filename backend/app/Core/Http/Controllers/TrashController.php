@@ -37,8 +37,8 @@ class TrashController extends Controller
         ];
 
         $items = collect()
-            ->merge($outlets ? Outlet::onlyTrashed()->with('deleter')->get()->map(fn (Outlet $o) => $row('outlet', $o)) : [])
-            ->merge($products ? Product::onlyTrashed()->with('deleter')->get()->map(fn (Product $p) => $row('product', $p)) : [])
+            ->merge($outlets ? Outlet::onlyTrashed()->whereNull('merged_into_id')->with('deleter')->get()->map(fn (Outlet $o) => $row('outlet', $o)) : [])
+            ->merge($products ? Product::onlyTrashed()->whereNull('merged_into_id')->with('deleter')->get()->map(fn (Product $p) => $row('product', $p)) : [])
             ->sortByDesc('deleted_at')
             ->values();
 
