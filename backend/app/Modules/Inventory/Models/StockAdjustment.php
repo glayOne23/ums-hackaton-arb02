@@ -22,6 +22,9 @@ use Illuminate\Support\Carbon;
  * @property AdjustmentStatus $status
  * @property Carbon|null $decided_at
  * @property string|null $decision_note
+ * @property int|null $reopened_by
+ * @property Carbon|null $reopened_at
+ * @property string|null $reopen_reason
  */
 #[Fillable(['number', 'location_id', 'counted_date', 'reason', 'status', 'created_by'])]
 class StockAdjustment extends Model
@@ -32,7 +35,7 @@ class StockAdjustment extends Model
 
     protected function casts(): array
     {
-        return ['counted_date' => 'date', 'status' => AdjustmentStatus::class, 'decided_at' => 'datetime'];
+        return ['counted_date' => 'date', 'status' => AdjustmentStatus::class, 'decided_at' => 'datetime', 'reopened_at' => 'datetime', 'reopened_by' => 'integer'];
     }
 
     /** @return HasMany<StockAdjustmentItem, $this> */
@@ -57,5 +60,11 @@ class StockAdjustment extends Model
     public function decider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function reopener(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reopened_by');
     }
 }

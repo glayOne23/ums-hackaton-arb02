@@ -84,6 +84,29 @@ test('the warehouse takes the goods back as good stock (P6)', async () => {
   await expect(warehouse).toHaveURL(/\/office\/inventory\/returns$/)
 })
 
+test('a count saved by mistake is opened again the same day and its numbers come back (KR-13)', async () => {
+  await warehouse.goto('/office/inventory/count')
+  await warehouse.getByLabel('Cari produk atau batch').fill(batch)
+  const physical = warehouse.getByLabel(new RegExp(`^Fisik ${PRODUCT} ${batch}$`))
+  const wrong = String(Number(await physical.inputValue()) + 1)
+  await physical.fill(wrong)
+  await warehouse.getByLabel('Alasan selisih (wajib)').fill('Uji e2e: salah hitung')
+  await warehouse.getByRole('button', { name: 'Simpan opname (1 selisih)' }).click()
+  await expect(warehouse.getByText(/tersimpan, stok disesuaikan/)).toBeVisible()
+
+  // Phone and desktop count at the same time with the same account: find this project's batch
+  const card = warehouse
+    .getByRole('listitem')
+    .filter({ hasText: 'Uji e2e: salah hitung' })
+    .filter({ hasText: batch })
+    .first()
+  await card.getByRole('button', { name: 'Buka ulang' }).click()
+  await warehouse.getByRole('alertdialog').getByRole('button', { name: 'Buka ulang' }).click()
+  await expect(warehouse.getByText(/dibuka ulang\. Hitung lagi lalu simpan\./)).toBeVisible()
+  await expect(card.getByText('Dibuka ulang', { exact: true })).toBeVisible()
+  await expect(physical).toHaveValue(wrong)
+})
+
 test('a stock count books only the difference, with a reason (P7)', async () => {
   await warehouse.goto('/office/inventory/count')
   await warehouse.getByLabel('Cari produk atau batch').fill(batch)

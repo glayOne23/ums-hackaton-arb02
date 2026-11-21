@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Inventory\Actions\DecideStockAdjustment;
+use App\Modules\Inventory\Actions\ReopenStockAdjustment;
 use App\Modules\Inventory\Actions\SaveStockAdjustment;
 use App\Modules\Inventory\Actions\StockLocations;
 use App\Modules\Inventory\Http\Resources\StockAdjustmentResource;
@@ -16,7 +17,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StockAdjustmentController extends Controller
 {
-    private const RELATIONS = ['items.batch.product', 'creator', 'decider'];
+    private const RELATIONS = ['items.batch.product', 'creator', 'decider', 'reopener'];
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -66,6 +67,16 @@ class StockAdjustmentController extends Controller
         $user = $request->user();
 
         return new StockAdjustmentResource($decide->handle($stockAdjustment, true, $request->string('note')->toString(), $user)->load(self::RELATIONS));
+    }
+
+    /** KR-13: open today's count again. */
+    public function reopen(Request $request, StockAdjustment $stockAdjustment, ReopenStockAdjustment $reopen): StockAdjustmentResource
+    {
+        $reason = $request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? null;
+        /** @var User $user */
+        $user = $request->user();
+
+        return new StockAdjustmentResource($reopen->handle($stockAdjustment, $reason, $user)->load(self::RELATIONS));
     }
 
     public function reject(Request $request, StockAdjustment $stockAdjustment, DecideStockAdjustment $decide): StockAdjustmentResource

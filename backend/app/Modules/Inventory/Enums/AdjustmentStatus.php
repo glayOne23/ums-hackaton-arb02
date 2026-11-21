@@ -8,6 +8,8 @@ enum AdjustmentStatus: string
     case Pending = 'pending';
     case Applied = 'applied';
     case Rejected = 'rejected';
+    /** Opened again the same day (KR-13): its stock reversed, counted again as a new count */
+    case Reopened = 'reopened';
 
     public function label(): string
     {
@@ -15,6 +17,7 @@ enum AdjustmentStatus: string
             self::Pending => 'Menunggu persetujuan',
             self::Applied => 'Berlaku',
             self::Rejected => 'Ditolak',
+            self::Reopened => 'Dibuka ulang',
         };
     }
 }

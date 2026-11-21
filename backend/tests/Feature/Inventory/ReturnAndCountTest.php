@@ -110,3 +110,48 @@ it('keeps sales and the office out of warehouse actions', function () {
     $this->actingAs($this->sales)->getJson('/api/v1/inventory/stock')->assertForbidden();
     $this->actingAs($this->sales)->postJson('/api/v1/inventory/returns', [])->assertForbidden();
 });
+
+it('opens a count again the same day: the difference is reversed, then counted anew (KR-13)', function () {
+    $b1 = Batch::query()->where('batch_number', 'B1')->value('id');
+    $wrong = $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/adjustments', [
+        'items' => [['batch_id' => $b1, 'physical_qty' => 3]],
+        'reason' => 'Hilang',
+    ])->assertJsonPath('data.can_reopen', true)->json('data');
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(3);
+
+    $this->actingAs($this->sales)->postJson("/api/v1/inventory/adjustments/{$wrong['id']}/reopen")->assertForbidden();
+    $this->actingAs($this->warehouse)->postJson("/api/v1/inventory/adjustments/{$wrong['id']}/reopen", ['reason' => 'Rak B belum dihitung'])
+        ->assertOk()
+        ->assertJsonPath('data.status.value', 'reopened')
+        ->assertJsonPath('data.reopened.reason', 'Rak B belum dihitung')
+        ->assertJsonPath('data.can_reopen', false)
+        ->assertJsonPath('data.items.0.batch_id', $b1);
+    // Back to before the count; the ledger keeps both rows
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(8)
+        ->and(StockMovement::query()->where('type', 'correction')->whereNotNull('reverses_id')->count())->toBe(1);
+
+    $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/adjustments', [
+        'items' => [['batch_id' => $b1, 'physical_qty' => 7]],
+        'reason' => '1 botol pecah',
+    ])->assertCreated()->assertJsonPath('data.items.0.system_qty', 8);
+    expect(qtyAt(locations()->warehouse(), 'B1'))->toBe(7);
+
+    $this->actingAs($this->warehouse)->postJson("/api/v1/inventory/adjustments/{$wrong['id']}/reopen")
+        ->assertJsonPath('errors.adjustment.0', fn (string $m) => str_contains($m, 'Dibuka ulang'));
+    $this->actingAs($this->warehouse)->getJson("/api/v1/history/stock_adjustment/{$wrong['id']}")
+        ->assertJsonPath('data.0.title', 'Membuka ulang opname');
+});
+
+it('does not reopen a count from an earlier day', function () {
+    $b1 = Batch::query()->where('batch_number', 'B1')->value('id');
+    $id = $this->actingAs($this->warehouse)->postJson('/api/v1/inventory/adjustments', [
+        'items' => [['batch_id' => $b1, 'physical_qty' => 7]],
+        'reason' => 'Pecah',
+    ])->json('data.id');
+
+    $this->travel(1)->days();
+    $this->actingAs($this->warehouse)->getJson('/api/v1/inventory/adjustments')->assertJsonPath('data.0.can_reopen', false);
+    $this->actingAs($this->warehouse)->postJson("/api/v1/inventory/adjustments/{$id}/reopen")
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.adjustment.0', fn (string $m) => str_contains($m, 'bukan dari hari ini'));
+});

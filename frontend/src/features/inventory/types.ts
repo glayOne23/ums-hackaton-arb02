@@ -127,12 +127,16 @@ export interface StockAdjustment {
   number: string
   counted_date: string
   reason: string
-  status: ValueLabel<'pending' | 'applied' | 'rejected'>
+  status: ValueLabel<'pending' | 'applied' | 'rejected' | 'reopened'>
   created_by: string | null
   decided_by: string | null
   decided_at: string | null
   decision_note: string | null
+  /** KR-13: opened again the same day */
+  reopened: { by: string | null; at: string; reason: string | null } | null
+  can_reopen: boolean
   items: {
+    batch_id: string
     product: ProductRef
     batch_number: string
     expiry_date: string
