@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Inventory\Actions\ReceiveReturn;
+use App\Modules\Inventory\Actions\VoidStockReturn;
 use App\Modules\Inventory\Enums\ReturnCondition;
 use App\Modules\Inventory\Http\Resources\StockReturnResource;
 use App\Modules\Inventory\Models\StockReturn;
@@ -15,7 +16,7 @@ use Illuminate\Validation\Rule;
 
 class StockReturnController extends Controller
 {
-    private const RELATIONS = ['items.batch.product', 'salesUser', 'creator'];
+    private const RELATIONS = ['items.batch.product', 'salesUser', 'creator', 'voider'];
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -51,5 +52,15 @@ class StockReturnController extends Controller
         $return = $receive->handle($data, $user);
 
         return (new StockReturnResource($return->load(self::RELATIONS)))->response()->setStatusCode(201);
+    }
+
+    /** KR-04: void a return entered by mistake; the goods go back to the sales. */
+    public function void(Request $request, StockReturn $stockReturn, VoidStockReturn $void): StockReturnResource
+    {
+        $reason = (string) ($request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? '');
+        /** @var User $user */
+        $user = $request->user();
+
+        return new StockReturnResource($void->handle($stockReturn, $reason, $user)->load(self::RELATIONS));
     }
 }

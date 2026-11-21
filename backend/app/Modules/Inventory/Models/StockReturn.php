@@ -18,17 +18,25 @@ use Illuminate\Support\Carbon;
  * @property int $sales_user_id
  * @property Carbon $received_date
  * @property string|null $note
+ * @property string $status active | void
+ * @property int|null $voided_by
+ * @property Carbon|null $voided_at
+ * @property string|null $void_reason
  */
 #[Fillable(['number', 'sales_user_id', 'received_date', 'note', 'created_by'])]
 class StockReturn extends Model
 {
     use HasUlids;
 
+    public const ACTIVE = 'active';
+
+    public const VOID = 'void';
+
     protected $table = 'inv_returns';
 
     protected function casts(): array
     {
-        return ['received_date' => 'date', 'sales_user_id' => 'integer'];
+        return ['received_date' => 'date', 'sales_user_id' => 'integer', 'voided_at' => 'datetime', 'voided_by' => 'integer'];
     }
 
     /** @return HasMany<StockReturnItem, $this> */
@@ -47,5 +55,11 @@ class StockReturn extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function voider(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by');
     }
 }

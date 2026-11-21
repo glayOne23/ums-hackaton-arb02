@@ -189,6 +189,19 @@ export function useVoidGoodsReceipt() {
   })
 }
 
+/** KR-04: void a return entered by mistake; the goods go back to the sales. */
+export function useVoidStockReturn() {
+  const invalidate = useInvalidateInventory()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      api<{ data: StockReturn }>(`/inventory/returns/${id}/void`, { method: 'POST', body: { reason } }).then(
+        (r) => r.data,
+      ),
+    networkMode: 'always',
+    onSuccess: invalidate,
+  })
+}
+
 export function useReceiveReturn() {
   const invalidate = useInvalidateInventory()
   return useMutation({

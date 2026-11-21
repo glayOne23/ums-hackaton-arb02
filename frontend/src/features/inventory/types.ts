@@ -112,6 +112,8 @@ export interface StockReturn {
   received_date: string
   note: string | null
   created_by: string | null
+  status: 'active' | 'void'
+  voided: { by: string | null; at: string; reason: string | null } | null
   items: {
     product: ProductRef
     batch_number: string

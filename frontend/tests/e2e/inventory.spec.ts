@@ -72,7 +72,7 @@ test('the sales sees the goods they carry, without batches (GD-04)', async () =>
   await expect(sales.getByText(batch)).toHaveCount(0)
 })
 
-test('the warehouse takes the goods back as good stock (P6)', async () => {
+async function takeBack() {
   await warehouse.goto('/office/inventory/returns/new')
   await warehouse.getByLabel('Sales (wajib)').selectOption({ label: salesName })
   // The option label includes what the sales carries ("… (dibawa 15)"), so pick it by its value
@@ -82,6 +82,29 @@ test('the warehouse takes the goods back as good stock (P6)', async () => {
   await warehouse.getByLabel('Jumlah (wajib)').fill('3')
   await warehouse.getByRole('button', { name: 'Simpan retur' }).click()
   await expect(warehouse).toHaveURL(/\/office\/inventory\/returns$/)
+}
+
+test('the warehouse takes the goods back as good stock (P6)', async () => {
+  await takeBack()
+})
+
+test('a return entered wrongly is voided, the goods go back to the sales, and it is entered again (KR-04)', async () => {
+  const card = warehouse
+    .getByRole('main')
+    .getByRole('listitem')
+    .filter({ hasText: salesName })
+    .filter({ has: warehouse.getByRole('button', { name: 'Batalkan' }) })
+    .first()
+  const number = (await card.locator('span.text-lg').first().textContent())?.split(' · ')[0] ?? ''
+  await card.getByRole('button', { name: 'Batalkan' }).click()
+  await warehouse.getByLabel('Alasan (wajib)').fill('Uji e2e: salah catat')
+  await warehouse.getByRole('alertdialog').getByRole('button', { name: 'Batalkan retur' }).click()
+  await expect(warehouse.getByText(`${number} dibatalkan`)).toBeVisible()
+  await expect(warehouse.getByRole('main').getByRole('listitem').filter({ hasText: number }).first()).toContainText(
+    'Dibatalkan',
+  )
+
+  await takeBack()
 })
 
 test('a count saved by mistake is opened again the same day and its numbers come back (KR-13)', async () => {
