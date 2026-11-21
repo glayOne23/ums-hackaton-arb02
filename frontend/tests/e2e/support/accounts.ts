@@ -16,7 +16,11 @@ export function sessionFile(account: Account): string {
 export async function signInAs(page: Page, account: Account): Promise<void> {
   const session = readFileSync(sessionFile(account), 'utf8')
   await page.goto('/login')
-  await page.evaluate((value) => localStorage.setItem('sigap-session', value), session)
+  await page.evaluate((value) => {
+    localStorage.setItem('sigap-session', value)
+    // Screen tips (UX-09) are tested on their own; elsewhere they would only move things around
+    localStorage.setItem('sigap-preferences', JSON.stringify({ hintsOff: true }))
+  }, session)
   await page.goto('/')
   await expect(page).toHaveURL(/\/(office|field)$/)
 }

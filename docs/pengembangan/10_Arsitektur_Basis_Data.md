@@ -219,6 +219,7 @@ Kunci memakai snake_case Bahasa Inggris. Kunci persetujuan mengikuti pola `appro
 | `period_closing_enabled` | `tutup_buku` (KR-15, bagian "Koreksi & tempat sampah") | false |
 | `data_saver` | `hemat_data` (foto form hanya lewat Wi-Fi, NF-02) | false |
 | `company_name`, `company_address`, `company_whatsapp` | Data perusahaan di nota (PG-09) | `CV Arba'in Jaya Mandiri`, kosong, kosong |
+| `help_whatsapp` | `wa_bantuan` (tujuan tombol Bantuan, UX-09; kosong = `company_whatsapp`) | kosong |
 | `mfg_*` | `maklon_*` (dokumen 06 §6), misalnya `mfg_sample_fee`, `mfg_max_sample_revisions` | — |
 
 Di kode, nilai dibaca lewat `App\Modules\Setting\Setting::value('billing_threshold')` (atau `::int()`, `::bool()`, `::string()`). Angka aturan tidak boleh ditulis mati. Nilainya dari `cfg_settings`, atau nilai awal di `SettingDefinitions` bila belum pernah diubah; dibaca sekali per request. Kunci baru: tambahkan di tabel ini dan di `SettingDefinitions::ALL`.

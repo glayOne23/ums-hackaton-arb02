@@ -3,6 +3,7 @@ import { ConnectionStatus } from '@/components/layout/ConnectionStatus'
 import { FieldNav } from '@/components/layout/FieldNav'
 import { LogoutButton } from '@/components/layout/LogoutButton'
 import { requireArea } from '@/features/auth/guard'
+import { ScreenHint } from '@/features/help/components/ScreenHint'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { ReceiptSync } from '@/features/sales/components/ReceiptSync'
 import { useSession } from '@/stores/session'
@@ -29,7 +30,8 @@ function FieldLayout() {
           <LogoutButton />
         </div>
       </header>
-      <main className="flex-1 px-4 py-4">
+      <main className="flex flex-1 flex-col gap-4 px-4 py-4">
+        <ScreenHint />
         <Outlet />
       </main>
       <div className="print:hidden">
