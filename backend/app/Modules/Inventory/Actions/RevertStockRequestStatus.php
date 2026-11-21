@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Actions;
 
 use App\Core\History\History;
 use App\Core\Models\StatusHistory;
+use App\Core\Period\ClosedPeriods;
 use App\Models\User;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Models\StockRequest;
@@ -62,6 +63,9 @@ final class RevertStockRequestStatus
 
     private function unissue(StockRequest $request, User $actor): void
     {
+        if ($request->issued_at) {
+            app(ClosedPeriods::class)->assertOpen($request->issued_at, "Barang keluar {$request->number}", 'request');
+        }
         $this->reverse->handle($request, $actor, "Status {$request->number} dikembalikan ke Disiapkan");
         $request->forceFill(['issued_by' => null, 'issued_at' => null]);
     }

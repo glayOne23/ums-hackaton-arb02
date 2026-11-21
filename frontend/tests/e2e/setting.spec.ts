@@ -63,6 +63,23 @@ test('a list entry is added and switched off, never deleted (PG-05)', async () =
   await expect(office.getByRole('checkbox', { name: `${name} aktif` })).not.toBeChecked()
 })
 
+test('tutup buku: switched on, the panel checks the month first; switched off again (KR-15)', async () => {
+  await office.goto('/office/settings')
+  const rule = office.getByRole('checkbox', { name: 'Tutup buku per bulan' })
+  await rule.check()
+  await office.getByRole('button', { name: /Simpan \(1 perubahan\)/ }).click()
+  await expect(office.getByText(/pengaturan tersimpan/)).toBeVisible()
+
+  const panel = office.getByRole('region', { name: 'Tutup buku' })
+  await expect(panel.getByLabel('Tutup sampai bulan')).toBeVisible()
+  // Sample data has notas waiting to be checked, or the month is already fine: either way nothing is closed here
+  await expect(panel.getByText(/Selesaikan dulu sebelum menutup|ikut tertutup/).first()).toBeVisible()
+
+  await rule.uncheck()
+  await office.getByRole('button', { name: /Simpan \(1 perubahan\)/ }).click()
+  await expect(panel).toHaveCount(0)
+})
+
 test('the threshold goes back to 2 for the other tests and demos', async () => {
   await setThreshold('2')
 })

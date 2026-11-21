@@ -29,7 +29,7 @@ final class SaveSettings
         $messages = [];
         foreach (array_keys($values) as $key) {
             $definition = SettingDefinitions::ALL[$key] ?? null;
-            if ($definition === null || ($definition['editable'] ?? true) === false) {
+            if ($definition === null || ! SettingDefinitions::editable($key)) {
                 throw ValidationException::withMessages(["values.{$key}" => 'Pengaturan ini tidak bisa diubah.']);
             }
             $rules["values.{$key}"] = SettingDefinitions::rules($key);

@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
-import type { ReferenceItem, SettingChange, SettingsResponse, SettingValue } from './types'
+import type {
+  ClosedPeriodsInfo,
+  ClosePreview,
+  ReferenceItem,
+  SettingChange,
+  SettingsResponse,
+  SettingValue,
+} from './types'
 
 export const settingKeys = {
   all: ['settings'] as const,
@@ -24,6 +31,41 @@ export function useSaveSettings() {
       queryClient.setQueryData(settingKeys.all, data)
       return queryClient.invalidateQueries({ queryKey: settingKeys.history })
     },
+  })
+}
+
+const periodKeys = {
+  info: ['settings', 'closed-periods'] as const,
+  preview: (period: string) => ['settings', 'closed-periods', 'preview', period] as const,
+}
+
+/** KR-15: which months are closed and which may be closed next. */
+export function useClosedPeriods(enabled: boolean) {
+  return useQuery({
+    queryKey: periodKeys.info,
+    queryFn: ({ signal }) => api<{ data: ClosedPeriodsInfo }>('/closed-periods', { signal }).then((r) => r.data),
+    enabled,
+  })
+}
+
+export function useClosePreview(period: string | null) {
+  return useQuery({
+    queryKey: periodKeys.preview(period ?? ''),
+    queryFn: ({ signal }) =>
+      api<{ data: ClosePreview }>(`/closed-periods/preview?period=${period}`, { signal }).then((r) => r.data),
+    enabled: period !== null,
+  })
+}
+
+/** Closing or reopening changes what every screen may still edit: refetch everything. */
+export function useClosePeriod() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { period: string } | 'reopen') =>
+      input === 'reopen'
+        ? api<{ data: { label: string } }>('/closed-periods/reopen', { method: 'POST', body: {} })
+        : api<{ data: { label: string } }>('/closed-periods', { method: 'POST', body: input }),
+    onSuccess: () => queryClient.invalidateQueries(),
   })
 }
 

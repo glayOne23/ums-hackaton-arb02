@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Models\User;
 use App\Modules\Sales\Enums\CorrectionStatus;
 use App\Modules\Sales\Enums\TransactionStatus;
@@ -62,6 +63,10 @@ final class CorrectionRules
             ->exists();
         if ($pending) {
             return 'Sudah ada koreksi yang menunggu persetujuan untuk nota ini.';
+        }
+
+        if (app(ClosedPeriods::class)->isClosed($transaction->transacted_at)) {
+            return ClosedPeriods::message($transaction->transacted_at, "Nota {$transaction->number}");
         }
 
         return $this->laterVisit($transaction, $outletId);

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { useSaveSettings, useSettingHistory, useSettings } from '../api'
 import type { SettingItem, SettingValue } from '../types'
 import { REFERENCE_LISTS } from '../api'
+import { PeriodClosingPanel } from './PeriodClosingPanel'
 import { ReferenceListEditor } from './ReferenceListEditor'
 
 /**
@@ -134,6 +135,12 @@ export function SettingsView() {
             </ul>
           ))}
       </div>
+
+      <PeriodClosingPanel
+        enabled={settings.data.data
+          .flatMap((s) => s.items)
+          .some((i) => i.key === 'period_closing_enabled' && i.value === true)}
+      />
 
       <div className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">Daftar pilihan</h2>

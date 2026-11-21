@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Core\Period\ClosedPeriods;
 use App\Modules\Auth\Actions\Login;
 use App\Modules\Auth\Models\PersonalAccessToken;
 use App\Modules\Billing\Merge\MoveOutletInvoices;
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // KR-15: read once per request
+        $this->app->scoped(ClosedPeriods::class);
+
         // KR-08: each module moves its own rows when duplicates are merged
         $this->app->tag([
             MoveOutletTransactions::class, MoveOutletInvoices::class, MoveOutletStock::class, MoveOutletDiscounts::class,

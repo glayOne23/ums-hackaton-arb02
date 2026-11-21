@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Period\ClosedPeriods;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
@@ -32,6 +33,7 @@ final class ReceiveGoods
     {
         return DB::transaction(function () use ($data, $actor) {
             $date = isset($data['received_date']) ? Carbon::parse($data['received_date']) : now();
+            app(ClosedPeriods::class)->assertOpen($date, 'Barang masuk ini', 'received_date');
 
             $receipt = GoodsReceipt::query()->create([
                 'number' => DocumentNumber::next('inv_goods_receipts', 'BM', $date),

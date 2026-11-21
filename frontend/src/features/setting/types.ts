@@ -45,3 +45,19 @@ export interface ReferenceItem {
   name: string
   is_active: boolean
 }
+
+/** KR-15 tutup buku (GET /closed-periods). */
+export interface ClosedPeriodsInfo {
+  enabled: boolean
+  closed_through: { period: string; label: string } | null
+  /** Finished months that may be closed next, newest first */
+  offered: { period: string; label: string }[]
+  history: { id: number; title: string; by: string | null; at: string | null }[]
+}
+
+export interface ClosePreview {
+  period: string
+  label: string
+  blockers: string[]
+  notes: string[]
+}

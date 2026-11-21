@@ -3,6 +3,7 @@
 namespace App\Modules\Import\Actions;
 
 use App\Core\Models\ImportBatch;
+use App\Core\Period\ClosedPeriods;
 use App\Models\User;
 use App\Modules\Import\Types\ImportType;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,8 @@ final class RevertImport
         if ($batch->status === ImportBatch::REVERTED) {
             throw ValidationException::withMessages(['batch' => 'Impor ini sudah dibatalkan.']);
         }
+
+        app(ClosedPeriods::class)->assertOpen($batch->created_at, "Impor {$batch->file_name}", 'batch');
 
         DB::transaction(function () use ($type, $batch, $actor) {
             $type->revert($batch, $actor);
