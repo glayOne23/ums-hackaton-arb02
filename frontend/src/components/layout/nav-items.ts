@@ -1,4 +1,5 @@
 import {
+  ChartColumn,
   ClipboardList,
   LayoutDashboard,
   Wallet,
@@ -16,6 +17,7 @@ export interface NavItem {
   to:
     | '/office'
     | '/office/outlets'
+    | '/office/reports'
     | '/office/visits'
     | '/office/billing'
     | '/office/products'
@@ -35,6 +37,7 @@ export interface NavItem {
 const ITEMS: NavItem[] = [
   { to: '/office', label: 'Ringkasan', icon: LayoutDashboard, permissions: ['dashboard.view'], exact: true },
   { to: '/office/outlets', label: 'Outlet', icon: Store, permissions: ['outlet.view'] },
+  { to: '/office/reports', label: 'Laporan', icon: ChartColumn, permissions: ['report.view'] },
   { to: '/office/visits', label: 'Kunjungan', icon: ClipboardList, permissions: ['visit.view'] },
   { to: '/office/billing', label: 'Tagihan', icon: Wallet, permissions: ['invoice.view'] },
   { to: '/office/products', label: 'Produk', icon: Package, permissions: ['product.view'] },

@@ -47,7 +47,7 @@ final class Roles
                 'visit.view', 'invoice.view',
             ],
             self::OFFICE_ADMIN => [
-                'dashboard.view', 'report.view', 'outlet.view', 'outlet.view_all', 'outlet.manage',
+                'dashboard.view', 'report.view', 'target.manage', 'outlet.view', 'outlet.view_all', 'outlet.manage',
                 'product.view', 'product.manage', 'stock_request.view',
                 'visit.view', 'visit.correct',
                 'invoice.view', 'invoice.manage', 'remittance.receive',

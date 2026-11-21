@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Sales\Http\Controllers\SalesTargetController;
 use App\Modules\Sales\Http\Controllers\TransactionController;
 use App\Modules\Sales\Http\Controllers\WorkPackageController;
 use Illuminate\Support\Facades\Route;
@@ -16,5 +17,9 @@ Route::middleware('auth:sanctum')->prefix('sales')->group(function () {
     Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->whereUlid('transaction');
     Route::post('transactions/{transaction}/photo', [TransactionController::class, 'storePhoto'])
         ->middleware('can:visit.create')->whereUlid('transaction');
+
+    // PG-10: monthly targets per sales
+    Route::get('targets', [SalesTargetController::class, 'index'])->middleware('can:target.manage');
+    Route::put('targets', [SalesTargetController::class, 'update'])->middleware('can:target.manage');
     Route::get('transactions/{transaction}/photo', [TransactionController::class, 'photo'])->whereUlid('transaction');
 });

@@ -15,6 +15,7 @@ final class Permissions
     public const ALL = [
         'dashboard.view' => 'Lihat ringkasan',
         'report.view' => 'Lihat laporan',
+        'target.manage' => 'Atur target bulanan sales',
         'outlet.view' => 'Lihat outlet',
         'outlet.view_all' => 'Lihat semua outlet (bukan hanya outlet tugas sendiri)',
         'outlet.manage' => 'Tambah/ubah outlet & penugasan',
@@ -47,7 +48,7 @@ final class Permissions
      * @var array<string, list<string>> group title => permission names
      */
     public const GROUPS = [
-        'Ringkasan & laporan' => ['dashboard.view', 'report.view'],
+        'Ringkasan & laporan' => ['dashboard.view', 'report.view', 'target.manage'],
         'Outlet' => ['outlet.view', 'outlet.view_all', 'outlet.manage', 'outlet.propose'],
         'Kunjungan & penjualan' => ['visit.view', 'visit.create', 'visit.correct'],
         'Tagihan & setoran' => ['invoice.view', 'invoice.manage', 'payment.record', 'remittance.receive'],

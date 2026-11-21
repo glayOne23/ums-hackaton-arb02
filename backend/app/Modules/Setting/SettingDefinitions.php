@@ -24,6 +24,7 @@ final class SettingDefinitions
         'expiry' => 'Kedaluwarsa',
         'visit' => 'Kunjungan',
         'approval' => 'Persetujuan',
+        'report' => 'Laporan',
         'company' => 'Data perusahaan di nota',
         'later' => 'Belum dipakai',
     ];
@@ -74,6 +75,11 @@ final class SettingDefinitions
         'approve_stock_adjustment' => [
             'section' => 'approval', 'type' => 'bool', 'default' => false,
             'label' => 'Penyesuaian opname perlu disetujui',
+        ],
+        'slow_sell_through_percent' => [
+            'section' => 'report', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 100, 'suffix' => '%',
+            'label' => 'Produk disebut lambat laku bila lakunya di bawah',
+            'help' => 'Laku dibagi titipan awal dalam sebulan, di laporan perputaran stok (LP-04).',
         ],
         'company_name' => [
             'section' => 'company', 'type' => 'string', 'default' => "CV Arba'in Jaya Mandiri", 'max_length' => 100,
