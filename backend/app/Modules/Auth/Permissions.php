@@ -39,4 +39,24 @@ final class Permissions
         'setting.manage' => 'Ubah pengaturan aturan bisnis',
         'user.manage' => 'Kelola pengguna, peran & izin',
     ];
+
+    /**
+     * Rows of the Roles & Permissions screen (W9): one group per menu, in menu order.
+     * Every permission in ALL belongs to exactly one group.
+     *
+     * @var array<string, list<string>> group title => permission names
+     */
+    public const GROUPS = [
+        'Ringkasan & laporan' => ['dashboard.view', 'report.view'],
+        'Outlet' => ['outlet.view', 'outlet.view_all', 'outlet.manage', 'outlet.propose'],
+        'Kunjungan & penjualan' => ['visit.view', 'visit.create', 'visit.correct'],
+        'Tagihan & setoran' => ['invoice.view', 'invoice.manage', 'payment.record', 'remittance.receive'],
+        'Produk, harga & potongan' => ['product.view', 'product.manage', 'discount.approve'],
+        'Gudang' => ['inventory.view', 'inventory.manage', 'stock_adjustment.approve'],
+        'Permintaan barang' => ['stock_request.view', 'stock_request.create', 'stock_request.prepare', 'stock_request.approve'],
+        'Pengaturan' => ['setting.manage', 'user.manage'],
+    ];
+
+    /** The permission that must stay with at least one active user, or nobody can fix roles again. */
+    public const ADMIN = 'user.manage';
 }

@@ -24,7 +24,17 @@ final class Roles
         self::SALES => 'Sales',
     ];
 
-    /** Roles that land in the "field" area (sales phone screens) after signing in. */
+    public const AREA_FIELD = 'field';
+
+    public const AREA_OFFICE = 'office';
+
+    /** @var array<string, string> screen area => UI label */
+    public const AREAS = [
+        self::AREA_FIELD => 'Layar lapangan (HP sales)',
+        self::AREA_OFFICE => 'Layar kantor & gudang',
+    ];
+
+    /** Default roles whose users land in the field area after signing in. */
     public const FIELD_ROLES = [self::SALES];
 
     /** @return array<string, list<string>> role => default permissions */
