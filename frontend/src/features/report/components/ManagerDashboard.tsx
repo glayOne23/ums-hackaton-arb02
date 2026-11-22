@@ -1,5 +1,15 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, Clock, PackageMinus, Store, TrendingDown, Wallet } from 'lucide-react'
+import {
+  Banknote,
+  CalendarCheck,
+  CircleAlert,
+  Clock,
+  type LucideIcon,
+  PackageMinus,
+  Store,
+  TrendingDown,
+  Wallet,
+} from 'lucide-react'
 import { type ReactNode, useId } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
@@ -122,8 +132,8 @@ function SummaryBody({
   ]
   const actionItems = candidates.filter((item): item is ActionItem => item !== false)
 
-  const tile = 'flex h-full min-w-0 flex-col gap-1 rounded-lg border border-border bg-card p-3 sm:p-4'
-  const tileLink = `${tile} hover:border-primary hover:bg-accent`
+  const tile = 'flex h-full min-w-0 flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-3 sm:p-4'
+  const tileLink = `${tile} transition-shadow hover:border-primary hover:shadow-raised`
 
   return (
     <>
@@ -132,8 +142,10 @@ function SummaryBody({
           {report(
             'sales-performance',
             <>
-              <span className="text-muted-foreground">Omzet bulan ini</span>
-              <span className="text-xl font-semibold tabular-nums sm:text-2xl" title={formatCurrency(kpis.revenue)}>
+              <KpiLabel icon={Banknote} tone="brand">
+                Omzet bulan ini
+              </KpiLabel>
+              <span className="text-2xl font-bold tabular-nums sm:text-3xl" title={formatCurrency(kpis.revenue)}>
                 {formatCurrencyCompact(kpis.revenue)}
               </span>
               <span className="text-sm text-muted-foreground">{revenueNote}</span>
@@ -145,8 +157,10 @@ function SummaryBody({
           {report(
             'visits',
             <>
-              <span className="text-muted-foreground">Kunjungan</span>
-              <span className="text-xl font-semibold tabular-nums sm:text-2xl">
+              <KpiLabel icon={CalendarCheck} tone="info">
+                Kunjungan
+              </KpiLabel>
+              <span className="text-2xl font-bold tabular-nums sm:text-3xl">
                 {formatNumber(kpis.visits)}
                 {kpis.visit_target > 0 && (
                   <span className="text-lg font-normal text-muted-foreground">
@@ -166,8 +180,10 @@ function SummaryBody({
           {report(
             'unvisited-outlets',
             <>
-              <span className="text-muted-foreground">Belum dikunjungi</span>
-              <span className="text-xl font-semibold tabular-nums sm:text-2xl">
+              <KpiLabel icon={Store} tone={kpis.unvisited_outlets > 0 ? 'warning' : 'brand'}>
+                Belum dikunjungi
+              </KpiLabel>
+              <span className="text-2xl font-bold tabular-nums sm:text-3xl">
                 {formatNumber(kpis.unvisited_outlets)} outlet
               </span>
               <span className="text-sm text-muted-foreground">lewat siklus kunjungan</span>
@@ -177,8 +193,10 @@ function SummaryBody({
         </li>
         <li>
           <Link to="/office/billing" className={tileLink}>
-            <span className="text-muted-foreground">Belum dibayar</span>
-            <span className="text-xl font-semibold tabular-nums sm:text-2xl">
+            <KpiLabel icon={Wallet} tone={kpis.unpaid_outlets > 0 ? 'warning' : 'brand'}>
+              Belum dibayar
+            </KpiLabel>
+            <span className="text-2xl font-bold tabular-nums sm:text-3xl">
               {formatNumber(kpis.unpaid_outlets)} outlet
             </span>
             <span className="text-sm text-muted-foreground">{formatCurrency(kpis.unpaid_amount)}</span>
@@ -320,10 +338,34 @@ function SummaryBody({
   )
 }
 
+type Tone = 'brand' | 'info' | 'warning' | 'danger'
+
+const TONE: Record<Tone, string> = {
+  brand: 'bg-tile-brand text-leaf-700',
+  info: 'bg-tile-info text-info',
+  warning: 'bg-tile-warning text-warning-text',
+  danger: 'bg-tile-danger text-danger',
+}
+
+/** KPI label with an icon tile. The tile colour follows the status meaning (UI guide §2.3), never decoration. */
+function KpiLabel({ icon: Icon, tone, children }: { icon: LucideIcon; tone: Tone; children: ReactNode }) {
+  return (
+    <span className="flex items-center gap-2">
+      <span className={cn('grid size-9 shrink-0 place-items-center rounded-md', TONE[tone])} aria-hidden>
+        <Icon className="size-5" />
+      </span>
+      <span className="font-medium text-muted-foreground">{children}</span>
+    </span>
+  )
+}
+
 function Panel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   const id = useId()
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+    <section
+      aria-labelledby={id}
+      className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4"
+    >
       <header>
         <h2 id={id} className="text-lg font-semibold">
           {title}

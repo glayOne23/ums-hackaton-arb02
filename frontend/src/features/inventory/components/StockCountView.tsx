@@ -120,7 +120,7 @@ function CountForm({ counts, setCounts, reason, setReason }: CountFormProps) {
       {rows.length === 0 ? (
         <p className="text-muted-foreground">Belum ada stok di gudang untuk dihitung.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
           {shown.map(({ product, batch }) => {
             const physical = counts[batch.id] ?? batch.qty
             const difference = physical - batch.qty
@@ -232,7 +232,7 @@ function AdjustmentCard({
   const pending = adjustment.status.value === 'pending'
 
   return (
-    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-semibold">{adjustment.number}</p>

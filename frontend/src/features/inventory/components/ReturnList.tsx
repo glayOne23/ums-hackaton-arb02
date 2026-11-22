@@ -39,14 +39,14 @@ export function ReturnList() {
       ) : returns.isError ? (
         <ErrorState message={returns.error.message} onRetry={() => returns.refetch()} />
       ) : returns.data.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <Undo2 className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">Belum ada retur.</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-3">
           {returns.data.data.map((ret) => (
-            <li key={ret.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+            <li key={ret.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
               <span className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="flex flex-wrap items-center gap-2">
                   <span className={cn('text-lg font-semibold', ret.status === 'void' && 'line-through')}>

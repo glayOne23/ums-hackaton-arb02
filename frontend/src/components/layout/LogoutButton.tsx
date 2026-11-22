@@ -10,7 +10,7 @@ export function LogoutButton() {
   return (
     <Button
       variant="ghost"
-      className="text-leaf-700"
+      className="text-link"
       disabled={logout.isPending}
       onClick={() => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login', replace: true }) })}
     >

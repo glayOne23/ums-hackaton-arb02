@@ -101,12 +101,12 @@ export function UserList() {
       ) : users.isError ? (
         <ErrorState message={users.error.message} onRetry={() => users.refetch()} />
       ) : users.data.length === 0 ? (
-        <p className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+        <p className="rounded-lg border border-border bg-card shadow-card p-6 text-center text-muted-foreground">
           Tidak ada pengguna yang cocok.
         </p>
       ) : (
         <ul
-          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card"
+          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card"
           aria-label="Daftar pengguna"
         >
           {users.data.map((user) => (

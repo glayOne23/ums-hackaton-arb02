@@ -82,7 +82,7 @@ export function PriceListView({ outletTypeId, date, onChange }: Props) {
       </div>
 
       {outletTypeId === '' ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <ReceiptText className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">Pilih jenis outlet untuk melihat harganya.</p>
         </div>
@@ -93,7 +93,7 @@ export function PriceListView({ outletTypeId, date, onChange }: Props) {
       ) : priceList.data.data.length === 0 ? (
         <p className="text-muted-foreground">Belum ada produk aktif.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card print:border-0">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card print:border-0">
           <table className="w-full text-left">
             <thead className="bg-muted">
               <tr>

@@ -28,7 +28,7 @@ export function UpdatePrompt() {
   return (
     <div
       role="status"
-      className="fixed inset-x-3 top-3 z-50 mx-auto flex max-w-md flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3 shadow-lg print:hidden"
+      className="fixed inset-x-3 top-3 z-50 mx-auto flex max-w-md flex-wrap items-center gap-3 rounded-lg border border-border bg-card shadow-card p-3 shadow-lg print:hidden"
     >
       <RefreshCw className="size-5 shrink-0 text-leaf-700" aria-hidden />
       <p className="min-w-0 flex-1">Versi baru SIGAP tersedia.</p>

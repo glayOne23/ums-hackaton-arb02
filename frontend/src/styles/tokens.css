@@ -9,6 +9,7 @@
   --color-leaf-600: #15803d; /* primary — 5.0:1 on white */
   --color-leaf-700: #166534; /* primary pressed / high contrast — 7.1:1 */
   --color-leaf-800: #14532d;
+  --color-leaf-900: #0f3d22; /* brand header pressed */
 
   /* --- Brand accent: honey (logo & login screen only, not working UI) --- */
   --color-honey-400: #fbbf24;
@@ -31,6 +32,10 @@
   --radius-md: 10px;
   --radius-lg: 14px;
 
+  /* --- Depth (UI guide §4): soft, low shadows; never stacked or blurred glass --- */
+  --shadow-card: 0 1px 2px rgb(20 40 24 / 0.06), 0 1px 3px rgb(20 40 24 / 0.08);
+  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.10), 0 1px 3px rgb(20 40 24 / 0.08);
+
   /* --- Motion --- */
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
@@ -40,7 +45,8 @@
 :root {
   --radius: 10px;
 
-  --background: var(--color-earth-50);
+  /* Very light leaf tint: cards stand out, text keeps ≥ 6.9:1 (secondary) and 15.9:1 (main) */
+  --background: #f1f5f0;
   --foreground: var(--color-earth-900);
   --card: #ffffff;
   --card-foreground: var(--color-earth-900);
@@ -51,7 +57,7 @@
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
   --secondary-foreground: var(--color-earth-900);
-  --muted: var(--color-earth-100);
+  --muted: #e9efe7;
   --muted-foreground: var(--color-earth-600);
   --accent: var(--color-leaf-50);
   --accent-foreground: var(--color-leaf-800);
@@ -59,9 +65,14 @@
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: var(--color-earth-300);
+  --border: #dbe3d8; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
   --input: var(--color-earth-500);
   --ring: var(--color-leaf-600);
+
+  /* Brand surface: app header (white on leaf-700 = 7.1:1, readable in sunlight) */
+  --brand: var(--color-leaf-700);
+  --brand-foreground: #ffffff;
+  --link: var(--color-leaf-700);
 
   /* Status: soft (chip/banner background), text (on soft background), strong (icon/button) */
   --danger: #b91c1c;
@@ -76,6 +87,12 @@
   --info: #1d4ed8;
   --info-soft: #eff6ff;
   --info-text: #1e40af;
+
+  /* Icon tiles (KPI cards, avatars): tinted square + strong icon, all ≥ 5:1 */
+  --tile-brand: var(--color-leaf-100);
+  --tile-info: #dbeafe;
+  --tile-warning: #fef3c7;
+  --tile-danger: #fee2e2;
 
   /* Charts: categorical series. Red/yellow/orange are left out on purpose (they already mean status). */
   --chart-1: #15803d;
@@ -95,6 +112,22 @@
   --input: var(--color-earth-900);
   --ring: var(--color-leaf-700);
   --warning-text: #78350f;
+  --shadow-card: none;
+}
+
+/* Inside the brand header: text, icons, and hover/focus switch to light on dark green */
+[data-surface="brand"] {
+  --foreground: var(--brand-foreground);
+  --muted-foreground: var(--color-leaf-100); /* 6.5:1 on leaf-700 */
+  --accent: rgb(255 255 255 / 0.14);
+  --accent-foreground: #ffffff;
+  --ring: #ffffff;
+  --link: #ffffff;
+  background-color: var(--brand);
+  color: var(--foreground);
+}
+:root[data-contrast="high"] [data-surface="brand"] {
+  --muted-foreground: #ffffff;
 }
 
 /* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
@@ -122,6 +155,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-link: var(--link);
+  --color-tile-brand: var(--tile-brand);
+  --color-tile-info: var(--tile-info);
+  --color-tile-warning: var(--tile-warning);
+  --color-tile-danger: var(--tile-danger);
 
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);

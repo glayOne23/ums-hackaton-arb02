@@ -68,7 +68,7 @@ export function StockCardView({ productId }: { productId: string }) {
       ) : card.isError ? (
         <ErrorState message={card.error.message} onRetry={() => card.refetch()} />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
           <table className="w-full text-left">
             <thead className="bg-muted text-sm text-muted-foreground">
               <tr>

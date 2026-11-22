@@ -16,7 +16,7 @@ export function OfficeSideNav() {
               to={to}
               activeOptions={{ exact: exact ?? false }}
               className="flex h-11 items-center gap-3 rounded-md px-3 font-medium text-foreground hover:bg-accent"
-              activeProps={{ className: 'bg-accent text-accent-foreground' }}
+              activeProps={{ className: 'bg-tile-brand font-semibold text-leaf-800' }}
             >
               <Icon className="size-5" aria-hidden />
               {label}
@@ -47,11 +47,14 @@ export function OfficeBottomNav() {
   // "Lainnya" also holds Bantuan (UX-09), so it shows once a fourth slot is needed
   const overflow = all.length >= BOTTOM_LIMIT
   const items = overflow ? all.slice(0, BOTTOM_LIMIT - 1) : all
-  const linkClass = 'flex h-16 flex-col items-center justify-center gap-1 text-sm text-muted-foreground'
-  const activeClass = 'font-semibold text-leaf-700'
+  const linkClass = 'group flex h-16 flex-col items-center justify-center gap-0.5 text-sm text-muted-foreground'
+  const activeClass = 'font-semibold text-leaf-800'
 
   return (
-    <nav aria-label="Menu utama" className="sticky bottom-0 z-10 border-t border-border bg-card lg:hidden print:hidden">
+    <nav
+      aria-label="Menu utama"
+      className="sticky bottom-0 z-10 border-t border-border bg-card shadow-[0_-1px_3px_rgb(20_40_24/0.08)] lg:hidden print:hidden"
+    >
       <ul className="mx-auto flex max-w-xl">
         {items.map(({ to, label, icon: Icon, exact }) => (
           <li key={to} className="flex-1">
@@ -61,7 +64,9 @@ export function OfficeBottomNav() {
               className={linkClass}
               activeProps={{ className: activeClass }}
             >
-              <Icon className="size-6" aria-hidden />
+              <span className="grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
+                <Icon className="size-6" aria-hidden />
+              </span>
               {label}
             </Link>
           </li>
@@ -69,13 +74,15 @@ export function OfficeBottomNav() {
         {overflow ? (
           <li className="flex-1">
             <Link to="/office/menu" className={linkClass} activeProps={{ className: activeClass }}>
-              <Ellipsis className="size-6" aria-hidden />
+              <span className="grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
+                <Ellipsis className="size-6" aria-hidden />
+              </span>
               Lainnya
             </Link>
           </li>
         ) : (
           <li className="flex-1">
-            <HelpButton className={`${linkClass} w-full`} />
+            <HelpButton className={`${linkClass} w-full`} iconWrapClassName="grid h-8 w-14 place-items-center" />
           </li>
         )}
       </ul>

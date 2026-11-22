@@ -44,7 +44,7 @@ function ProposalCard({ proposal: p }: { proposal: OutletProposal }) {
   const [note, setNote] = useState('')
 
   return (
-    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
       <div>
         <p className="text-lg font-semibold wrap-break-word">
           {p.name} <span className="text-base font-normal text-muted-foreground">· {p.code}</span>

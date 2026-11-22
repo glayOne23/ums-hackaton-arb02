@@ -23,13 +23,17 @@ function OfficeLayout() {
   return (
     <div className="flex min-h-dvh flex-col">
       <OutboxSync />
-      <header className="sticky top-0 z-10 print:hidden flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6 lg:px-8">
+      {/* Brand band (UI guide §2.1): white on dark green, 7.1:1 */}
+      <header
+        data-surface="brand"
+        className="sticky top-0 z-10 print:hidden flex items-center justify-between gap-4 px-4 py-3 shadow-raised sm:px-6 lg:px-8"
+      >
         <div className="flex items-center gap-3">
-          <span className="grid size-9 place-items-center rounded-md bg-primary text-primary-foreground">
+          <span className="grid size-9 place-items-center rounded-md bg-white text-leaf-700">
             <Leaf className="size-5" aria-hidden />
           </span>
           {/* Phones: the logo alone, so the bell and "Keluar" still fit in 360 px */}
-          <span className="hidden text-lg font-semibold min-[400px]:inline">SIGAP</span>
+          <span className="hidden text-lg font-bold tracking-wide min-[400px]:inline">SIGAP</span>
         </div>
         <div className="flex items-center gap-1 sm:gap-4">
           <ConnectionStatus />

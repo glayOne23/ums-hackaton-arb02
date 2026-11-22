@@ -120,12 +120,14 @@ function HelpContent({ onDone }: { onDone: () => void }) {
 }
 
 /** The "Bantuan" button in the office side menu and on the phone menu. */
-export function HelpButton({ className }: { className?: string }) {
+/** `iconWrapClassName` lines the icon up with the pill-shaped icons of the bottom menus. */
+export function HelpButton({ className, iconWrapClassName }: { className?: string; iconWrapClassName?: string }) {
+  const icon = <CircleHelp className="size-6 shrink-0" aria-hidden />
   return (
     <HelpSheet
       trigger={(open) => (
         <button type="button" onClick={open} className={className}>
-          <CircleHelp className="size-6 shrink-0" aria-hidden />
+          {iconWrapClassName ? <span className={iconWrapClassName}>{icon}</span> : icon}
           Bantuan
         </button>
       )}

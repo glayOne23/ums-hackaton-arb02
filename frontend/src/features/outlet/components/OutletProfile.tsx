@@ -91,7 +91,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
         </div>
       </header>
 
-      <section className="grid gap-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 sm:p-6">
+      <section className="grid gap-4 rounded-lg border border-border bg-card shadow-card p-4 sm:grid-cols-2 sm:p-6">
         <Info label="Alamat" value={outlet.address} />
         <Info label="Nomor WA pemilik" value={outlet.whatsapp_number} />
         <Info
@@ -101,7 +101,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
         <Info label="Sales penanggung jawab" value={outlet.sales?.map((s) => s.name).join(', ') || 'Belum ada'} />
       </section>
 
-      <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 sm:p-6">
+      <section className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Penugasan sales</h2>
           {canManage && !editingAssignment && (

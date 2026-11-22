@@ -120,7 +120,7 @@ function TemplateStep({ type }: { type: ImportTypeInfo }) {
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">2. Isi template</h2>
-      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4">
         <p>
           Kolom:{' '}
           {type.columns.map((c, i) => (
@@ -228,12 +228,12 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
+        <p className="rounded-lg border border-border bg-card shadow-card p-6 text-center text-muted-foreground">
           Tidak ada baris di sini.
         </p>
       ) : (
         <ul
-          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card"
+          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card"
           aria-label="Baris file"
         >
           {rows.slice(0, SHOWN_ROWS).map((row) => (
@@ -382,7 +382,7 @@ function History({ batches }: { batches: ImportBatchItem[] }) {
         <p className="text-muted-foreground">Belum pernah ada impor.</p>
       ) : (
         <ul
-          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card"
+          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card"
           aria-label="Riwayat impor"
         >
           {batches.map((batch) => (

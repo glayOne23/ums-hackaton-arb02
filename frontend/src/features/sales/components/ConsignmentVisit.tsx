@@ -123,7 +123,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
             Tidak ada yang laku
           </Button>
           <p className="text-muted-foreground">atau ubah sisa yang berkurang:</p>
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
             {shelf.map((line, i) => (
               <ShelfLine
                 key={line.productId}
@@ -136,7 +136,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
           </ul>
         </>
       ) : (
-        <p className="rounded-lg border border-border bg-card p-4 text-lg">
+        <p className="rounded-lg border border-border bg-card shadow-card p-4 text-lg">
           Belum ada titipan di outlet ini. Titipkan barang dari stok bawaan di bawah.
         </p>
       )}
@@ -154,7 +154,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
             <ChevronDown className={showOthers ? 'rotate-180' : ''} aria-hidden />
           </Button>
           {showOthers && (
-            <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+            <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
               {others.map((line, i) => (
                 <li key={line.productId} className="flex flex-col gap-2 p-3">
                   <p className="text-lg font-semibold">{line.name}</p>

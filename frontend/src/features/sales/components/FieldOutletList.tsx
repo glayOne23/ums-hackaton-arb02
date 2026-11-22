@@ -52,7 +52,7 @@ export function FieldOutletList() {
         <Input
           type="search"
           aria-label="Cari outlet"
-          className="h-12 pl-10 text-base sm:h-12"
+          className="h-12 bg-card pl-10 text-base shadow-card sm:h-12"
           placeholder="Cari outlet…"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -116,51 +116,68 @@ function OutletRow({ outlet, done }: { outlet: PackageOutlet; done: boolean }) {
   const nearExpiry = outlet.stock.filter((s) => s.near_expiry_qty > 0).length
   const consignment = outlet.sale_mode.value === 'consignment'
   const veryLong = days === null || days >= outlet.visit_cycle_days * 2
+  // Left accent = the most urgent sign on the card (UI guide §2.3), read before the text
+  const accent: Accent =
+    nearExpiry > 0 ? 'danger' : done ? 'success' : outlet.unpaid > 0 || veryLong ? 'warning' : 'none'
 
   return (
-    <li className="flex items-stretch gap-2 rounded-lg border border-border bg-card">
+    <li
+      className={cn(
+        'flex items-stretch gap-2 rounded-lg border border-l-4 border-border bg-card shadow-card',
+        ACCENT[accent],
+      )}
+    >
       <Link
         to={consignment ? '/field/visit/$outletId' : '/field/sale/$outletId'}
         params={{ outletId: outlet.id }}
-        className="flex min-w-0 flex-1 flex-col gap-1 rounded-lg p-4 active:bg-accent"
+        className="flex min-w-0 flex-1 gap-3 rounded-lg p-4 active:bg-accent"
       >
-        <span className="flex flex-wrap items-baseline justify-between gap-x-3">
-          {/* Wrap, never cut: the end of a name is often what tells two outlets apart */}
-          <span className="text-lg font-semibold wrap-break-word">{outlet.name}</span>
-          <span className="text-muted-foreground">{outlet.region}</span>
+        {/* Decoration only: hidden at larger text sizes (UX-08) so the name and signs keep the room */}
+        <span
+          className="grid size-11 shrink-0 place-items-center rounded-full bg-tile-brand text-base font-bold text-leaf-800 [:root[data-font-size]_&]:hidden"
+          aria-hidden
+        >
+          {initials(outlet.name)}
         </span>
-        <span className="text-muted-foreground">
-          {consignment ? '' : `${outlet.sale_mode.label} · `}
-          {done ? (
-            <span className="font-medium text-success-text">Selesai hari ini</span>
-          ) : days === null ? (
-            <span className="font-medium text-warning-text">Belum pernah dikunjungi</span>
-          ) : (
-            <span className={cn(veryLong && 'font-medium text-warning-text')}>
-              {days === 0 ? 'Dikunjungi hari ini' : `${days} hari lalu`}
-              {veryLong && ' (sangat lama)'}
+        <span className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="flex flex-wrap items-baseline justify-between gap-x-3">
+            {/* Wrap, never cut: the end of a name is often what tells two outlets apart */}
+            <span className="text-lg font-semibold wrap-break-word">{outlet.name}</span>
+            <span className="text-muted-foreground">{outlet.region}</span>
+          </span>
+          <span className="text-muted-foreground">
+            {consignment ? '' : `${outlet.sale_mode.label} · `}
+            {done ? (
+              <span className="font-medium text-success-text">Selesai hari ini</span>
+            ) : days === null ? (
+              <span className="font-medium text-warning-text">Belum pernah dikunjungi</span>
+            ) : (
+              <span className={cn(veryLong && 'font-medium text-warning-text')}>
+                {days === 0 ? 'Dikunjungi hari ini' : `${days} hari lalu`}
+                {veryLong && ' (sangat lama)'}
+              </span>
+            )}
+          </span>
+          {(done || outlet.unpaid > 0 || nearExpiry > 0) && (
+            <span className="flex flex-wrap gap-2 pt-1">
+              {done && (
+                <StatusChip variant="success" icon={CircleCheck}>
+                  Selesai
+                </StatusChip>
+              )}
+              {outlet.unpaid > 0 && (
+                <StatusChip variant="warning" icon={Wallet}>
+                  Belum bayar {formatCurrencyCompact(outlet.unpaid)}
+                </StatusChip>
+              )}
+              {nearExpiry > 0 && (
+                <StatusChip variant="danger" icon={CircleAlert}>
+                  {nearExpiry} produk dekat kedaluwarsa
+                </StatusChip>
+              )}
             </span>
           )}
         </span>
-        {(done || outlet.unpaid > 0 || nearExpiry > 0) && (
-          <span className="flex flex-wrap gap-2 pt-1">
-            {done && (
-              <StatusChip variant="success" icon={CircleCheck}>
-                Selesai
-              </StatusChip>
-            )}
-            {outlet.unpaid > 0 && (
-              <StatusChip variant="warning" icon={Wallet}>
-                Belum bayar {formatCurrencyCompact(outlet.unpaid)}
-              </StatusChip>
-            )}
-            {nearExpiry > 0 && (
-              <StatusChip variant="danger" icon={CircleAlert}>
-                {nearExpiry} produk dekat kedaluwarsa
-              </StatusChip>
-            )}
-          </span>
-        )}
       </Link>
       {outlet.whatsapp_number && (
         <a
@@ -175,6 +192,36 @@ function OutletRow({ outlet, done }: { outlet: PackageOutlet; done: boolean }) {
       )}
     </li>
   )
+}
+
+type Accent = 'danger' | 'warning' | 'success' | 'none'
+
+const ACCENT: Record<Accent, string> = {
+  danger: 'border-l-danger',
+  warning: 'border-l-warning',
+  success: 'border-l-success',
+  none: 'border-l-border',
+}
+
+/** Words that only say what kind of shop it is; skipped so "Apotek Sari Sehat" reads "SS". */
+const SHOP_WORDS = new Set([
+  'ap',
+  'apotek',
+  'apotik',
+  'toko',
+  'tk',
+  'to',
+  'depot',
+  'minimarket',
+  'swalayan',
+  'koperasi',
+  'contoh',
+])
+
+function initials(name: string): string {
+  const words = name.split(/\s+/).filter((w) => w && !SHOP_WORDS.has(w.toLowerCase()))
+  const picked = (words.length > 0 ? words : name.split(/\s+/)).slice(0, 2)
+  return picked.map((w) => w[0]?.toUpperCase() ?? '').join('')
 }
 
 function FilterChip({
@@ -193,7 +240,7 @@ function FilterChip({
       onClick={onClick}
       className={cn(
         'h-11 rounded-full border px-4 text-base',
-        active ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'border-border bg-card',
+        active ? 'border-leaf-700 bg-leaf-700 font-semibold text-white' : 'border-border bg-card shadow-card',
       )}
     >
       {children}

@@ -54,7 +54,7 @@ function MyProposals() {
       <h2 id="my-proposals" className="text-lg font-semibold">
         Usulan saya
       </h2>
-      <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+      <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
         {proposals.data.map((p) => (
           <li key={p.id} className="flex flex-col gap-1 p-3">
             <span className="flex flex-wrap items-center justify-between gap-2">

@@ -94,7 +94,7 @@ export function InvoiceList() {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 print:hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card shadow-card p-4 print:hidden">
             <p className="text-lg">
               {groups.length} outlet · {shown.length} tagihan ·{' '}
               <span className="font-semibold tabular-nums">{formatCurrency(total)}</span>
@@ -119,7 +119,7 @@ export function InvoiceList() {
 
           <ul className="flex flex-col gap-3 print:hidden">
             {groups.map((group) => (
-              <li key={group.outletId} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+              <li key={group.outletId} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-lg font-semibold wrap-break-word">{group.outlet.name}</p>

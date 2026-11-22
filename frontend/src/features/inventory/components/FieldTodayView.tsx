@@ -21,16 +21,17 @@ export function FieldTodayView() {
         ) : stock.isError ? (
           <ErrorState message={stock.error.message} onRetry={() => stock.refetch()} />
         ) : stock.data.data.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-10 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-10 text-center">
             <PackageOpen className="size-12 text-muted-foreground" aria-hidden />
             <p className="text-lg">Belum membawa barang.</p>
           </div>
         ) : (
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
             {stock.data.data.map((row) => (
               <li key={row.product.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <span className="text-lg">{row.product.name}</span>
-                <span className="text-xl font-semibold tabular-nums">
+                <span className="min-w-0 text-lg">{row.product.name}</span>
+                {/* Number and unit stay on one line, right-aligned, so the column lines up */}
+                <span className="shrink-0 text-right text-xl font-semibold whitespace-nowrap tabular-nums">
                   {formatNumber(row.qty)}{' '}
                   <span className="text-base font-normal text-muted-foreground">{row.product.unit}</span>
                 </span>
@@ -49,7 +50,10 @@ export function FieldTodayView() {
         ) : (
           <ul className="flex flex-col gap-3">
             {recent.map((request) => (
-              <li key={request.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+              <li
+                key={request.id}
+                className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4"
+              >
                 <span className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-muted-foreground">{formatTableDate(new Date(request.created_at))}</span>
                   <StockRequestStatusChip status={request.status} />

@@ -90,7 +90,7 @@ export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: Sent<StockRetur
       </div>
 
       {salesId && carried.data && (
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="rounded-lg border border-border bg-card shadow-card p-4">
           <p className="mb-2 font-medium">Bawaan {carried.data.sales.name} sekarang</p>
           {carried.data.data.length === 0 ? (
             <p className="text-muted-foreground">Sales ini tidak membawa barang.</p>
@@ -110,7 +110,7 @@ export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: Sent<StockRetur
       <fieldset className="flex flex-col gap-3" disabled={!salesId}>
         <legend className="mb-2 text-base font-medium">Barang yang dikembalikan</legend>
         {lines.map((line, i) => (
-          <div key={line.key} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+          <div key={line.key} className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4">
             <div className="grid gap-3 sm:grid-cols-[2fr_100px_auto] sm:items-start">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`rproduct-${line.key}`}>Produk (wajib)</Label>

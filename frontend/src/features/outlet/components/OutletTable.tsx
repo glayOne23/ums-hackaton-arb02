@@ -62,7 +62,7 @@ export function OutletTable({ outlets }: { outlets: Outlet[] }) {
   const table = useTable({ features, columns, data: outlets })
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
       <table className="w-full text-left">
         <thead className="sticky top-0 bg-muted">
           {table.getHeaderGroups().map((group) => (
@@ -110,7 +110,7 @@ export function OutletCards({ outlets }: { outlets: Outlet[] }) {
           <Link
             to="/office/outlets/$outletId"
             params={{ outletId: outlet.id }}
-            className="flex flex-col gap-1 rounded-lg border border-border bg-card p-4 active:bg-accent"
+            className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4 active:bg-accent"
           >
             <span className="flex items-start justify-between gap-2">
               <span className="text-lg font-semibold">{outlet.name}</span>

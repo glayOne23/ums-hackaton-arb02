@@ -60,7 +60,7 @@ export function SettingsView() {
       </header>
 
       {settings.data.data.map((section) => (
-        <fieldset key={section.key} className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4">
+        <fieldset key={section.key} className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4">
           <legend className="px-1 text-lg font-semibold">{section.title}</legend>
           {section.key === 'later' && (
             <p className="flex items-center gap-2 text-muted-foreground">
@@ -122,7 +122,7 @@ export function SettingsView() {
           ) : history.data.length === 0 ? (
             <p className="text-muted-foreground">Belum ada perubahan.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+            <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
               {history.data.map((change) => (
                 <li key={change.id} className="flex flex-col gap-0.5 p-3">
                   <span className="font-medium">{change.label}</span>

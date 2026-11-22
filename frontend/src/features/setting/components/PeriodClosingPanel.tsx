@@ -28,7 +28,7 @@ export function PeriodClosingPanel({ enabled }: { enabled: boolean }) {
   return (
     <section
       aria-labelledby={`${id}-title`}
-      className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4"
+      className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4"
     >
       <h2 id={`${id}-title`} className="flex items-center gap-2 text-lg font-semibold">
         <BookLock className="size-5" aria-hidden />

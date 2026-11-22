@@ -104,7 +104,7 @@ export function WarehouseStockView() {
       ) : stock.isError ? (
         <ErrorState message={stock.error.message} onRetry={() => stock.refetch()} />
       ) : rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <PackageOpen className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">{filter === 'attention' ? 'Semua stok aman.' : 'Tidak ada produk yang cocok.'}</p>
         </div>
@@ -135,7 +135,7 @@ function StockRow({ row }: { row: ProductStock }) {
   const { product } = row
 
   return (
-    <li className="rounded-lg border border-border bg-card">
+    <li className="rounded-lg border border-border bg-card shadow-card">
       <button
         type="button"
         aria-expanded={open}

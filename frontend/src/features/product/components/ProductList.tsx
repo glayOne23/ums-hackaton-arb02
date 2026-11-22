@@ -178,7 +178,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
       ) : products.isError ? (
         <ErrorState message={products.error.message} onRetry={() => products.refetch()} />
       ) : products.data.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <Package className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">
             {deleted
@@ -197,7 +197,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
         <DeletedProducts products={products.data.data} />
       ) : (
         <>
-          <div className="hidden overflow-hidden rounded-lg border border-border bg-card sm:block">
+          <div className="hidden overflow-hidden rounded-lg border border-border bg-card shadow-card sm:block">
             <table className="w-full text-left">
               <thead className="bg-muted">
                 {table.getHeaderGroups().map((group) => (
@@ -237,7 +237,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
                 <Link
                   to="/office/products/$productId"
                   params={{ productId: product.id }}
-                  className="flex flex-col gap-1 rounded-lg border border-border bg-card p-4 active:bg-accent"
+                  className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4 active:bg-accent"
                 >
                   <span className="flex items-start justify-between gap-2">
                     <span className="text-lg font-semibold">{product.name}</span>
@@ -309,7 +309,7 @@ function DeletedProducts({ products }: { products: Product[] }) {
         return (
           <li
             key={product.id}
-            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 sm:flex-nowrap"
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card shadow-card p-4 sm:flex-nowrap"
           >
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="flex flex-wrap items-center gap-2">

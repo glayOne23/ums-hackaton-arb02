@@ -75,7 +75,7 @@ function Content({ product }: { product: Product }) {
         )}
       </header>
 
-      <section className="grid gap-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 sm:p-6">
+      <section className="grid gap-4 rounded-lg border border-border bg-card shadow-card p-4 sm:grid-cols-2 sm:p-6">
         <Info label="Harga jual" value={formatCurrency(product.selling_price)} />
         <Info label="Nomor BPOM" value={product.bpom_number} />
         <Info label="Stok minimum gudang" value={`${formatNumber(product.min_stock_qty)} ${product.unit}`} />

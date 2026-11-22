@@ -61,7 +61,7 @@ export function VisitList() {
                 <Link
                   to="/office/visits/$transactionId"
                   params={{ transactionId: t.id }}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4 hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <span className="min-w-0">
                     <span className="block font-semibold wrap-break-word">{t.outlet?.name}</span>

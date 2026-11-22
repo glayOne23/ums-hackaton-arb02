@@ -23,7 +23,7 @@ export function DeletedOutletList({ outlets }: { outlets: Outlet[] }) {
         return (
           <li
             key={outlet.id}
-            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 sm:flex-nowrap"
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card shadow-card p-4 sm:flex-nowrap"
           >
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <span className="flex flex-wrap items-center gap-2">

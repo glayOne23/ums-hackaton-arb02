@@ -82,7 +82,7 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
       />
 
       {carried.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-10 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-10 text-center">
           <PackageOpen className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">Belum membawa barang. Minta barang ke gudang dulu.</p>
         </div>
@@ -102,7 +102,7 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
             {shown.map((c) => {
               const n = qty[c.product_id] ?? 0
               return (

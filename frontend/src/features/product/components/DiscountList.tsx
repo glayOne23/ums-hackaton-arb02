@@ -107,7 +107,7 @@ export function DiscountList({
       ) : discounts.isError ? (
         <ErrorState message={discounts.error.message} onRetry={() => discounts.refetch()} />
       ) : discounts.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <Percent className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">Tidak ada potongan di sini.</p>
         </div>
@@ -159,7 +159,7 @@ function DiscountRow({ discount }: { discount: Discount }) {
     )
 
   return (
-    <li className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center">
+    <li className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4 sm:flex-row sm:items-center">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="flex flex-wrap items-center gap-2">
           <span className="text-2xl font-semibold tabular-nums">

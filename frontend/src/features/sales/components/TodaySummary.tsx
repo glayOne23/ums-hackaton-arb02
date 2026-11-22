@@ -20,7 +20,7 @@ export function TodaySummary() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
         <h1 className="text-xl font-semibold">Hari ini · {formatDate(now)}</h1>
         <p className="flex justify-between text-lg">
           <span>Dikunjungi</span>
@@ -49,7 +49,7 @@ export function TodaySummary() {
                 <Link
                   to="/field/receipt/$clientUuid"
                   params={{ clientUuid: r.client_uuid }}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card p-3 active:bg-accent"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card shadow-card p-3 active:bg-accent"
                 >
                   <span className="min-w-0">
                     <span className="block font-medium wrap-break-word">{r.outlet.name}</span>

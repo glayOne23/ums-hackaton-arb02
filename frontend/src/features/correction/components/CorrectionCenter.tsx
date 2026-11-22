@@ -107,7 +107,7 @@ function ReviewList() {
         ) : devices.data.length === 0 ? (
           <Empty text="Semua HP sales sudah mengirim datanya." />
         ) : (
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
             {devices.data.map((d) => (
               <li key={d.user.id} className="flex flex-col gap-1 p-3">
                 <p className="flex flex-wrap items-center gap-2 font-medium">
@@ -146,7 +146,7 @@ function ReviewRow({ transaction: t }: { transaction: Transaction }) {
   const at = new Date(t.transacted_at)
 
   return (
-    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+    <li className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <Link
@@ -239,7 +239,7 @@ function TrashList() {
       {trash.data.data.length === 0 ? (
         <Empty text="Tempat sampah kosong." icon={Trash2} />
       ) : (
-        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
           {trash.data.data.map((item) => (
             <TrashRow key={`${item.type}-${item.id}`} item={item} />
           ))}

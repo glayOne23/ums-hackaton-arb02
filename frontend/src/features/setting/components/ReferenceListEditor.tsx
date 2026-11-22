@@ -38,7 +38,7 @@ export function ReferenceListEditor({
     )
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4">
       <h3 className="font-semibold">{title}</h3>
       <form
         className="flex gap-2"

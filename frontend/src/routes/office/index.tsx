@@ -18,7 +18,7 @@ function Dashboard() {
   // Warehouse staff open the office area too, but work from their own menu
   if (!allowed) {
     return (
-      <section className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card py-16 text-center">
+      <section className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card py-16 text-center">
         <LayoutDashboard className="size-12 text-muted-foreground" aria-hidden />
         <h1 className="text-xl font-semibold">Selamat bekerja</h1>
         <p className="text-muted-foreground">Pilih menu kerja Anda di samping atau di bawah layar.</p>

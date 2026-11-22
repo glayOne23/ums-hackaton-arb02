@@ -50,7 +50,7 @@ function ReceiptCard({ receipt }: { receipt: Receipt }) {
 
   return (
     <section className="flex flex-col gap-4 pb-24">
-      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 print:border-0">
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4 print:border-0">
         {/* Printed nota header (PG-09) */}
         {receipt.company && (
           <div className="hidden print:block">

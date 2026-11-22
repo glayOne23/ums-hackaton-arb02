@@ -17,7 +17,7 @@ Pengguna utama SIGAP adalah **sales di lapangan**: memakai HP Android RAM 4 GB, 
 | P5 | **Tidak pernah hanya warna** | Status selalu = warna + ikon + kata |
 | P6 | **Hitungan selalu terlihat** | Total, laku, dan stok akhir berubah langsung saat angka diubah |
 | P7 | **Tenang saat tanpa sinyal** | Offline adalah keadaan normal, bukan galat. Pesan netral: "Tersimpan di HP" |
-| P8 | **Modern berarti bersih, bukan ramai** | Datar, banyak ruang kosong, garis tipis, satu warna aksen, animasi singkat |
+| P8 | **Modern berarti bersih dan berkarakter, bukan ramai** | Pita merek hijau tua di header, kartu putih berbayang lembut di latar hijau sangat muda, warna dipakai untuk struktur dan makna (§2.7), animasi singkat |
 | P9 | **Ringan** | Tanpa gambar besar, tanpa font tambahan, tanpa library animasi. Aplikasi sales ≤ 2 MB (NF-02) |
 
 ## 2. Warna
@@ -29,11 +29,11 @@ Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokum
 | Token | Hex | Pemakaian |
 | --- | --- | --- |
 | `leaf-50` | `#f0fdf4` | Latar sorotan baris terpilih, latar chip sukses |
-| `leaf-100` | `#dcfce7` | Hover baris tabel aktif |
+| `leaf-100` | `#dcfce7` | Petak ikon merek, pil menu aktif, lingkaran inisial outlet; teks sekunder di dalam pita merek (6,5:1) |
 | `leaf-200` | `#bbf7d0` | Garis fokus lembut |
 | `leaf-500` | `#22c55e` | Hanya untuk grafik dan ikon besar, **bukan teks** |
 | `leaf-600` | `#15803d` | **Primary**: tombol utama, tautan aktif, ring fokus (5,0:1 terhadap putih) |
-| `leaf-700` | `#166534` | Primary saat ditekan; primary di mode kontras tinggi (7,1:1) |
+| `leaf-700` | `#166534` | **Pita merek (header)** dengan teks putih (7,1:1); primary saat ditekan; primary di mode kontras tinggi; saringan aktif |
 | `leaf-800` | `#14532d` | Teks di atas `leaf-50` (8,7:1) |
 | `honey-400` | `#fbbf24` | Aksen merek: logo, ilustrasi layar masuk. **Tidak dipakai di UI kerja** agar tidak tertukar dengan kuning "perhatian" |
 | `honey-700` | `#b45309` | Teks aksen merek bila dibutuhkan |
@@ -42,10 +42,10 @@ Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokum
 
 | Token | Hex | Pemakaian | Kontras thd putih |
 | --- | --- | --- | --- |
-| `earth-50` | `#fafaf9` | Latar halaman | — |
+| `--background` | `#f1f5f0` | **Latar halaman** (hijau sangat muda, sejak 22 Nov 2026). Teks utama 15,9:1, teks sekunder 6,9:1 | — |
 | `earth-100` | `#f5f5f4` | Latar area sekunder, header tabel | — |
 | `earth-200` | `#e7e5e4` | Garis pemisah dekoratif | — |
-| `earth-300` | `#d6d3d1` | Garis kartu | — |
+| `--border` | `#dbe3d8` | Garis kartu dan pemisah (dekoratif; input tetap memakai `earth-500`) | — |
 | `earth-500` | `#78716c` | **Garis input**, teks placeholder, ikon nonaktif | 4,8:1 |
 | `earth-600` | `#57534e` | Teks sekunder (keterangan, label kecil) | 7,6:1 |
 | `earth-900` | `#1c1917` | Teks utama | 16,7:1 |
@@ -100,6 +100,20 @@ Gunakan komponen `StatusChip` dengan pemetaan tetap berikut. Jangan membuat warn
 | Kontras tinggi | **Wajib (UX-08)** | `data-contrast="high"` di `<html>`: primary → `leaf-700`, teks sekunder → `earth-900`, garis → `earth-600`, semua teks ≥ 7:1 |
 | Gelap | Tidak di MVP | Token sudah disiapkan sebagai variabel CSS, jadi bisa ditambah tanpa mengubah komponen |
 
+### 2.7 Identitas visual dan warna untuk struktur (sejak 22 Nov 2026)
+
+Tampilan awal terlalu datar: hampir semuanya kartu putih bergaris tipis, sehingga identitas dan hierarki lemah. Warna ditambahkan **hanya pada tempat yang memberi struktur atau makna**, dan setiap pasangan dicek kontrasnya.
+
+| Elemen | Aturan | Kontras |
+| --- | --- | --- |
+| Pita merek | Header HP dan kantor: `data-surface="brand"` (latar `leaf-700`). Di dalamnya teks, ikon, fokus, dan tautan otomatis menjadi terang lewat variabel CSS; komponen tidak perlu varian khusus | Putih 7,1:1; teks sekunder `leaf-100` 6,5:1 |
+| Kartu angka (KPI) | Petak ikon 36 px di samping label. Warna petak mengikuti arti: `tile-brand` (omzet, normal), `tile-info` (kunjungan), `tile-warning` (ada yang perlu dilihat), `tile-danger` (harus ditindak). Angka `text-2xl`–`3xl` tebal | Ikon ≥ 5,3:1 di petaknya |
+| Menu | Menu aktif ditandai pil `tile-brand` di belakang ikon (menu bawah) atau latar `tile-brand` + teks `leaf-800` (menu samping) | 8,3:1 |
+| Saringan (chip) | Aktif: latar `leaf-700`, teks putih. Tidak aktif: kartu putih berbayang | 7,1:1 |
+| Garis aksen kartu | Lihat §7.3. Kuning memakai `warning` (`#d97706`), bukan kuning muda | ≥ 3,2:1 terhadap putih |
+
+Yang **tetap dilarang**: gradien besar, efek kaca/blur, warna status sebagai hiasan, mode gelap untuk layar lapangan (paling sulit dibaca di bawah matahari), dan madu (`honey-*`) di UI kerja.
+
 ## 3. Tipografi
 
 - **Font: Inter (variable)**, dipasang sendiri lewat paket `@fontsource-variable/inter` subset latin, supaya ikut tersimpan offline oleh service worker. Cadangan: `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`. Tidak boleh memuat font dari Google Fonts (gagal saat tanpa sinyal).
@@ -130,7 +144,7 @@ Aturan teks: huruf kapital di awal kalimat saja (*sentence case*), bukan HURUF B
 | Jarak antar-kartu | 12 px (HP), 16 px (tablet/desktop) |
 | Padding kartu | 16 px (HP), 20–24 px (desktop) |
 | Sudut | `radius-sm` 6 px (chip, input kecil) · `radius-md` 10 px (tombol, input) · `radius-lg` 14 px (kartu, lembar bawah, dialog) · `full` (avatar, badge angka) |
-| Bayangan | Hampir tidak dipakai. Kartu memakai garis `earth-300`. Bayangan hanya untuk elemen yang melayang: lembar bawah, dialog, menu tarik turun, tombol utama yang menempel |
+| Bayangan | Dua tingkat saja. `shadow-card` (sangat lembut) untuk **semua kartu** di atas latar; `shadow-raised` untuk yang melayang: header, lembar bawah, dialog, kartu yang di-hover. Tidak ada bayangan berlapis atau efek kaca. Mode kontras tinggi mematikan `shadow-card` dan memakai garis tegas |
 | Lebar konten desktop | Maks. 1440 px; form maks. 720 px |
 
 ## 5. Tata letak responsif
@@ -188,6 +202,8 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 ### 7.3 Kartu dan daftar
 
 - Kartu outlet (M1): nama `text-lg` semibold di baris 1; wilayah dan status di baris 2–3; seluruh kartu bisa diketuk (bukan hanya tombol kecil di dalamnya).
+- **Garis aksen kiri** 4 px menunjukkan tanda paling mendesak di kartu: merah (`danger`) dekat kedaluwarsa → hijau (`success`) selesai hari ini → kuning (`warning`) belum bayar atau lama tidak dikunjungi. Garis ini pelengkap; chip status (warna + ikon + teks) tetap wajib.
+- Lingkaran inisial outlet (`tile-brand`) hanya hiasan untuk memudahkan memindai; **disembunyikan pada ukuran huruf Besar dan Sangat besar** agar nama dan status mendapat ruang.
 - Urutan informasi: **nama → status yang perlu ditindak → keterangan**.
 - Maksimal 3 baris informasi per kartu di HP. Sisanya di halaman detail.
 
@@ -313,7 +329,7 @@ Reviewer menolak PR yang belum memenuhi butir di bawah.
 
 ## Lampiran A — tokens.css
 
-Salinan dari `frontend/src/styles/tokens.css` (17 Nov 2026). File tersebut diimpor dari `src/styles/globals.css`:
+Salinan dari `frontend/src/styles/tokens.css` (diperbarui 22 Nov 2026). File tersebut diimpor dari `src/styles/globals.css`:
 
 ```css
 @import "tailwindcss";
@@ -323,49 +339,55 @@ Salinan dari `frontend/src/styles/tokens.css` (17 Nov 2026). File tersebut diimp
 Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mis. `bg-primary`, `text-muted-foreground`, `bg-danger-soft`, `text-leaf-800`).
 
 ```css
-/* Token desain SIGAP — aturan pemakaian: docs/pengembangan/07_Pedoman_UI_UX.md */
+/* SIGAP design tokens — usage rules: docs/pengembangan/07_Pedoman_UI_UX.md */
 
 @theme {
-  /* --- Palet merek: hijau daun --- */
+  /* --- Brand palette: leaf green --- */
   --color-leaf-50: #f0fdf4;
   --color-leaf-100: #dcfce7;
   --color-leaf-200: #bbf7d0;
-  --color-leaf-500: #22c55e; /* grafik & ikon besar saja, bukan teks */
-  --color-leaf-600: #15803d; /* primary — 5,0:1 thd putih */
-  --color-leaf-700: #166534; /* primary ditekan / kontras tinggi — 7,1:1 */
+  --color-leaf-500: #22c55e; /* charts & large icons only, never text */
+  --color-leaf-600: #15803d; /* primary — 5.0:1 on white */
+  --color-leaf-700: #166534; /* primary pressed / high contrast — 7.1:1 */
   --color-leaf-800: #14532d;
+  --color-leaf-900: #0f3d22; /* brand header pressed */
 
-  /* --- Aksen merek: madu (logo & layar masuk saja, bukan UI kerja) --- */
+  /* --- Brand accent: honey (logo & login screen only, not working UI) --- */
   --color-honey-400: #fbbf24;
   --color-honey-700: #b45309;
 
-  /* --- Netral hangat --- */
+  /* --- Warm neutrals (earth) --- */
   --color-earth-50: #fafaf9;
   --color-earth-100: #f5f5f4;
   --color-earth-200: #e7e5e4;
   --color-earth-300: #d6d3d1;
-  --color-earth-500: #78716c; /* garis input — 4,8:1 */
-  --color-earth-600: #57534e; /* teks sekunder — 7,6:1 */
-  --color-earth-900: #1c1917; /* teks utama — 16,7:1 */
+  --color-earth-500: #78716c; /* input border — 4.8:1 */
+  --color-earth-600: #57534e; /* secondary text — 7.6:1 */
+  --color-earth-900: #1c1917; /* primary text — 16.7:1 */
 
-  /* --- Huruf --- */
+  /* --- Typography --- */
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  /* --- Bentuk --- */
+  /* --- Shape --- */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
 
-  /* --- Gerak --- */
+  /* --- Depth (UI guide §4): soft, low shadows; never stacked or blurred glass --- */
+  --shadow-card: 0 1px 2px rgb(20 40 24 / 0.06), 0 1px 3px rgb(20 40 24 / 0.08);
+  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.10), 0 1px 3px rgb(20 40 24 / 0.08);
+
+  /* --- Motion --- */
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* Variabel semantik (format shadcn/ui). Komponen membaca ini, bukan palet mentah. */
+/* Semantic variables (shadcn/ui format). Components read these, never the raw palette. */
 :root {
   --radius: 10px;
 
-  --background: var(--color-earth-50);
+  /* Very light leaf tint: cards stand out, text keeps ≥ 6.9:1 (secondary) and 15.9:1 (main) */
+  --background: #f1f5f0;
   --foreground: var(--color-earth-900);
   --card: #ffffff;
   --card-foreground: var(--color-earth-900);
@@ -376,7 +398,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
   --secondary-foreground: var(--color-earth-900);
-  --muted: var(--color-earth-100);
+  --muted: #e9efe7;
   --muted-foreground: var(--color-earth-600);
   --accent: var(--color-leaf-50);
   --accent-foreground: var(--color-leaf-800);
@@ -384,11 +406,16 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: var(--color-earth-300);
+  --border: #dbe3d8; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
   --input: var(--color-earth-500);
   --ring: var(--color-leaf-600);
 
-  /* Status: lembut (latar chip/banner), teks (di atas latar lembut), tegas (ikon/tombol) */
+  /* Brand surface: app header (white on leaf-700 = 7.1:1, readable in sunlight) */
+  --brand: var(--color-leaf-700);
+  --brand-foreground: #ffffff;
+  --link: var(--color-leaf-700);
+
+  /* Status: soft (chip/banner background), text (on soft background), strong (icon/button) */
   --danger: #b91c1c;
   --danger-soft: #fef2f2;
   --danger-text: #991b1b;
@@ -402,7 +429,13 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --info-soft: #eff6ff;
   --info-text: #1e40af;
 
-  /* Grafik: seri kategori. Merah/kuning/oranye sengaja tidak ada (sudah bermakna status). */
+  /* Icon tiles (KPI cards, avatars): tinted square + strong icon, all ≥ 5:1 */
+  --tile-brand: var(--color-leaf-100);
+  --tile-info: #dbeafe;
+  --tile-warning: #fef3c7;
+  --tile-danger: #fee2e2;
+
+  /* Charts: categorical series. Red/yellow/orange are left out on purpose (they already mean status). */
   --chart-1: #15803d;
   --chart-2: #1d4ed8;
   --chart-3: #7c3aed;
@@ -411,7 +444,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --chart-target: var(--color-earth-500);
 }
 
-/* Mode kontras tinggi (UX-08): <html data-contrast="high"> — semua teks ≥ 7:1 */
+/* High-contrast mode (UX-08): <html data-contrast="high"> — all text ≥ 7:1 */
 :root[data-contrast="high"] {
   --background: #ffffff;
   --primary: var(--color-leaf-700);
@@ -420,13 +453,29 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --input: var(--color-earth-900);
   --ring: var(--color-leaf-700);
   --warning-text: #78350f;
+  --shadow-card: none;
 }
 
-/* Ukuran huruf pilihan pengguna (UX-08): <html data-font-size="large|x-large"> */
+/* Inside the brand header: text, icons, and hover/focus switch to light on dark green */
+[data-surface="brand"] {
+  --foreground: var(--brand-foreground);
+  --muted-foreground: var(--color-leaf-100); /* 6.5:1 on leaf-700 */
+  --accent: rgb(255 255 255 / 0.14);
+  --accent-foreground: #ffffff;
+  --ring: #ffffff;
+  --link: #ffffff;
+  background-color: var(--brand);
+  color: var(--foreground);
+}
+:root[data-contrast="high"] [data-surface="brand"] {
+  --muted-foreground: #ffffff;
+}
+
+/* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
 :root[data-font-size="large"] { font-size: 112.5%; }
 :root[data-font-size="x-large"] { font-size: 125%; }
 
-/* Petakan variabel semantik ke kelas Tailwind (bg-primary, text-danger-text, dst.) */
+/* Map semantic variables to Tailwind classes (bg-primary, text-danger-text, etc.) */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -447,6 +496,13 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-link: var(--link);
+  --color-tile-brand: var(--tile-brand);
+  --color-tile-info: var(--tile-info);
+  --color-tile-warning: var(--tile-warning);
+  --color-tile-danger: var(--tile-danger);
 
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);

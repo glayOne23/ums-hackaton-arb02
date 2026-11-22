@@ -101,7 +101,7 @@ export function ReportView({
       ) : report.isError ? (
         <ErrorState message={report.error.message} onRetry={() => report.refetch()} />
       ) : report.data.rows.length === 0 ? (
-        <p className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">
+        <p className="rounded-lg border border-border bg-card shadow-card p-8 text-center text-muted-foreground">
           Tidak ada data untuk pilihan ini.
         </p>
       ) : (

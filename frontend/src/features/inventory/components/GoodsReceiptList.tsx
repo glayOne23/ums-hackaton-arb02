@@ -39,14 +39,14 @@ export function GoodsReceiptList() {
       ) : receipts.isError ? (
         <ErrorState message={receipts.error.message} onRetry={() => receipts.refetch()} />
       ) : receipts.data.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <PackagePlus className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">Belum ada barang masuk.</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-3">
           {receipts.data.data.map((receipt) => (
-            <li key={receipt.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+            <li key={receipt.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
               <span className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="flex flex-wrap items-center gap-2">
                   <span className={cn('text-lg font-semibold', receipt.status === 'void' && 'line-through')}>

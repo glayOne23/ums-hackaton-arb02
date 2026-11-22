@@ -7,7 +7,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   return (
     <div
       role="alert"
-      className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center"
+      className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center"
     >
       <CircleAlert className="size-12 text-danger" aria-hidden />
       <p className="text-lg">{message}</p>

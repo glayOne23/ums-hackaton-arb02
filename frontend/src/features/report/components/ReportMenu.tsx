@@ -64,7 +64,7 @@ export function ReportMenu() {
 }
 
 const LINK =
-  'flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card p-4 hover:border-primary hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none'
+  'flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card shadow-card p-4 hover:border-primary hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none'
 
 function MenuGroup({
   title,

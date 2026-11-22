@@ -54,7 +54,7 @@ export function StockRequestBoard() {
       ) : requests.isError ? (
         <ErrorState message={requests.error.message} onRetry={() => requests.refetch()} />
       ) : requests.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card px-4 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-12 text-center">
           <ClipboardList className="size-12 text-muted-foreground" aria-hidden />
           <p className="text-lg">
             {status === 'open' ? 'Tidak ada permintaan yang menunggu.' : 'Tidak ada permintaan.'}
@@ -110,7 +110,7 @@ function RequestCard({ request }: { request: StockRequest }) {
     )
 
   return (
-    <li className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+    <li className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="text-lg font-semibold">{request.sales.name}</p>

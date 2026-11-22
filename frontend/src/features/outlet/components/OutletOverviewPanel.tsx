@@ -34,7 +34,7 @@ export function OutletOverviewPanel({ outletId }: { outletId: string }) {
   ]
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 sm:p-6">
+    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4 sm:p-6">
       <p className={cn('flex flex-wrap items-center gap-2', data.visit_overdue && 'text-warning-text')}>
         {data.visit_overdue && <CircleAlert className="size-5" aria-hidden />}
         {data.last_visit_at

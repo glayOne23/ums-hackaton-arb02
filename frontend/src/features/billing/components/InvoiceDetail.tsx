@@ -57,7 +57,7 @@ function Detail({ invoice }: { invoice: Invoice }) {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <dl className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-lg">
+        <dl className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4 text-lg">
           <Row label="Jumlah tagihan" value={formatCurrency(invoice.amount)} />
           <Row label="Sudah dibayar" value={formatCurrency(invoice.paid_amount)} />
           <Row label="Sisa" value={formatCurrency(invoice.owed)} strong />
@@ -121,7 +121,7 @@ function PaymentForm({ invoice }: { invoice: Invoice }) {
 
   return (
     <form
-      className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4"
+      className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4"
       onSubmit={(e) => {
         e.preventDefault()
         submit()
@@ -200,7 +200,7 @@ function PaymentRow({ payment, canVoid }: { payment: Payment; canVoid: boolean }
   return (
     <li
       className={cn(
-        'flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-3',
+        'flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card shadow-card p-3',
         payment.is_void && 'opacity-70',
       )}
     >

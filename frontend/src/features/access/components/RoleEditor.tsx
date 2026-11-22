@@ -242,7 +242,7 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4">
         <div className="flex flex-col gap-1.5 sm:max-w-md">
           <Label htmlFor="role-label" className="text-base">
             Nama peran
@@ -268,7 +268,7 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
         {data.groups.map((group) => {
           const ticked = group.items.filter((item) => permissions.has(item.name)).length
           return (
-            <fieldset key={group.title} className="flex flex-col gap-1 rounded-lg border border-border bg-card p-4">
+            <fieldset key={group.title} className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4">
               <legend className="px-1 text-lg font-semibold">
                 {group.title}{' '}
                 <span className="text-base font-normal text-muted-foreground">

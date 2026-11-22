@@ -79,7 +79,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
       {/* Phones: one card per product, no sideways scrolling (UI guide §5) */}
       <ul
         className={cn(
-          'flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card sm:hidden',
+          'flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card sm:hidden',
           struck && 'opacity-70',
         )}
       >
@@ -102,7 +102,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
 
       <div
         className={cn(
-          'hidden overflow-x-auto rounded-lg border border-border bg-card sm:block',
+          'hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card sm:block',
           struck && 'opacity-70',
         )}
       >
@@ -146,7 +146,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <dl className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+        <dl className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
           <Row label="Harga normal" value={formatCurrency(t.subtotal)} />
           <Row label="Potongan" value={`−${formatCurrency(t.discount_total)}`} />
           <Row label="Total nota" value={formatCurrency(t.total)} strong />
@@ -214,7 +214,7 @@ function FormPhoto({ transaction }: { transaction: Transaction }) {
   const photo = useTransactionPhoto(transaction.id, transaction.has_photo)
 
   return (
-    <figure className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4">
+    <figure className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
       <figcaption className="font-semibold">Foto form bercap</figcaption>
       {!transaction.has_photo ? (
         <p className="flex items-center gap-2 text-muted-foreground">

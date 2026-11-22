@@ -114,7 +114,7 @@ export function GoodsReceiptForm({
         {lines.map((line, i) => (
           <div
             key={line.key}
-            className="grid gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-[2fr_1fr_1fr_100px_auto] sm:items-start"
+            className="grid gap-3 rounded-lg border border-border bg-card shadow-card p-4 sm:grid-cols-[2fr_1fr_1fr_100px_auto] sm:items-start"
           >
             <div className="flex flex-col gap-1.5">
               <Label htmlFor={`product-${line.key}`}>Produk (wajib)</Label>

@@ -47,7 +47,7 @@ export function StockRequestForm({ onSaved }: { onSaved: (request: StockRequest)
       ) : products.isError ? (
         <ErrorState message={products.error.message} onRetry={() => products.refetch()} />
       ) : (
-        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card">
+        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
           {shown.map((product) => (
             <li key={product.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
               {/* Phones: the name takes its own line, the stepper goes below (no squeezed column) */}

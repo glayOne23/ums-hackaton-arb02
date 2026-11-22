@@ -15,7 +15,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
 
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-lg border border-border bg-card sm:block print:block print:overflow-visible print:border-0">
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card sm:block print:block print:overflow-visible print:border-0">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{report.title}</caption>
           <thead className="bg-muted print:bg-transparent">
@@ -76,7 +76,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
 
       <ul className="flex flex-col gap-3 sm:hidden print:hidden" aria-label={report.title}>
         {rows.map((row, i) => (
-          <li key={i} className="rounded-lg border border-border bg-card p-4">
+          <li key={i} className="rounded-lg border border-border bg-card shadow-card p-4">
             <p className="font-semibold break-words">{formatCell(row[titleColumn.key], titleColumn.type)}</p>
             <dl className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1">
               {columns
