@@ -11,6 +11,9 @@ export default defineConfig({
   globalSetup: './tests/e2e/support/global-setup.ts',
   outputDir: './test-results',
   fullyParallel: false,
+  // One worker: specs share one database, and `php artisan serve` handles one request at a time.
+  // Two workers made ~20 specs time out on a cold start (2026-11-22).
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: 'http://127.0.0.1:5173',
