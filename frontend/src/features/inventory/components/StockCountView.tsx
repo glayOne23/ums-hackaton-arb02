@@ -131,7 +131,7 @@ function CountForm({ counts, setCounts, reason, setReason }: CountFormProps) {
       {rows.length === 0 ? (
         <p className="text-muted-foreground">Belum ada stok di gudang untuk dihitung.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+        <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
           {shown.map(({ product, batch }) => {
             const physical = counts[batch.id] ?? batch.qty
             const difference = physical - batch.qty
@@ -275,7 +275,7 @@ function AdjustmentCard({
       </div>
       <ul className="text-sm">
         {adjustment.items.map((item, i) => (
-          <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
+          <li key={i} className="flex justify-between gap-3 border-t border-border py-1.5">
             <span>
               {item.product.name} <span className="text-muted-foreground">· {item.batch_number}</span>
             </span>

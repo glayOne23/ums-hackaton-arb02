@@ -24,7 +24,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
       <div className="hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card sm:block print:block print:overflow-visible print:border-0">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{report.title}</caption>
-          <thead className="bg-leaf-50 text-leaf-800 print:bg-transparent print:text-foreground">
+          <thead className="bg-table-head text-table-head-foreground print:bg-transparent print:text-foreground">
             <tr>
               {columns.map((column) => (
                 <th
@@ -45,7 +45,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
               <tr
                 key={i}
                 className={cn(
-                  'break-inside-avoid border-b border-earth-200 last:border-0 hover:bg-leaf-50/60',
+                  'break-inside-avoid border-b border-border last:border-0 hover:bg-row-hover',
                   !onPage(i) && 'hidden print:table-row',
                 )}
               >
@@ -68,12 +68,12 @@ export function ReportTable({ report }: { report: ReportResult }) {
           </tbody>
           {totals && (
             <tfoot>
-              <tr className="bg-muted font-semibold print:bg-transparent">
+              <tr className="bg-highlight font-semibold text-highlight-foreground print:bg-transparent print:text-foreground">
                 {columns.map((column, i) => (
                   <td
                     key={column.key}
                     className={cn(
-                      'border-t border-border px-3 py-2 print:border print:border-earth-900 print:px-1.5 print:py-1',
+                      'border-t-2 border-highlight-border px-3 py-2 print:border print:border-earth-900 print:px-1.5 print:py-1',
                       isNumeric(column.type) && 'text-right whitespace-nowrap tabular-nums',
                     )}
                   >
@@ -110,7 +110,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
           </li>
         ))}
         {totals && (
-          <li className="rounded-lg border border-primary bg-accent p-4">
+          <li className="rounded-lg border border-highlight-border bg-highlight p-4 text-highlight-foreground">
             <p className="font-semibold">Jumlah</p>
             <dl className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1">
               {columns

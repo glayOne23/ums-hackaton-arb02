@@ -116,7 +116,7 @@ export function UserList() {
           {/* Desktop: a table with an Aksi column (UI guide §7.4) */}
           <div className="hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card lg:block">
             <table className="w-full text-left" aria-label="Daftar pengguna">
-              <thead className="bg-leaf-50 text-sm text-leaf-800">
+              <thead className="bg-table-head text-sm text-table-head-foreground print:bg-transparent print:text-foreground">
                 <tr>
                   <th scope="col" className="px-4 py-3 font-semibold">
                     Nama
@@ -137,7 +137,7 @@ export function UserList() {
               </thead>
               <tbody className="divide-y divide-border">
                 {paged.items.map((user) => (
-                  <tr key={user.id} className={cn('hover:bg-leaf-50', !user.is_active && 'bg-muted/50')}>
+                  <tr key={user.id} className={cn('hover:bg-row-hover', !user.is_active && 'text-muted-foreground')}>
                     <td className="px-4 py-3">
                       <UserName user={user} />
                     </td>
@@ -168,7 +168,7 @@ export function UserList() {
                 key={user.id}
                 className={cn(
                   'flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-card',
-                  !user.is_active && 'bg-muted/50',
+                  !user.is_active && 'border-dashed',
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -217,7 +217,7 @@ function RoleChips({ user }: { user: UserItem }) {
       {user.roles.map((role) => (
         <span
           key={role.name}
-          className="rounded-sm bg-leaf-50 px-2 py-0.5 text-sm font-medium text-leaf-800 ring-1 ring-leaf-200"
+          className="rounded-sm bg-highlight px-2 py-0.5 text-sm font-medium whitespace-nowrap text-highlight-foreground ring-1 ring-indigo-200"
         >
           {role.label}
         </span>

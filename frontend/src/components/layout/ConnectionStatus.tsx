@@ -6,9 +6,12 @@ export function ConnectionStatus() {
   const isOnline = useOnlineStatus()
 
   return isOnline ? (
-    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+    <span
+      className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm text-muted-foreground [[data-surface=brand]_&]:bg-white/10"
+      title="Tersambung"
+    >
       <Cloud className="size-4" aria-hidden />
-      Tersambung
+      <span className="max-sm:sr-only">Tersambung</span>
     </span>
   ) : (
     <span

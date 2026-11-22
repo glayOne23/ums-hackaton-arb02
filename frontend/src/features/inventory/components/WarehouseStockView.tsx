@@ -191,35 +191,37 @@ function StockRow({ row }: { row: ProductStock }) {
       </button>
 
       {open && (
-        <div className="flex flex-col gap-3 border-t border-earth-200 p-4">
+        <div className="flex flex-col gap-3 border-t border-border p-4">
           {row.batches && row.batches.length > 0 ? (
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-sm text-muted-foreground">
-                  <th scope="col" className="pb-2 font-semibold">
-                    Batch
-                  </th>
-                  <th scope="col" className="pb-2 font-semibold">
-                    ED
-                  </th>
-                  <th scope="col" className="pb-2 text-right font-semibold">
-                    Jumlah
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {row.batches.map((batch) => (
-                  <tr key={batch.id} className="border-t border-earth-200">
-                    <td className="py-2">{batch.batch_number}</td>
-                    <td className={`py-2 ${batch.near_expiry ? 'font-semibold text-danger-text' : ''}`}>
-                      {formatExpiry(new Date(batch.expiry_date))}
-                      {batch.near_expiry && <TriangleAlert className="ml-1 inline size-4" aria-label="dekat ED" />}
-                    </td>
-                    <td className="py-2 text-right tabular-nums">{formatNumber(batch.qty)}</td>
+            <div className="overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-left">
+                <thead className="bg-table-head text-sm text-table-head-foreground">
+                  <tr>
+                    <th scope="col" className="h-10 px-3 font-semibold">
+                      Batch
+                    </th>
+                    <th scope="col" className="h-10 px-3 font-semibold">
+                      ED
+                    </th>
+                    <th scope="col" className="h-10 px-3 text-right font-semibold">
+                      Jumlah
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {row.batches.map((batch) => (
+                    <tr key={batch.id} className="border-t border-border hover:bg-row-hover">
+                      <td className="px-3 py-2.5">{batch.batch_number}</td>
+                      <td className={`px-3 py-2.5 ${batch.near_expiry ? 'font-semibold text-danger-text' : ''}`}>
+                        {formatExpiry(new Date(batch.expiry_date))}
+                        {batch.near_expiry && <TriangleAlert className="ml-1 inline size-4" aria-label="dekat ED" />}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular-nums">{formatNumber(batch.qty)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <p className="text-muted-foreground">Belum ada stok untuk produk ini.</p>
           )}

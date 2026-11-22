@@ -24,11 +24,11 @@ Pengguna utama SIGAP adalah **sales di lapangan**: memakai HP Android RAM 4 GB, 
 
 ### 2.1 Palet merek
 
-Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokumen 05 ("tombol hijau besar"). Netral memakai abu hangat (*stone*) agar terasa alami, tidak dingin seperti aplikasi bank.
+Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokumen 05 ("tombol hijau besar"). Struktur memakai slate (abu-biru) dan data yang disorot memakai indigo, lihat §2.2.
 
 | Token | Hex | Pemakaian |
 | --- | --- | --- |
-| `leaf-50` | `#f0fdf4` | Latar sorotan baris terpilih, latar chip sukses |
+| `leaf-50` | `#f0fdf4` | Hover tombol dan tautan, latar chip sukses |
 | `leaf-100` | `#dcfce7` | Petak ikon merek, pil menu aktif, lingkaran inisial outlet; teks sekunder di dalam pita merek (6,5:1) |
 | `leaf-200` | `#bbf7d0` | Garis fokus lembut |
 | `leaf-500` | `#22c55e` | Hanya untuk grafik dan ikon besar, **bukan teks** |
@@ -38,19 +38,34 @@ Hijau daun dipilih karena produk mitra adalah herbal, dan sesuai wireframe dokum
 | `honey-400` | `#fbbf24` | Aksen merek: logo, ilustrasi layar masuk. **Tidak dipakai di UI kerja** agar tidak tertukar dengan kuning "perhatian" |
 | `honey-700` | `#b45309` | Teks aksen merek bila dibutuhkan |
 
-### 2.2 Netral
+### 2.2 Netral dan warna kombinasi
 
-| Token | Hex | Pemakaian | Kontras thd putih |
+Sejak 22 Nov 2026 palet dibagi menjadi tiga peran, supaya tidak semuanya hijau dan header tabel atau data yang disorot tidak menyatu dengan latar:
+
+| Peran | Warna | Dipakai untuk |
+| --- | --- | --- |
+| **Aksi & posisi aktif** | Hijau `leaf-*` | Tombol, kolom isian, tautan, menu aktif, pilihan terpilih |
+| **Struktur** | Slate (abu-biru dingin) `slate-*` | Latar halaman, header tabel, garis, judul bagian menu, teks sekunder |
+| **Data yang disorot** | Indigo `indigo-*` | Baris Jumlah, chip peran, angka yang diubah pengguna |
+
+Slate **tidak pernah** dipakai untuk tombol atau kolom isian (aturan §7.1: abu-abu = nonaktif). Indigo bukan warna status; status tetap memakai §2.3.
+
+| Token | Hex | Pemakaian | Kontras |
 | --- | --- | --- | --- |
-| `--background` | `#f1f5f0` | **Latar halaman** (hijau sangat muda, sejak 22 Nov 2026). Teks utama 15,9:1, teks sekunder 6,9:1 | — |
-| `earth-100` | `#f5f5f4` | Latar area sekunder, header tabel | — |
-| `earth-200` | `#e7e5e4` | Garis pemisah dekoratif | — |
-| `--border` | `#dbe3d8` | Garis kartu dan pemisah (dekoratif; input tetap memakai `earth-500`) | — |
-| `earth-500` | `#78716c` | **Garis input**, teks placeholder, ikon nonaktif | 4,8:1 |
-| `earth-600` | `#57534e` | Teks sekunder (keterangan, label kecil) | 7,6:1 |
+| `--background` | `#e8edf3` | **Latar halaman**. Kartu dan menu samping putih dipisahkan dengan garis + bayangan. Isi daftar selalu di atas kartu putih, jangan memberi baris latar yang mendekati warna ini | Teks utama 14,9:1, sekunder 6,4:1 |
+| `--border` | `#dde3ea` | Garis kartu dan pemisah baris (dekoratif) | — |
+| `--muted` / `slate-200` | `#e2e8f0` | Kerangka memuat, chip netral | Teks sekunder 6,2:1 |
+| `--table-head` / `slate-700` | `#334155` | **Header tabel gelap** dengan teks putih, supaya tidak pernah menyatu dengan latar halaman atau baris putih. Saat dicetak menjadi polos | Putih 10,4:1 |
+| `--row-hover` | `#f3f6fa` | Baris tabel saat disorot | Tautan `leaf-700` 6,6:1 |
+| `slate-300` | `#cbd5e1` | Garis tepi menu samping | — |
+| `slate-500` | `#64748b` | Judul bagian menu, ikon menu tidak aktif (bukan teks isi) | 4,8:1 |
+| `--muted-foreground` / `slate-600` | `#475569` | Teks sekunder (keterangan, label kecil) | 7,6:1 |
 | `earth-900` | `#1c1917` | Teks utama | 16,7:1 |
+| `--highlight` / `indigo-50` | `#eef2ff` | Latar data yang disorot | Teks `indigo-800` 8,9:1 |
+| `--highlight-border` / `indigo-600` | `#4f46e5` | Garis atas baris Jumlah, garis angka yang diubah | 6,3:1 |
+| `earth-200`–`earth-600` | — | **Hanya** tombol dan kolom nonaktif | — |
 
-Aturan: teks lebih terang dari `earth-600` dilarang di layar sales. Garis input memakai `earth-500` agar batas kolom terlihat (WCAG 1.4.11, ≥ 3:1).
+Aturan: teks lebih terang dari `slate-600` dilarang untuk isi. Garis input memakai `--input` (`#6b8a72`, hijau keabuan 3,8:1).
 
 ### 2.3 Warna status (semantik)
 
@@ -229,6 +244,7 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 - **Garis aksen kiri** 4 px menunjukkan tanda paling mendesak di kartu: merah (`danger`) dekat kedaluwarsa → hijau (`success`) selesai hari ini → kuning (`warning`) belum bayar atau lama tidak dikunjungi. Garis ini pelengkap; chip status (warna + ikon + teks) tetap wajib.
 - **Setiap kartu atau baris yang bisa diketuk diakhiri penanda buka** (`components/common/OpenHint`): panah `›` hijau, ditambah label pendek di laptop ("Lihat nota", "Buka"). Kartu yang membuka-tutup memakai panah bawah di lingkaran `leaf-50`. Tautan teks lepas diganti tombol (`secondary`).
 - Lingkaran inisial outlet (`tile-brand`) hanya hiasan untuk memudahkan memindai; **disembunyikan pada ukuran huruf Besar dan Sangat besar** agar nama dan status mendapat ruang.
+- **Kartu berjudul** (`components/common/SectionCard`): judul berada **di dalam** kartu sebagai baris kepala berlatar `slate-50` dengan garis pemisah, bukan menumpang di garis tepi kartu. Kelompok kolom isian (Pengaturan, izin peran) memakai `FieldsetCard` agar tetap `fieldset` + `legend` bagi pembaca layar; panel biasa memakai `SectionCard`. Angka ringkas di judul (mis. "2/4" izin dicentang) memakai chip `highlight`.
 - Urutan informasi: **nama → status yang perlu ditindak → keterangan**.
 - Maksimal 3 baris informasi per kartu di HP. Sisanya di halaman detail.
 
@@ -241,7 +257,8 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 - Angka dan uang **rata kanan**, teks rata kiri, status di tengah-kiri sebagai chip.
 - Tinggi baris 48 px (normal) atau 40 px (rapat, bisa dipilih). Garis antar-baris `earth-200`, tanpa garis vertikal; zebra tidak dipakai.
 - Susunan kolom laporan mengikuti file Excel mitra yang sekarang agar admin "tetap merasa di Excel".
-- Kepala tabel berlatar `leaf-50` dengan teks `leaf-800` semibold.
+- Tabel kecil di dalam kartu (batch stok, isi permintaan barang) memakai aturan yang sama: bingkai `rounded-md` bergaris, kepala gelap, sel `px-3 py-2.5`, baris disorot `--row-hover`.
+- Kepala tabel berlatar `--table-head` (slate gelap) dengan teks putih semibold; baris disorot `--row-hover`; baris Jumlah `--highlight` (indigo) dengan garis atas indigo 2 px. Baris nonaktif/dibatalkan tetap berlatar putih dan ditandai teks redup, coret, atau chip, bukan latar abu.
 
 **Paginasi** (`components/common/Pagination`, sejak 22 Nov 2026). Setiap daftar yang bisa memuat banyak data dipecah per halaman:
 
@@ -257,6 +274,7 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 - Pesan galat di bawah kolom, warna `danger`, dengan ikon, berisi **apa yang salah + cara memperbaiki** ("Kecamatan wajib diisi. Pilih dari daftar.").
 - Pilihan ≤ 5 opsi memakai tombol pilihan (segmented/radio kartu), bukan dropdown (UX-02). Pilihan banyak (outlet, produk) memakai kolom cari dengan daftar hasil.
 - Form desktop maksimal 2 kolom; HP selalu 1 kolom.
+- Form panjang (Pengaturan, Peran & izin) memakai `SaveBar` (`components/common/SaveBar`). Selama belum ada perubahan, tombol "Belum ada perubahan" diam di bawah form dan **tidak melayang di atas kartu**. Begitu ada perubahan, bilah selebar konten menempel di bawah layar berisi "N perubahan belum disimpan" + tombol Simpan.
 
 ### 7.6 Lembar bawah, dialog, dan notifikasi
 
@@ -382,8 +400,277 @@ Reviewer menolak PR yang belum memenuhi butir di bawah.
 Salinan dari `frontend/src/styles/tokens.css` (diperbarui 22 Nov 2026). File tersebut diimpor dari `src/styles/globals.css`:
 
 ```css
-@import "tailwindcss";
-@import "./tokens.css";
+/* SIGAP design tokens — usage rules: docs/pengembangan/07_Pedoman_UI_UX.md */
+
+@theme {
+  /* --- Brand palette: leaf green --- */
+  --color-leaf-50: #f0fdf4;
+  --color-leaf-100: #dcfce7;
+  --color-leaf-200: #bbf7d0;
+  --color-leaf-500: #22c55e; /* charts & large icons only, never text */
+  --color-leaf-600: #15803d; /* primary — 5.0:1 on white */
+  --color-leaf-700: #166534; /* primary pressed / high contrast — 7.1:1 */
+  --color-leaf-800: #14532d;
+  --color-leaf-900: #0f3d22; /* brand header pressed */
+
+  /* --- Brand accent: honey (logo & login screen only, not working UI) --- */
+  --color-honey-400: #fbbf24;
+  --color-honey-700: #b45309;
+
+  /* --- Warm neutrals (earth) --- */
+  --color-earth-50: #fafaf9;
+  --color-earth-100: #f5f5f4;
+  --color-earth-200: #e7e5e4;
+  --color-earth-300: #d6d3d1;
+  --color-earth-500: #78716c; /* input border — 4.8:1 */
+  --color-earth-600: #57534e; /* secondary text — 7.6:1 */
+  --color-earth-900: #1c1917; /* primary text — 16.7:1 */
+
+  /* --- Structure neutrals: slate (cool blue-grey). Page, table heads, lines, secondary text.
+         Never for buttons or fields: an enabled control always carries green (§7.1). --- */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-500: #64748b; /* small headings only — 4.8:1 on white */
+  --color-slate-600: #475569; /* secondary text — 7.6:1 */
+  --color-slate-700: #334155; /* table head text — 9.5:1 on slate-100 */
+
+  /* --- Data highlight: indigo. Totals, role chips, changed numbers — not status, not action --- */
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-600: #4f46e5; /* highlight border — 6.3:1 */
+  --color-indigo-800: #3730a3; /* highlight text — 8.9:1 on indigo-50 */
+
+  /* --- Typography --- */
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Shape --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* --- Depth (UI guide §4): soft, low shadows; never stacked or blurred glass --- */
+  --shadow-card: 0 1px 2px rgb(20 40 24 / 0.06), 0 1px 3px rgb(20 40 24 / 0.08);
+  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.1), 0 1px 3px rgb(20 40 24 / 0.08);
+
+  /* --- Motion --- */
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Semantic variables (shadcn/ui format). Components read these, never the raw palette. */
+:root {
+  --radius: 10px;
+
+  /* Cool slate page: white cards and the white side menu stand out with their border; green is kept for actions. Text ≥ 15.5:1, secondary ≥ 6.7:1 */
+  --background: #e8edf3;
+  --foreground: var(--color-earth-900);
+  --card: #ffffff;
+  --card-foreground: var(--color-earth-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-earth-900);
+
+  --primary: var(--color-leaf-600);
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: var(--color-earth-900);
+  --muted: var(--color-slate-200);
+  --muted-foreground: var(--color-slate-600);
+  --accent: var(--color-leaf-50);
+  --accent-foreground: var(--color-leaf-800);
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #dde3ea; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
+  --input: #6b8a72; /* field border: green-grey 3.8:1, reads as "fill me in", not as locked grey */
+  --ring: var(--color-leaf-600);
+
+  /* Brand surface: app header (white on leaf-700 = 7.1:1, readable in sunlight) */
+  --brand: var(--color-leaf-700);
+  --brand-foreground: #ffffff;
+  --link: var(--color-leaf-700);
+
+  /* Status: soft (chip/banner background), text (on soft background), strong (icon/button) */
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-text: #991b1b;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --warning-text: #92400e;
+  --success: #15803d;
+  --success-soft: #f0fdf4;
+  --success-text: #166534;
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --info-text: #1e40af;
+
+  /* Tables (UI guide §7.4): dark slate head with white text (10.4:1) so it never blends with the page;
+     faint cool hover; indigo for highlighted data (totals, selection) */
+  --table-head: var(--color-slate-700);
+  --table-head-foreground: #ffffff;
+  --row-hover: #f3f6fa;
+  --highlight: var(--color-indigo-50);
+  --highlight-foreground: var(--color-indigo-800);
+  --highlight-border: var(--color-indigo-600);
+
+  /* Icon tiles (KPI cards, avatars): tinted square + strong icon, all ≥ 5:1 */
+  --tile-brand: var(--color-leaf-100);
+  --tile-info: #dbeafe;
+  --tile-warning: #fef3c7;
+  --tile-danger: #fee2e2;
+
+  /* Charts: categorical series. Red/yellow/orange are left out on purpose (they already mean status). */
+  --chart-1: #15803d;
+  --chart-2: #1d4ed8;
+  --chart-3: #7c3aed;
+  --chart-4: #0e7490;
+  --chart-5: #be185d;
+  --chart-target: var(--color-earth-500);
+}
+
+/* High-contrast mode (UX-08): <html data-contrast="high"> — all text ≥ 7:1 */
+:root[data-contrast='high'] {
+  --background: #ffffff;
+  --primary: var(--color-leaf-700);
+  --muted-foreground: var(--color-earth-900);
+  --border: var(--color-earth-600);
+  --input: var(--color-earth-900);
+  --ring: var(--color-leaf-700);
+  --warning-text: #78350f;
+  --table-head: var(--color-earth-900);
+  --highlight-foreground: #1e1b4b;
+  --shadow-card: none;
+}
+
+/* Inside the brand header: text, icons, and hover/focus switch to light on dark green */
+[data-surface='brand'] {
+  --foreground: var(--brand-foreground);
+  --muted-foreground: var(--color-leaf-100); /* 6.5:1 on leaf-700 */
+  --accent: rgb(255 255 255 / 0.14);
+  --accent-foreground: #ffffff;
+  --ring: #ffffff;
+  --link: #ffffff;
+  background-color: var(--brand);
+  color: var(--foreground);
+}
+:root[data-contrast='high'] [data-surface='brand'] {
+  --muted-foreground: #ffffff;
+}
+
+/* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
+:root[data-font-size='large'] {
+  font-size: 112.5%;
+}
+:root[data-font-size='x-large'] {
+  font-size: 125%;
+}
+
+/*
+ * Choices: tabs, filter chips, segmented options (UI guide §7.10).
+ * Unselected still looks tappable (green-grey border, green text); selected is solid
+ * dark green. Descriptions inside a selected choice turn light green (6.5:1).
+ */
+@utility choice {
+  border-color: var(--input);
+  background-color: var(--card);
+  color: var(--color-leaf-800);
+  &:hover {
+    border-color: var(--color-leaf-600);
+    background-color: var(--color-leaf-50);
+  }
+}
+@utility choice-on {
+  /* Tripled selector: wins over .choice and .choice:hover whatever order Tailwind emits them in */
+  &&& {
+    border-color: var(--color-leaf-700);
+    background-color: var(--color-leaf-700);
+    color: #ffffff;
+    font-weight: 600;
+    --muted-foreground: var(--color-leaf-100);
+  }
+}
+
+/* Map semantic variables to Tailwind classes (bg-primary, text-danger-text, etc.) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-link: var(--link);
+  --color-tile-brand: var(--tile-brand);
+  --color-table-head: var(--table-head);
+  --color-table-head-foreground: var(--table-head-foreground);
+  --color-row-hover: var(--row-hover);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-border: var(--highlight-border);
+  --color-tile-info: var(--tile-info);
+  --color-tile-warning: var(--tile-warning);
+  --color-tile-danger: var(--tile-danger);
+
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-text: var(--danger-text);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-text: var(--warning-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-text: var(--success-text);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-text: var(--info-text);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
 ```
 
 Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mis. `bg-primary`, `text-muted-foreground`, `bg-danger-soft`, `text-leaf-800`).
@@ -437,7 +724,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --radius: 10px;
 
   /* Very light leaf tint: cards stand out, text keeps ≥ 6.9:1 (secondary) and 15.9:1 (main) */
-  --background: #f1f5f0;
+  --background: #eef2f6;
   --foreground: var(--color-earth-900);
   --card: #ffffff;
   --card-foreground: var(--color-earth-900);
@@ -448,7 +735,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
   --secondary-foreground: var(--color-earth-900);
-  --muted: #e9efe7;
+  --muted: #e2e8f0;
   --muted-foreground: var(--color-earth-600);
   --accent: var(--color-leaf-50);
   --accent-foreground: var(--color-leaf-800);

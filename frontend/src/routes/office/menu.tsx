@@ -19,7 +19,7 @@ function MenuPage() {
       <h1 className="text-2xl font-bold tracking-tight">Menu</h1>
       {groups.map((group) => (
         <section key={group.key} aria-labelledby={`menu-${group.key}`} className="flex flex-col gap-2">
-          <h2 id={`menu-${group.key}`} className="px-1 font-semibold text-leaf-700">
+          <h2 id={`menu-${group.key}`} className="px-1 font-semibold text-slate-600">
             {group.label}
           </h2>
           <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">

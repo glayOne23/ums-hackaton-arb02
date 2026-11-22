@@ -1,9 +1,11 @@
-import { History, LoaderCircle, Lock, Settings } from 'lucide-react'
+import { History, Lock, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
+import { FieldsetCard } from '@/components/common/SectionCard'
+import { SaveBar } from '@/components/common/SaveBar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api/client'
@@ -59,11 +61,7 @@ export function SettingsView() {
       />
 
       {settings.data.data.map((section) => (
-        <fieldset
-          key={section.key}
-          className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4"
-        >
-          <legend className="px-1 text-lg font-semibold">{section.title}</legend>
+        <FieldsetCard key={section.key} title={section.title}>
           {section.key === 'later' && (
             <p className="flex items-center gap-2 text-muted-foreground">
               <Lock className="size-4" aria-hidden />
@@ -79,7 +77,7 @@ export function SettingsView() {
               onChange={(value) => setDraft((all) => ({ ...all, [item.key]: value }))}
             />
           ))}
-        </fieldset>
+        </FieldsetCard>
       ))}
 
       {save.error && Object.keys(fieldErrors).length === 0 && (
@@ -89,17 +87,7 @@ export function SettingsView() {
       )}
 
       {/* Saves the rules above; the lists below save each change on their own */}
-      <div className="fixed inset-x-0 bottom-16 z-10 border-t border-border bg-card p-3 sm:sticky sm:bottom-20 sm:self-start sm:rounded-lg sm:border sm:shadow-md lg:bottom-4">
-        <Button
-          size="cta"
-          className="sm:h-10 sm:w-auto"
-          disabled={dirty.length === 0 || save.isPending}
-          onClick={submit}
-        >
-          {save.isPending && <LoaderCircle className="size-5 animate-spin" aria-hidden />}
-          {dirty.length === 0 ? 'Belum ada perubahan' : `Simpan (${dirty.length} perubahan)`}
-        </Button>
-      </div>
+      <SaveBar changes={dirty.length} pending={save.isPending} onSave={submit} />
 
       <div className="flex flex-col gap-2">
         <p className="text-muted-foreground">
@@ -124,7 +112,7 @@ export function SettingsView() {
           ) : history.data.length === 0 ? (
             <p className="text-muted-foreground">Belum ada perubahan.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+            <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
               {history.data.map((change) => (
                 <li key={change.id} className="flex flex-col gap-0.5 p-3">
                   <span className="font-medium">{change.label}</span>
@@ -146,7 +134,7 @@ export function SettingsView() {
 
       <div className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">Daftar pilihan</h2>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {REFERENCE_LISTS.map((list) => (
             <ReferenceListEditor key={list.path} {...list} />
           ))}

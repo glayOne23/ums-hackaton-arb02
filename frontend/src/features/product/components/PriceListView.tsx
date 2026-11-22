@@ -95,37 +95,31 @@ export function PriceListView({ outletTypeId, date, onChange }: Props) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card print:border-0">
           <table className="w-full text-left">
-            <thead className="bg-muted">
+            <thead className="bg-table-head text-table-head-foreground print:bg-transparent print:text-foreground">
               <tr>
-                <th scope="col" className="h-11 px-3 text-sm font-semibold text-muted-foreground sm:px-4">
+                <th scope="col" className="h-11 px-3 text-sm font-semibold sm:px-4">
                   Produk
                 </th>
-                <th
-                  scope="col"
-                  className="hidden h-11 px-4 text-right text-sm font-semibold text-muted-foreground sm:table-cell"
-                >
+                <th scope="col" className="hidden h-11 px-4 text-right text-sm font-semibold sm:table-cell">
                   Harga jual
                 </th>
-                <th
-                  scope="col"
-                  className="hidden h-11 px-4 text-right text-sm font-semibold text-muted-foreground sm:table-cell"
-                >
+                <th scope="col" className="hidden h-11 px-4 text-right text-sm font-semibold sm:table-cell">
                   Potongan
                 </th>
-                <th scope="col" className="h-11 px-3 text-right text-sm font-semibold text-muted-foreground sm:px-4">
+                <th scope="col" className="h-11 px-3 text-right text-sm font-semibold sm:px-4">
                   Harga
                 </th>
               </tr>
             </thead>
             {[...groups.entries()].map(([category, items]) => (
               <tbody key={category}>
-                <tr className="border-t border-earth-200 bg-earth-50">
+                <tr className="border-t border-border bg-earth-50">
                   <th colSpan={4} scope="colgroup" className="px-3 py-2 text-sm font-semibold sm:px-4">
                     {category}
                   </th>
                 </tr>
                 {items.map((item) => (
-                  <tr key={item.product.id} className="border-t border-earth-200">
+                  <tr key={item.product.id} className="border-t border-border">
                     <td className="px-3 py-2 sm:px-4">
                       <span className="font-medium">{item.product.name}</span>
                       <span className="block text-sm text-muted-foreground">

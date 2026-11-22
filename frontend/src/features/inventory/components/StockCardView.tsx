@@ -79,7 +79,7 @@ export function StockCardView({ productId }: { productId: string }) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
           <table className="w-full text-left">
-            <thead className="bg-leaf-50 text-sm text-leaf-800">
+            <thead className="bg-table-head text-sm text-table-head-foreground print:bg-transparent print:text-foreground">
               <tr>
                 <th scope="col" className="h-11 px-3 font-semibold sm:px-4">
                   Tanggal · kejadian
@@ -99,7 +99,7 @@ export function StockCardView({ productId }: { productId: string }) {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-earth-200 bg-earth-50">
+              <tr className="border-t border-border bg-earth-50">
                 <th scope="row" colSpan={4} className="px-3 py-2 text-left font-semibold sm:px-4">
                   Saldo awal
                 </th>
@@ -108,7 +108,7 @@ export function StockCardView({ productId }: { productId: string }) {
                 </td>
               </tr>
               {card.data.data.length === 0 && (
-                <tr className="border-t border-earth-200">
+                <tr className="border-t border-border">
                   <td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
                     Tidak ada keluar-masuk pada rentang tanggal ini.
                   </td>
@@ -117,7 +117,7 @@ export function StockCardView({ productId }: { productId: string }) {
               {card.data.data.map((row, i) => (
                 <tr
                   key={row.id}
-                  className={cn('border-t border-earth-200 align-top', !onPage(i) && 'hidden print:table-row')}
+                  className={cn('border-t border-border align-top', !onPage(i) && 'hidden print:table-row')}
                 >
                   <td className="px-3 py-2 sm:px-4">
                     <span className="block font-medium">{row.type.label}</span>

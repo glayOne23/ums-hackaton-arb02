@@ -26,7 +26,7 @@ export function FieldTodayView() {
             <p className="text-lg">Belum membawa barang.</p>
           </div>
         ) : (
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {stock.data.data.map((row) => (
               <li key={row.product.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <span className="min-w-0 text-lg">{row.product.name}</span>

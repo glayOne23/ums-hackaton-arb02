@@ -41,7 +41,7 @@ export function HistoryPanel({
         ) : history.data.length === 0 ? (
           <p className="text-muted-foreground">Belum ada perubahan sejak dicatat.</p>
         ) : (
-          <ol className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+          <ol className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {history.data.map((entry) => (
               <li key={entry.id} className="flex flex-col gap-0.5 p-3">
                 <span className="text-sm text-muted-foreground tabular-nums">

@@ -143,7 +143,11 @@ export function CorrectionForm({
                       type="number"
                       inputMode="numeric"
                       min={0}
-                      className={touched ? 'border-primary bg-accent font-semibold tabular-nums' : 'tabular-nums'}
+                      className={
+                        touched
+                          ? 'border-highlight-border bg-highlight font-semibold text-highlight-foreground tabular-nums'
+                          : 'tabular-nums'
+                      }
                       value={value}
                       aria-describedby={touched ? `${inputId}-was` : undefined}
                       onChange={(e) =>

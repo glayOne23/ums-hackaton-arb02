@@ -73,7 +73,7 @@ function ReceiptCard({ receipt }: { receipt: Receipt }) {
           </p>
         </div>
 
-        <ul className="flex flex-col divide-y divide-earth-200 border-y border-earth-200">
+        <ul className="flex flex-col divide-y divide-border border-y border-border">
           {shownLines.length === 0 && <li className="py-2">Tidak ada yang laku</li>}
           {shownLines.map((line) => (
             <li key={line.productId} className="flex flex-wrap justify-between gap-x-3 py-2">

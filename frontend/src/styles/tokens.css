@@ -24,6 +24,23 @@
   --color-earth-600: #57534e; /* secondary text — 7.6:1 */
   --color-earth-900: #1c1917; /* primary text — 16.7:1 */
 
+  /* --- Structure neutrals: slate (cool blue-grey). Page, table heads, lines, secondary text.
+         Never for buttons or fields: an enabled control always carries green (§7.1). --- */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-500: #64748b; /* small headings only — 4.8:1 on white */
+  --color-slate-600: #475569; /* secondary text — 7.6:1 */
+  --color-slate-700: #334155; /* table head text — 9.5:1 on slate-100 */
+
+  /* --- Data highlight: indigo. Totals, role chips, changed numbers — not status, not action --- */
+  --color-indigo-50: #eef2ff;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-200: #c7d2fe;
+  --color-indigo-600: #4f46e5; /* highlight border — 6.3:1 */
+  --color-indigo-800: #3730a3; /* highlight text — 8.9:1 on indigo-50 */
+
   /* --- Typography --- */
   --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
@@ -45,8 +62,8 @@
 :root {
   --radius: 10px;
 
-  /* Very light leaf tint: cards stand out, text keeps ≥ 6.9:1 (secondary) and 15.9:1 (main) */
-  --background: #f1f5f0;
+  /* Cool slate page: white cards and the white side menu stand out with their border; green is kept for actions. Text ≥ 15.5:1, secondary ≥ 6.7:1 */
+  --background: #e8edf3;
   --foreground: var(--color-earth-900);
   --card: #ffffff;
   --card-foreground: var(--color-earth-900);
@@ -57,15 +74,15 @@
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
   --secondary-foreground: var(--color-earth-900);
-  --muted: #e9efe7;
-  --muted-foreground: var(--color-earth-600);
+  --muted: var(--color-slate-200);
+  --muted-foreground: var(--color-slate-600);
   --accent: var(--color-leaf-50);
   --accent-foreground: var(--color-leaf-800);
 
   --destructive: #b91c1c;
   --destructive-foreground: #ffffff;
 
-  --border: #dbe3d8; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
+  --border: #dde3ea; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
   --input: #6b8a72; /* field border: green-grey 3.8:1, reads as "fill me in", not as locked grey */
   --ring: var(--color-leaf-600);
 
@@ -87,6 +104,15 @@
   --info: #1d4ed8;
   --info-soft: #eff6ff;
   --info-text: #1e40af;
+
+  /* Tables (UI guide §7.4): dark slate head with white text (10.4:1) so it never blends with the page;
+     faint cool hover; indigo for highlighted data (totals, selection) */
+  --table-head: var(--color-slate-700);
+  --table-head-foreground: #ffffff;
+  --row-hover: #f3f6fa;
+  --highlight: var(--color-indigo-50);
+  --highlight-foreground: var(--color-indigo-800);
+  --highlight-border: var(--color-indigo-600);
 
   /* Icon tiles (KPI cards, avatars): tinted square + strong icon, all ≥ 5:1 */
   --tile-brand: var(--color-leaf-100);
@@ -112,6 +138,8 @@
   --input: var(--color-earth-900);
   --ring: var(--color-leaf-700);
   --warning-text: #78350f;
+  --table-head: var(--color-earth-900);
+  --highlight-foreground: #1e1b4b;
   --shadow-card: none;
 }
 
@@ -188,6 +216,12 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-link: var(--link);
   --color-tile-brand: var(--tile-brand);
+  --color-table-head: var(--table-head);
+  --color-table-head-foreground: var(--table-head-foreground);
+  --color-row-hover: var(--row-hover);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-highlight-border: var(--highlight-border);
   --color-tile-info: var(--tile-info);
   --color-tile-warning: var(--tile-warning);
   --color-tile-danger: var(--tile-danger);

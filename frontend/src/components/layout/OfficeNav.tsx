@@ -8,11 +8,14 @@ export function OfficeSideNav() {
   const groups = useNavGroups()
 
   return (
-    <nav aria-label="Menu utama" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block print:hidden">
+    <nav
+      aria-label="Menu utama"
+      className="hidden w-64 shrink-0 border-r border-slate-300 bg-card shadow-[1px_0_4px_rgb(20_40_24/0.06)] lg:block print:hidden"
+    >
       <div className="sticky top-16 flex max-h-[calc(100dvh-4rem)] flex-col gap-5 overflow-y-auto px-3 py-5">
         {groups.map((group) => (
           <section key={group.key} aria-labelledby={`nav-${group.key}`} className="flex flex-col gap-1">
-            <h2 id={`nav-${group.key}`} className="px-3 pb-1 text-sm font-semibold text-leaf-700">
+            <h2 id={`nav-${group.key}`} className="px-3 pb-1 text-sm font-semibold text-slate-500">
               {group.label}
             </h2>
             <ul className="flex flex-col gap-0.5">
@@ -24,7 +27,7 @@ export function OfficeSideNav() {
                     className={SIDE_LINK}
                     activeProps={{ className: SIDE_LINK_ACTIVE }}
                   >
-                    <Icon className="size-5 text-leaf-700" aria-hidden />
+                    <Icon className="size-5 text-slate-500 group-data-[status=active]:text-leaf-700" aria-hidden />
                     {label}
                   </Link>
                 </li>
@@ -34,7 +37,7 @@ export function OfficeSideNav() {
         ))}
         {/* UX-09 */}
         <div className="border-t border-border pt-3">
-          <HelpButton className={`${SIDE_LINK} w-full [&_svg]:size-5 [&_svg]:text-leaf-700`} />
+          <HelpButton className={`${SIDE_LINK} w-full [&_svg]:size-5 [&_svg]:text-slate-500`} />
         </div>
       </div>
     </nav>
@@ -42,7 +45,7 @@ export function OfficeSideNav() {
 }
 
 const SIDE_LINK =
-  'relative flex h-11 items-center gap-3 rounded-md px-3 font-medium text-foreground transition-colors hover:bg-leaf-50 hover:text-leaf-800'
+  'group relative flex h-11 items-center gap-3 rounded-md px-3 font-medium text-foreground transition-colors hover:bg-leaf-50 hover:text-leaf-800'
 // Active: tinted pill + a green bar on the left edge, so the place is clear without relying on colour alone
 const SIDE_LINK_ACTIVE =
   'bg-tile-brand font-semibold text-leaf-800 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-leaf-600'

@@ -246,7 +246,7 @@ function SummaryBody({
           {data.top_outlets.length === 0 ? (
             <Empty>Belum ada kunjungan bulan ini.</Empty>
           ) : (
-            <ol className="flex flex-col divide-y divide-earth-200">
+            <ol className="flex flex-col divide-y divide-border">
               {data.top_outlets.map((o) => (
                 <li key={o.outlet_id} className="flex items-baseline gap-3 py-2">
                   <span className="w-6 shrink-0 text-right text-muted-foreground tabular-nums">{o.rank}</span>

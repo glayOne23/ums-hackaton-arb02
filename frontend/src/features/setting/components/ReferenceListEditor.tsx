@@ -2,6 +2,7 @@ import { Check, LoaderCircle, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
+import { SectionCard } from '@/components/common/SectionCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -38,8 +39,7 @@ export function ReferenceListEditor({
     )
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4">
-      <h3 className="font-semibold">{title}</h3>
+    <SectionCard title={title} level={3} bodyClassName="gap-3">
       <form
         className="flex gap-2"
         onSubmit={(e) => {
@@ -76,7 +76,7 @@ export function ReferenceListEditor({
       ) : list.isError ? (
         <ErrorState message={list.error.message} onRetry={() => list.refetch()} />
       ) : (
-        <ul className="flex max-h-80 flex-col divide-y divide-earth-200 overflow-y-auto">
+        <ul className="flex max-h-80 flex-col divide-y divide-border overflow-y-auto">
           {/* Switched-off entries last */}
           {[...list.data]
             .sort((a, b) => Number(b.is_active) - Number(a.is_active))
@@ -85,7 +85,7 @@ export function ReferenceListEditor({
             ))}
         </ul>
       )}
-    </div>
+    </SectionCard>
   )
 }
 

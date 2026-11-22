@@ -117,7 +117,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
         ) : outlet.assignments?.length ? (
           <ol className="flex flex-col">
             {outlet.assignments.map((assignment) => (
-              <li key={assignment.id} className="flex flex-col gap-0.5 border-t border-earth-200 py-3 first:border-t-0">
+              <li key={assignment.id} className="flex flex-col gap-0.5 border-t border-border py-3 first:border-t-0">
                 <span className="flex flex-wrap items-center gap-2 font-medium">
                   {assignment.sales.name}
                   {assignment.is_active && <span className="text-sm text-success-text">· sekarang</span>}

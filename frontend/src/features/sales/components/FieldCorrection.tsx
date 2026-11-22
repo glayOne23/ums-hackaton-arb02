@@ -68,7 +68,7 @@ function Summary({ transaction: t }: { transaction: Transaction }) {
       <p className="text-muted-foreground">
         {t.outlet?.name} · {formatDate(at)} {formatTime(at)}
       </p>
-      <ul className="flex flex-col divide-y divide-earth-200 border-y border-earth-200">
+      <ul className="flex flex-col divide-y divide-border border-y border-border">
         {t.items?.map((item) => (
           <li key={item.id} className="flex flex-wrap justify-between gap-x-3 py-2">
             <span>{item.product_name}</span>

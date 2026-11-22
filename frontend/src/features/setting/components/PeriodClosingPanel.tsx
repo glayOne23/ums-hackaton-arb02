@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { SectionCard } from '@/components/common/SectionCard'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -26,14 +27,15 @@ export function PeriodClosingPanel({ enabled }: { enabled: boolean }) {
   if (!enabled) return null
 
   return (
-    <section
-      aria-labelledby={`${id}-title`}
-      className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4"
+    <SectionCard
+      id={`${id}-title`}
+      title={
+        <>
+          <BookLock className="size-5 text-slate-500" aria-hidden />
+          Tutup buku
+        </>
+      }
     >
-      <h2 id={`${id}-title`} className="flex items-center gap-2 text-lg font-semibold">
-        <BookLock className="size-5" aria-hidden />
-        Tutup buku
-      </h2>
       {info.isPending ? (
         <div className="h-24 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />
       ) : info.isError ? (
@@ -171,6 +173,6 @@ export function PeriodClosingPanel({ enabled }: { enabled: boolean }) {
           )}
         </>
       )}
-    </section>
+    </SectionCard>
   )
 }

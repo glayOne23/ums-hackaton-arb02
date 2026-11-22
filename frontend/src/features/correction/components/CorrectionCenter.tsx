@@ -117,7 +117,7 @@ function ReviewList() {
         ) : devices.data.length === 0 ? (
           <Empty text="Semua HP sales sudah mengirim datanya." />
         ) : (
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {devices.data.map((d) => (
               <li key={d.user.id} className="flex flex-col gap-1 p-3">
                 <p className="flex flex-wrap items-center gap-2 font-medium">
@@ -250,7 +250,7 @@ function TrashList() {
         <Empty text="Tempat sampah kosong." icon={Trash2} />
       ) : (
         <>
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {paged.items.map((item) => (
               <TrashRow key={`${item.type}-${item.id}`} item={item} />
             ))}

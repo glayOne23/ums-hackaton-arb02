@@ -110,7 +110,7 @@ export function OutletTable({ outlets }: { outlets: Outlet[] }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-card">
       <table className="w-full text-left">
-        <thead className="sticky top-0 bg-muted">
+        <thead className="sticky top-0 bg-table-head text-table-head-foreground print:bg-transparent print:text-foreground">
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id}>
               {group.headers.map((header) => (
@@ -118,7 +118,7 @@ export function OutletTable({ outlets }: { outlets: Outlet[] }) {
                   key={header.id}
                   scope="col"
                   className={cn(
-                    'h-11 px-4 text-sm font-semibold text-muted-foreground',
+                    'h-11 px-4 text-sm font-semibold',
                     DESKTOP_ONLY.has(header.column.id) && 'hidden lg:table-cell',
                   )}
                 >
@@ -130,7 +130,7 @@ export function OutletTable({ outlets }: { outlets: Outlet[] }) {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t border-border transition-colors hover:bg-leaf-50">
+            <tr key={row.id} className="border-t border-border transition-colors hover:bg-row-hover">
               {row.getAllCells().map((cell) => (
                 <td
                   key={cell.id}

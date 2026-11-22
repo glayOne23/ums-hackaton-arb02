@@ -83,7 +83,7 @@ export function GoodsReceiptList() {
                 )}
                 <ul className={cn('flex flex-col text-sm', receipt.status === 'void' && 'opacity-70')}>
                   {receipt.items.map((item, i) => (
-                    <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
+                    <li key={i} className="flex justify-between gap-3 border-t border-border py-1.5">
                       <span>
                         {item.product.name}{' '}
                         <span className="text-muted-foreground">

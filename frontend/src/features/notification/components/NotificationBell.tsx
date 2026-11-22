@@ -83,7 +83,7 @@ function NotificationList({ query, onOpen }: { query: ReturnType<typeof useNotif
             </Button>
           )}
           <ul
-            className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border"
+            className="flex flex-col divide-y divide-border rounded-lg border border-border"
             aria-label="Daftar notifikasi"
           >
             {query.data.data.map((n) => (

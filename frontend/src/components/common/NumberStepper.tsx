@@ -48,7 +48,7 @@ export function NumberStepper({ id, label, value, onChange, initial, min = 0 }: 
           className={cn(
             'h-12 w-20 rounded-md border border-input bg-card text-center text-xl font-semibold tabular-nums outline-none',
             'focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
-            changed && 'border-primary bg-accent',
+            changed && 'border-highlight-border bg-highlight text-highlight-foreground',
           )}
         />
         {changed && <span className="absolute top-1 right-1 size-2 rounded-full bg-primary" aria-hidden />}

@@ -143,7 +143,7 @@ export function InvoiceList() {
                   </div>
                   <p className="text-xl font-semibold tabular-nums">{formatCurrency(group.owed)}</p>
                 </div>
-                <ul className="flex flex-col divide-y divide-earth-200 border-t border-earth-200">
+                <ul className="flex flex-col divide-y divide-border border-t border-border">
                   {group.invoices.map((invoice) => (
                     <li key={invoice.id}>
                       <Link

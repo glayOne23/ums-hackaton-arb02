@@ -64,7 +64,7 @@ function RoleDuties({ roles, areas }: { roles: RoleItem[]; areas: { value: strin
     <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-card">
       <table className="w-full min-w-[640px] text-left">
         <caption className="sr-only">Penjelasan tiap peran</caption>
-        <thead className="bg-leaf-50 text-sm text-leaf-800">
+        <thead className="bg-table-head text-sm text-table-head-foreground print:bg-transparent print:text-foreground">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">
               Peran
@@ -83,12 +83,12 @@ function RoleDuties({ roles, areas }: { roles: RoleItem[]; areas: { value: strin
         <tbody className="divide-y divide-border">
           {roles.map((role) => (
             <tr key={role.id} className="align-top">
-              <th scope="row" className="px-4 py-3 font-semibold whitespace-nowrap text-leaf-800">
+              <th scope="row" className="px-4 py-3 font-semibold whitespace-nowrap">
                 {role.label}
               </th>
               <td className="px-4 py-3">{DUTIES[role.name] ?? CUSTOM_DUTY}</td>
               <td className="px-4 py-3">
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-leaf-50 px-2 py-0.5 text-sm font-medium whitespace-nowrap text-leaf-800">
+                <span className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-2 py-0.5 text-sm font-medium whitespace-nowrap text-slate-700">
                   {role.area === 'field' ? (
                     <Smartphone className="size-4" aria-hidden />
                   ) : (
@@ -118,9 +118,9 @@ function AccessMatrix({
     <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-card">
       <table className="w-full min-w-[720px] text-left">
         <caption className="sr-only">Hak akses tiap peran</caption>
-        <thead className="text-sm text-leaf-800">
-          <tr className="bg-leaf-50">
-            <th scope="col" className="sticky left-0 z-[1] bg-leaf-50 px-4 py-3 font-semibold">
+        <thead className="text-sm text-table-head-foreground">
+          <tr className="bg-table-head">
+            <th scope="col" className="sticky left-0 z-[1] bg-table-head px-4 py-3 font-semibold">
               Akses
             </th>
             {roles.map((role) => (
@@ -136,13 +136,13 @@ function AccessMatrix({
               <th
                 scope="colgroup"
                 colSpan={roles.length + 1}
-                className="bg-muted/60 px-4 py-2 text-sm font-bold text-leaf-800"
+                className="bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
               >
                 {group.title}
               </th>
             </tr>
             {group.items.map((permission) => (
-              <tr key={permission.name} className="hover:bg-leaf-50/60">
+              <tr key={permission.name} className="hover:bg-row-hover">
                 <th scope="row" className="sticky left-0 z-[1] bg-card px-4 py-2.5 font-normal">
                   {permission.label}
                 </th>

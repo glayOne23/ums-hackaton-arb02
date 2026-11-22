@@ -5,6 +5,8 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
+import { FieldsetCard } from '@/components/common/SectionCard'
+import { SaveBar } from '@/components/common/SaveBar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -264,16 +266,18 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
         {data.groups.map((group) => {
           const ticked = group.items.filter((item) => permissions.has(item.name)).length
           return (
-            <fieldset
+            <FieldsetCard
               key={group.title}
-              className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4"
+              bodyClassName="gap-1 py-2"
+              title={
+                <>
+                  <span className="flex-1">{group.title}</span>
+                  <span className="rounded-full bg-highlight px-2.5 py-0.5 text-sm font-semibold text-highlight-foreground tabular-nums">
+                    {ticked}/{group.items.length}
+                  </span>
+                </>
+              }
             >
-              <legend className="px-1 text-lg font-semibold">
-                {group.title}{' '}
-                <span className="text-base font-normal text-muted-foreground">
-                  ({ticked}/{group.items.length})
-                </span>
-              </legend>
               {group.items.map((item) => {
                 const changed = permissions.has(item.name) !== original.has(item.name)
                 return (
@@ -291,7 +295,7 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
                   </label>
                 )
               })}
-            </fieldset>
+            </FieldsetCard>
           )
         })}
       </div>
@@ -334,12 +338,7 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
         />
       )}
 
-      <div className="fixed inset-x-0 bottom-16 z-10 border-t border-border bg-card p-3 sm:sticky sm:bottom-20 sm:self-start sm:rounded-lg sm:border sm:shadow-md lg:bottom-4">
-        <Button size="cta" className="sm:h-10 sm:w-auto" disabled={changes === 0 || save.isPending} onClick={submit}>
-          {save.isPending && <LoaderCircle className="size-5 animate-spin" aria-hidden />}
-          {changes === 0 ? 'Belum ada perubahan' : `Simpan (${changes} perubahan)`}
-        </Button>
-      </div>
+      <SaveBar changes={changes} pending={save.isPending} onSave={submit} />
     </div>
   )
 }

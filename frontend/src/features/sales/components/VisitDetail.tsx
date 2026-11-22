@@ -81,7 +81,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
       {/* Phones: one card per product, no sideways scrolling (UI guide §5) */}
       <ul
         className={cn(
-          'flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card sm:hidden',
+          'flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card sm:hidden',
           struck && 'opacity-70',
         )}
       >
@@ -109,7 +109,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
         )}
       >
         <table className="w-full text-left">
-          <thead className="bg-muted text-sm">
+          <thead className="bg-table-head text-sm text-table-head-foreground print:bg-transparent print:text-foreground">
             <tr>
               <th className="p-3 font-semibold">Produk</th>
               {consignment && <th className="p-3 text-right font-semibold">Titipan</th>}
@@ -124,7 +124,7 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
           </thead>
           <tbody className="tabular-nums">
             {t.items?.map((item) => (
-              <tr key={item.id} className="border-t border-earth-200">
+              <tr key={item.id} className="border-t border-border">
                 <td className="p-3">{item.product_name}</td>
                 {consignment && <td className="p-3 text-right">{item.opening_qty}</td>}
                 {consignment && <td className="p-3 text-right">{item.remaining_qty}</td>}

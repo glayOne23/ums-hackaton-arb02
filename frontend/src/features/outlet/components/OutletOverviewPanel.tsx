@@ -89,7 +89,7 @@ function StockTab({ outletId, data }: { outletId: string; data: OutletOverview }
 
   return (
     <div className="flex flex-col gap-3">
-      <ul className="flex flex-col divide-y divide-earth-200">
+      <ul className="flex flex-col divide-y divide-border">
         {data.stock.map((row) => {
           const inputId = `target-${row.product.id}`
           const value = targets[row.product.id] ?? (row.target_qty === null ? '' : String(row.target_qty))
@@ -167,7 +167,7 @@ function VisitsTab({ data }: { data: OutletOverview }) {
   if (data.visits.length === 0) return <p className="text-muted-foreground">Belum ada kunjungan.</p>
 
   return (
-    <ul className="flex flex-col divide-y divide-earth-200">
+    <ul className="flex flex-col divide-y divide-border">
       {data.visits.map((v) => {
         const body = (
           <>
@@ -214,7 +214,7 @@ function InvoicesTab({ data }: { data: OutletOverview }) {
       <p className="text-lg">
         Belum dibayar: <span className="font-semibold tabular-nums">{formatCurrency(data.owed_total)}</span>
       </p>
-      <ul className="flex flex-col divide-y divide-earth-200">
+      <ul className="flex flex-col divide-y divide-border">
         {data.invoices.map((i) => {
           const body = (
             <>

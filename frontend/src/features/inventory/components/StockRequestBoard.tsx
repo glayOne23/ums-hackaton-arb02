@@ -136,55 +136,59 @@ function RequestCard({ request }: { request: StockRequest }) {
         <p className="text-sm text-muted-foreground">Catatan gudang: {request.warehouse_note}</p>
       )}
 
-      <table className="w-full text-left">
-        <thead className="text-sm text-muted-foreground">
-          <tr>
-            <th scope="col" className="pb-1 font-semibold">
-              Produk
-            </th>
-            <th scope="col" className="pb-1 text-right font-semibold">
-              Diminta
-            </th>
-            <th scope="col" className="pb-1 text-right font-semibold">
-              Keluar
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {request.items.map((item, i) => (
-            <tr key={item.id} className="border-t border-earth-200 align-top">
-              <td className="py-2 pr-2">
-                <span className="font-medium">{item.product.name}</span>
-                {item.allocations && item.allocations.length > 0 && (
-                  <span className="block text-sm text-muted-foreground">
-                    {item.allocations
-                      .map(
-                        (a) =>
-                          `${a.batch_number} (${a.expiry_date ? formatExpiry(new Date(a.expiry_date)) : ''}) ${a.qty}`,
-                      )
-                      .join(' · ')}
-                  </span>
-                )}
-                <FieldError id={`issued-${item.id}-error`} message={fieldErrors[`items.${i}.issued_qty`]?.[0]} />
-              </td>
-              <td className="py-2 text-right tabular-nums">{formatNumber(item.requested_qty)}</td>
-              <td className="py-2 text-right">
-                {editing ? (
-                  <Input
-                    aria-label={`Jumlah keluar ${item.product.name}`}
-                    inputMode="numeric"
-                    className="ml-auto w-20 text-right tabular-nums"
-                    value={issued[item.id]}
-                    onChange={(e) => setIssued((all) => ({ ...all, [item.id]: e.target.value.replace(/\D/g, '') }))}
-                  />
-                ) : (
-                  <span className="tabular-nums">{item.issued_qty === null ? '—' : formatNumber(item.issued_qty)}</span>
-                )}
-              </td>
+      <div className="overflow-x-auto rounded-md border border-border">
+        <table className="w-full text-left">
+          <thead className="bg-table-head text-sm text-table-head-foreground print:bg-transparent print:text-foreground">
+            <tr>
+              <th scope="col" className="h-10 px-3 font-semibold">
+                Produk
+              </th>
+              <th scope="col" className="h-10 px-3 text-right font-semibold">
+                Diminta
+              </th>
+              <th scope="col" className="h-10 px-3 text-right font-semibold">
+                Keluar
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {request.items.map((item, i) => (
+              <tr key={item.id} className="border-t border-border align-top hover:bg-row-hover">
+                <td className="px-3 py-2.5">
+                  <span className="font-medium">{item.product.name}</span>
+                  {item.allocations && item.allocations.length > 0 && (
+                    <span className="block text-sm text-muted-foreground">
+                      {item.allocations
+                        .map(
+                          (a) =>
+                            `${a.batch_number} (${a.expiry_date ? formatExpiry(new Date(a.expiry_date)) : ''}) ${a.qty}`,
+                        )
+                        .join(' · ')}
+                    </span>
+                  )}
+                  <FieldError id={`issued-${item.id}-error`} message={fieldErrors[`items.${i}.issued_qty`]?.[0]} />
+                </td>
+                <td className="px-3 py-2.5 text-right tabular-nums">{formatNumber(item.requested_qty)}</td>
+                <td className="px-3 py-2.5 text-right">
+                  {editing ? (
+                    <Input
+                      aria-label={`Jumlah keluar ${item.product.name}`}
+                      inputMode="numeric"
+                      className="ml-auto w-20 text-right tabular-nums"
+                      value={issued[item.id]}
+                      onChange={(e) => setIssued((all) => ({ ...all, [item.id]: e.target.value.replace(/\D/g, '') }))}
+                    />
+                  ) : (
+                    <span className="tabular-nums">
+                      {item.issued_qty === null ? '—' : formatNumber(item.issued_qty)}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {generalError && <p className="text-sm text-danger-text">{generalError}</p>}
 

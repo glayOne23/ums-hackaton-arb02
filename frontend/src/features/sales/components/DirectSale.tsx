@@ -102,7 +102,7 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {shown.map((c) => {
               const n = qty[c.product_id] ?? 0
               return (

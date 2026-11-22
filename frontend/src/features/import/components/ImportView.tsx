@@ -5,9 +5,11 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api/client'
 import { formatDate, formatNumber, formatTime } from '@/lib/format'
+import { usePagedItems } from '@/lib/pagination'
 import { cn } from '@/lib/utils'
 import { downloadFile, usePreviewImport, useRevertImport, useRunImport, useImports } from '../api'
 import type { ImportBatchItem, ImportPreview, ImportTypeInfo, ImportTypeKey, RowStatus, PreviewRow } from '../types'
@@ -62,13 +64,13 @@ export function ImportView() {
               }}
               className={cn(
                 'flex flex-col gap-1 rounded-lg border p-4 text-left',
-                type === t.key ? 'border-primary bg-accent' : 'choice',
+                type === t.key ? 'choice-on' : 'choice bg-card shadow-card',
               )}
             >
               <span className="font-semibold">
                 {i + 1}. {t.title}
               </span>
-              <span className="text-sm text-muted-foreground">{t.description}</span>
+              <span className="text-sm font-normal text-muted-foreground">{t.description}</span>
             </button>
           ))}
         </div>
@@ -230,7 +232,7 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
         </p>
       ) : (
         <ul
-          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card"
+          className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card"
           aria-label="Baris file"
         >
           {rows.slice(0, SHOWN_ROWS).map((row) => (
@@ -372,20 +374,25 @@ function RowChip({ status }: { status: RowStatus }) {
 }
 
 function History({ batches }: { batches: ImportBatchItem[] }) {
+  const paged = usePagedItems(batches, 10)
+
   return (
     <div className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">Riwayat impor</h2>
       {batches.length === 0 ? (
         <p className="text-muted-foreground">Belum pernah ada impor.</p>
       ) : (
-        <ul
-          className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card"
-          aria-label="Riwayat impor"
-        >
-          {batches.map((batch) => (
-            <HistoryRow key={batch.id} batch={batch} />
-          ))}
-        </ul>
+        <>
+          <ul
+            className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card"
+            aria-label="Riwayat impor"
+          >
+            {paged.items.map((batch) => (
+              <HistoryRow key={batch.id} batch={batch} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="impor" />
+        </>
       )}
     </div>
   )
@@ -402,7 +409,7 @@ function HistoryRow({ batch }: { batch: ImportBatchItem }) {
     <li
       className={cn(
         'flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between',
-        reverted && 'bg-muted/50',
+        reverted && 'text-muted-foreground',
       )}
     >
       <div className="min-w-0">

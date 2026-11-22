@@ -258,14 +258,14 @@ export function ProductList({ filters, onFiltersChange }: Props) {
         <>
           <div className="hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card sm:block">
             <table className="w-full text-left">
-              <thead className="bg-muted">
+              <thead className="bg-table-head text-table-head-foreground print:bg-transparent print:text-foreground">
                 {table.getHeaderGroups().map((group) => (
                   <tr key={group.id}>
                     {group.headers.map((header) => (
                       <th
                         key={header.id}
                         scope="col"
-                        className={`h-11 px-4 text-sm font-semibold text-muted-foreground ${DESKTOP_ONLY.has(header.column.id) ? 'hidden lg:table-cell' : ''}`}
+                        className={`h-11 px-4 text-sm font-semibold ${DESKTOP_ONLY.has(header.column.id) ? 'hidden lg:table-cell' : ''}`}
                       >
                         <table.FlexRender header={header} />
                       </th>
@@ -275,7 +275,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
               </thead>
               <tbody>
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-t border-border transition-colors hover:bg-leaf-50">
+                  <tr key={row.id} className="border-t border-border transition-colors hover:bg-row-hover">
                     {row.getAllCells().map((cell) => (
                       <td
                         key={cell.id}

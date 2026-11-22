@@ -227,7 +227,7 @@ function Options({ items, pending, onPick }: { items: Candidate[]; pending: bool
   return (
     <ul
       aria-label="Pilihan data dobel"
-      className="flex max-h-64 flex-col divide-y divide-earth-200 overflow-y-auto rounded-lg border border-border"
+      className="flex max-h-64 flex-col divide-y divide-border overflow-y-auto rounded-lg border border-border"
     >
       {items.length === 0 ? (
         <li className="p-3 text-muted-foreground">Tidak ditemukan.</li>

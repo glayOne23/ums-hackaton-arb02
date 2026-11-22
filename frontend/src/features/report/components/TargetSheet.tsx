@@ -67,7 +67,7 @@ function TargetForm({ month, rows, onDone }: { month: string; rows: SalesTargetR
         )
       }}
     >
-      <ul className="flex flex-col divide-y divide-earth-200">
+      <ul className="flex flex-col divide-y divide-border">
         {draft.map((row, i) => (
           <li key={row.sales_user_id} className="grid gap-2 py-3 sm:grid-cols-[minmax(0,1fr)_8rem_12rem] sm:items-end">
             <span className="font-medium">{row.name}</span>
