@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Core\Events\DomainEvent;
+use App\Core\Events\SendWebhook;
+use App\Core\Features\Flags;
 use App\Core\Period\ClosedPeriods;
 use App\Modules\Auth\Actions\Login;
 use App\Modules\Auth\Models\PersonalAccessToken;
@@ -16,6 +19,7 @@ use App\Modules\Sales\Merge\MoveOutletTransactions;
 use App\Modules\Sales\Merge\MoveProductSales;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
@@ -38,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // Tokens live in the prefixed table auth_personal_access_tokens
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // FP-04: every domain event goes out to WEBHOOK_URL when one is set
+        Event::listen(DomainEvent::class, SendWebhook::class);
+
+        // FP-07: features rolled out per role or user (Settings → Fitur bertahap)
+        Flags::register();
 
         // Login attempts are limited per account + IP, not per IP only:
         // office staff usually share one IP, so one person's wrong password

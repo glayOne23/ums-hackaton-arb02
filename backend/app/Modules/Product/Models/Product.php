@@ -25,12 +25,13 @@ use Illuminate\Support\Carbon;
  * @property string $unit
  * @property string $selling_price decimal as string, e.g. "60000.00"
  * @property string|null $photo_path
+ * @property array<string, mixed>|null $custom_fields
  * @property int $min_stock_qty
  * @property bool $is_active
  * @property Carbon|null $deleted_at
  * @property string|null $merged_into_id the outlet/product this duplicate was merged into (KR-08)
  */
-#[Fillable(['code', 'name', 'category_id', 'bpom_number', 'unit', 'selling_price', 'min_stock_qty', 'is_active'])]
+#[Fillable(['code', 'name', 'category_id', 'bpom_number', 'unit', 'selling_price', 'min_stock_qty', 'is_active', 'custom_fields'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */

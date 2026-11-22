@@ -14,6 +14,7 @@ import {
   Warehouse,
 } from 'lucide-react'
 import { useSession } from '@/stores/session'
+import { t } from '@/i18n'
 
 export interface NavItem {
   to:
@@ -41,10 +42,10 @@ export interface NavItem {
 
 /** Sections of the side menu (UI guide §5): related pages sit together under one heading. */
 export const NAV_GROUPS = [
-  { key: 'monitor', label: 'Pantauan' },
-  { key: 'sales', label: 'Penjualan' },
-  { key: 'stock', label: 'Produk & gudang' },
-  { key: 'admin', label: 'Administrasi' },
+  { key: 'monitor', label: t('nav.groups.monitor') },
+  { key: 'sales', label: t('nav.groups.sales') },
+  { key: 'stock', label: t('nav.groups.stock') },
+  { key: 'admin', label: t('nav.groups.admin') },
 ] as const
 
 export type NavGroupKey = (typeof NAV_GROUPS)[number]['key']
@@ -53,35 +54,65 @@ export type NavGroupKey = (typeof NAV_GROUPS)[number]['key']
 const ITEMS: NavItem[] = [
   {
     to: '/office',
-    label: 'Ringkasan',
+    label: t('nav.items.dashboard'),
     icon: LayoutDashboard,
     group: 'monitor',
     permissions: ['dashboard.view'],
     exact: true,
   },
-  { to: '/office/reports', label: 'Laporan', icon: ChartColumn, group: 'monitor', permissions: ['report.view'] },
-  { to: '/office/outlets', label: 'Outlet', icon: Store, group: 'sales', permissions: ['outlet.view'] },
-  { to: '/office/visits', label: 'Kunjungan', icon: ClipboardList, group: 'sales', permissions: ['visit.view'] },
-  { to: '/office/billing', label: 'Tagihan', icon: Wallet, group: 'sales', permissions: ['invoice.view'] },
-  { to: '/office/products', label: 'Produk', icon: Package, group: 'stock', permissions: ['product.view'] },
-  { to: '/office/discounts', label: 'Potongan', icon: Percent, group: 'stock', permissions: ['product.view'] },
+  {
+    to: '/office/reports',
+    label: t('nav.items.reports'),
+    icon: ChartColumn,
+    group: 'monitor',
+    permissions: ['report.view'],
+  },
+  { to: '/office/outlets', label: t('nav.items.outlets'), icon: Store, group: 'sales', permissions: ['outlet.view'] },
+  {
+    to: '/office/visits',
+    label: t('nav.items.visits'),
+    icon: ClipboardList,
+    group: 'sales',
+    permissions: ['visit.view'],
+  },
+  { to: '/office/billing', label: t('nav.items.billing'), icon: Wallet, group: 'sales', permissions: ['invoice.view'] },
+  {
+    to: '/office/products',
+    label: t('nav.items.products'),
+    icon: Package,
+    group: 'stock',
+    permissions: ['product.view'],
+  },
+  {
+    to: '/office/discounts',
+    label: t('nav.items.discounts'),
+    icon: Percent,
+    group: 'stock',
+    permissions: ['product.view'],
+  },
   {
     to: '/office/inventory',
-    label: 'Gudang',
+    label: t('nav.items.inventory'),
     icon: Warehouse,
     group: 'stock',
     permissions: ['inventory.view', 'stock_request.view'],
   },
   {
     to: '/office/corrections',
-    label: 'Koreksi',
+    label: t('nav.items.corrections'),
     icon: LifeBuoy,
     group: 'admin',
     permissions: ['visit.correct', 'correction.approve', 'outlet.manage', 'product.manage'],
   },
-  { to: '/office/imports', label: 'Impor Excel', icon: FileUp, group: 'admin', permissions: ['data.import'] },
-  { to: '/office/users', label: 'Pengguna', icon: Users, group: 'admin', permissions: ['user.manage'] },
-  { to: '/office/settings', label: 'Pengaturan', icon: Settings, group: 'admin', permissions: ['setting.manage'] },
+  { to: '/office/imports', label: t('nav.items.imports'), icon: FileUp, group: 'admin', permissions: ['data.import'] },
+  { to: '/office/users', label: t('nav.items.users'), icon: Users, group: 'admin', permissions: ['user.manage'] },
+  {
+    to: '/office/settings',
+    label: t('nav.items.settings'),
+    icon: Settings,
+    group: 'admin',
+    permissions: ['setting.manage'],
+  },
 ]
 
 export function useNavItems(): NavItem[] {

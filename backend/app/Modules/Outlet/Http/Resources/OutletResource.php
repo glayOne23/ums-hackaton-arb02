@@ -32,6 +32,8 @@ class OutletResource extends JsonResource
             ],
             'visit_cycle_days' => $this->visit_cycle_days,
             'is_active' => $this->is_active,
+            // FP-06: the admin's extra fields, by key ({} when none)
+            'custom_fields' => (object) ($this->custom_fields ?? []),
             // Sales currently holding the outlet
             'sales' => $this->whenLoaded('activeAssignments', fn () => $this->activeAssignments
                 ->map(fn (Assignment $assignment) => [

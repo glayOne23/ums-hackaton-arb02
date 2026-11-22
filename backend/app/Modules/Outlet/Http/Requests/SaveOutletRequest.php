@@ -4,6 +4,7 @@ namespace App\Modules\Outlet\Http\Requests;
 
 use App\Core\Support\PhoneNumber;
 use App\Modules\Outlet\Enums\SaleMode;
+use App\Modules\Setting\CustomFields;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -38,6 +39,8 @@ class SaveOutletRequest extends FormRequest
             'sale_mode' => [$required, Rule::enum(SaleMode::class)],
             'visit_cycle_days' => ['nullable', 'integer', 'min:1', 'max:365'],
             'is_active' => ['sometimes', 'boolean'],
+            // FP-06: the admin's extra fields
+            ...CustomFields::rules('outlet'),
         ];
     }
 
@@ -57,6 +60,7 @@ class SaveOutletRequest extends FormRequest
             'district.max' => 'Nama kecamatan terlalu panjang (maks. 100 huruf).',
             'address.max' => 'Alamat terlalu panjang (maks. 500 huruf).',
             'sale_mode.required' => 'Cara jual wajib dipilih.',
+            ...CustomFields::messages('outlet'),
             'sale_mode.enum' => 'Cara jual tidak dikenali. Pilih titip jual, beli langsung, atau tempo.',
             'visit_cycle_days.integer' => 'Siklus kunjungan harus berupa angka hari.',
             'visit_cycle_days.min' => 'Siklus kunjungan paling sedikit 1 hari.',

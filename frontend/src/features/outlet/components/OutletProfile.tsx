@@ -15,6 +15,7 @@ import { DeleteOutletButton } from './DeleteOutletButton'
 import { OutletOverviewPanel } from './OutletOverviewPanel'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
+import { CustomFieldList } from '@/features/setting/components/CustomFields'
 
 /**
  * W2 — outlet profile (OT-03): the outlet data, who holds it, its shelf with
@@ -99,6 +100,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
           value={outlet.visit_cycle_days ? `${outlet.visit_cycle_days} hari` : 'Ikut Pengaturan'}
         />
         <Info label="Sales penanggung jawab" value={outlet.sales?.map((s) => s.name).join(', ') || 'Belum ada'} />
+        <CustomFieldList entity="outlet" values={outlet.custom_fields} />
       </section>
 
       <section className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4 sm:p-6">

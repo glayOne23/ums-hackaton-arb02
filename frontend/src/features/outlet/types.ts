@@ -1,3 +1,5 @@
+import type { CustomFieldValues } from '@/features/setting/types'
+
 /** Shapes returned by the Outlet API (backend: App\Modules\Outlet\Http\Resources). */
 
 export type SaleModeValue = 'consignment' | 'cash' | 'credit'
@@ -24,6 +26,8 @@ export interface Assignment {
 
 export interface Outlet {
   id: string
+  /** FP-06: the admin's extra fields */
+  custom_fields?: CustomFieldValues
   code: string
   name: string
   outlet_type?: Reference

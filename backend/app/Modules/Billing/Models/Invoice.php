@@ -2,6 +2,7 @@
 
 namespace App\Modules\Billing\Models;
 
+use App\Core\Events\InvoicePaid;
 use App\Models\User;
 use App\Modules\Billing\Enums\InvoiceStatus;
 use App\Modules\Billing\Enums\InvoiceType;
@@ -35,6 +36,16 @@ class Invoice extends Model
     use HasUlids;
 
     protected $table = 'bil_invoices';
+
+    protected static function booted(): void
+    {
+        // FP-04: whichever action records the money, the moment it becomes fully paid is announced once
+        static::saved(function (Invoice $invoice) {
+            if ($invoice->wasChanged('status') && $invoice->status === InvoiceStatus::Paid) {
+                InvoicePaid::dispatch($invoice);
+            }
+        });
+    }
 
     protected function casts(): array
     {

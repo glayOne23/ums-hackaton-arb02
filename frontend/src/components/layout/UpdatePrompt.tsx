@@ -1,6 +1,7 @@
 import { RefreshCw } from 'lucide-react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from '@/components/ui/button'
+import { t } from '@/i18n'
 
 /** How often an open app asks whether a new version was deployed */
 const CHECK_EVERY_MS = 60 * 60_000
@@ -31,12 +32,12 @@ export function UpdatePrompt() {
       className="fixed inset-x-3 top-3 z-50 mx-auto flex max-w-md flex-wrap items-center gap-3 rounded-lg border border-border bg-card shadow-card p-3 shadow-lg print:hidden"
     >
       <RefreshCw className="size-5 shrink-0 text-leaf-700" aria-hidden />
-      <p className="min-w-0 flex-1">Versi baru SIGAP tersedia.</p>
+      <p className="min-w-0 flex-1">{t('update.available')}</p>
       <div className="flex gap-2">
         <Button variant="ghost" onClick={() => setNeedRefresh(false)}>
           Nanti
         </Button>
-        <Button onClick={() => void updateServiceWorker(true)}>Muat ulang</Button>
+        <Button onClick={() => void updateServiceWorker(true)}>{t('update.reload')}</Button>
       </div>
     </div>
   )

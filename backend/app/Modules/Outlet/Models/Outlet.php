@@ -38,7 +38,7 @@ use Illuminate\Support\Carbon;
  */
 #[Fillable([
     'name', 'outlet_type_id', 'region_id', 'district', 'address',
-    'whatsapp_number', 'sale_mode', 'visit_cycle_days', 'is_active',
+    'whatsapp_number', 'sale_mode', 'visit_cycle_days', 'is_active', 'custom_fields',
 ])]
 class Outlet extends Model
 {

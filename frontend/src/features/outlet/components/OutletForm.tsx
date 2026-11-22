@@ -14,6 +14,8 @@ import { useOutletTypes, useProposeOutlet, useRegions, useSaveOutlet } from '../
 import { type OutletFormInput, outletFormSchema } from '../schemas'
 import { type Outlet, type OutletProposal, SALE_MODES } from '../types'
 import { SimilarOutletsNotice } from './SimilarOutletsNotice'
+import { CustomFieldInputs } from '@/features/setting/components/CustomFields'
+import { customFieldDefaults } from '@/features/setting/custom-fields'
 
 interface Props {
   /** Empty = add a new outlet */
@@ -39,6 +41,7 @@ function defaults(outlet?: Outlet): OutletFormInput {
     sale_mode: outlet?.sale_mode.value ?? 'consignment',
     visit_cycle_days: outlet?.visit_cycle_days?.toString() ?? '',
     is_active: outlet?.is_active ?? true,
+    custom_fields: customFieldDefaults(outlet?.custom_fields),
   }
 }
 
@@ -68,7 +71,7 @@ export function OutletForm({ outlet, onSaved, onCancel, onProposed }: Props) {
     // Show server validation messages under their own fields
     if (error instanceof ApiError) {
       for (const [field, messages] of Object.entries(error.fieldErrors)) {
-        if (field in defaults())
+        if (field in defaults() || field.startsWith('custom_fields.'))
           setError(field as keyof OutletFormInput, {
             message: messages[0],
           })
@@ -85,7 +88,7 @@ export function OutletForm({ outlet, onSaved, onCancel, onProposed }: Props) {
             // Show server validation messages under their own fields
             if (error instanceof ApiError) {
               for (const [field, messages] of Object.entries(error.fieldErrors)) {
-                if (field in input)
+                if (field in input || field.startsWith('custom_fields.'))
                   setError(field as keyof OutletFormInput, {
                     message: messages[0],
                   })
@@ -229,6 +232,9 @@ export function OutletForm({ outlet, onSaved, onCancel, onProposed }: Props) {
         </div>
         <FieldError id="sale_mode-error" message={errors.sale_mode?.message} />
       </fieldset>
+
+      {/* FP-06: not on a sales proposal; the office fills them in after checking */}
+      {!proposing && <CustomFieldInputs entity="outlet" register={register} errors={errors} />}
 
       {proposing && (
         <div className="flex flex-col gap-2">

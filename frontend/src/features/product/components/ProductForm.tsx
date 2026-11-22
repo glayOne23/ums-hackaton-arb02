@@ -11,6 +11,8 @@ import { ApiError } from '@/lib/api/client'
 import { useCategories, useSaveProduct } from '../api'
 import { type ProductFormInput, productFormSchema } from '../schemas'
 import type { Product } from '../types'
+import { CustomFieldInputs } from '@/features/setting/components/CustomFields'
+import { customFieldDefaults } from '@/features/setting/custom-fields'
 
 interface Props {
   /** Empty = add a new product */
@@ -30,6 +32,7 @@ function defaults(product?: Product): ProductFormInput {
     min_stock_qty: product ? String(product.min_stock_qty) : '',
     is_active: product?.is_active ?? true,
     aliases: product?.aliases?.join('\n') ?? '',
+    custom_fields: customFieldDefaults(product?.custom_fields),
   }
 }
 
@@ -62,6 +65,10 @@ export function ProductForm({ product, onSaved, onCancel }: Props) {
       onError: (error) => {
         if (!(error instanceof ApiError)) return
         for (const [field, messages] of Object.entries(error.fieldErrors)) {
+          if (field.startsWith('custom_fields.')) {
+            setError(field as keyof ProductFormInput, { message: messages[0] })
+            continue
+          }
           const name = formField(field)
           if (name in input) setError(name, { message: messages[0] })
         }
@@ -186,6 +193,8 @@ export function ProductForm({ product, onSaved, onCancel }: Props) {
         />
         <FieldError id="aliases-error" message={errors.aliases?.message} />
       </div>
+
+      <CustomFieldInputs entity="product" register={register} errors={errors} />
 
       {product && (
         <label className="flex min-h-12 items-center gap-3">

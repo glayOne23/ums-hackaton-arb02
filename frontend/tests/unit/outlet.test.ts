@@ -12,6 +12,7 @@ const valid = {
   sale_mode: 'consignment' as const,
   visit_cycle_days: '',
   is_active: true,
+  custom_fields: {},
 }
 
 describe('outlet form', () => {

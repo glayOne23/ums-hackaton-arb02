@@ -3,6 +3,7 @@
 namespace App\Modules\Product\Http\Requests;
 
 use App\Modules\Product\Models\Product;
+use App\Modules\Setting\CustomFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -50,6 +51,8 @@ class SaveProductRequest extends FormRequest
             'is_active' => ['sometimes', 'boolean'],
             'aliases' => ['sometimes', 'array', 'max:20'],
             'aliases.*' => ['string', 'max:150', 'distinct:ignore_case', $aliasUnique],
+            // FP-06: the admin's extra fields
+            ...CustomFields::rules('product'),
         ];
     }
 
@@ -59,6 +62,7 @@ class SaveProductRequest extends FormRequest
     public function messages(): array
     {
         return [
+            ...CustomFields::messages('product'),
             'code.required' => 'Kode produk wajib diisi, misalnya MDK02.',
             'code.regex' => 'Kode hanya boleh huruf, angka, titik, garis bawah, atau tanda minus, tanpa spasi.',
             'code.unique' => 'Kode ini sudah dipakai produk lain (termasuk produk di tempat sampah).',

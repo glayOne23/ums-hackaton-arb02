@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useLogout } from '@/features/auth/api'
+import { t } from '@/i18n'
 
 export function LogoutButton() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export function LogoutButton() {
       onClick={() => logout.mutate(undefined, { onSettled: () => navigate({ to: '/login', replace: true }) })}
     >
       <LogOut aria-hidden />
-      Keluar
+      {t('app.signOut')}
     </Button>
   )
 }

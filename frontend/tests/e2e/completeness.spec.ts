@@ -79,3 +79,33 @@ test('turning off "mundur" hides Ubah status on stock requests (PG-14)', async (
   await warehouse.getByLabel('Tampilkan').selectOption({ label: 'Semua' })
   await expect(warehouse.getByRole('button', { name: 'Ubah status' }).first()).toBeVisible()
 })
+
+test('the office adds an outlet field, fills it in, sees it, and switches it off (FP-06)', async () => {
+  const label = `No. SIPA ${Date.now() % 100000}`
+  await office.goto('/office/settings')
+  const outletCard = office.getByRole('region', { name: 'Outlet', exact: true })
+  await outletCard.getByLabel('Nama kolom').fill(label)
+  await outletCard.getByRole('button', { name: 'Tambah kolom' }).click()
+  await expect(office.getByText(`Kolom ${label} ditambahkan`)).toBeVisible()
+
+  await office.goto('/office/outlets')
+  await office
+    .getByRole('link', { name: /^Ubah / })
+    .first()
+    .click()
+  await office.getByLabel(label).fill('503/123/2026')
+  await office.getByRole('button', { name: /Simpan/ }).click()
+  await expect(office.getByText('503/123/2026')).toBeVisible()
+
+  // Switched off: gone from the form and the profile, the value is kept on the server
+  await office.goto('/office/settings')
+  await office.getByLabel(`${label} aktif`).uncheck()
+  await expect(office.getByLabel(`${label} aktif`)).not.toBeChecked()
+})
+
+test('the office downloads all data as one ZIP (FP-11)', async () => {
+  await office.goto('/office/settings')
+  const download = office.waitForEvent('download')
+  await office.getByRole('button', { name: 'Unduh CSV (untuk Excel)' }).click()
+  expect((await download).suggestedFilename()).toMatch(/^SIGAP data lengkap .* CSV\.zip$/)
+})

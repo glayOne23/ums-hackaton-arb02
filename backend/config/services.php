@@ -2,6 +2,12 @@
 
 return [
 
+    // FP-04: optional receiver of domain events (App\Core\Events\SendWebhook); empty = off
+    'webhook' => [
+        'url' => env('WEBHOOK_URL', ''),
+        'secret' => env('WEBHOOK_SECRET', ''),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

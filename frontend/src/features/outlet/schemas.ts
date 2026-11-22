@@ -30,6 +30,8 @@ export const outletFormSchema = z.object({
       'Isi 1–365 hari, atau kosongkan untuk mengikuti Pengaturan.',
     ),
   is_active: z.boolean(),
+  /** FP-06: the admin's extra fields, by key, as typed */
+  custom_fields: z.record(z.string(), z.string()),
 })
 
 export type OutletFormInput = z.infer<typeof outletFormSchema>

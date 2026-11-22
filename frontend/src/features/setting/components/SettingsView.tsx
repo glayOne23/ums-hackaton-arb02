@@ -15,6 +15,9 @@ import { cn } from '@/lib/utils'
 import { useSaveSettings, useSettingHistory, useSettings } from '../api'
 import type { SettingItem, SettingValue } from '../types'
 import { REFERENCE_LISTS } from '../api'
+import { CustomFieldEditor } from './CustomFieldEditor'
+import { FeatureFlagPanel } from './FeatureFlagPanel'
+import { FullExportPanel } from './FullExportPanel'
 import { PeriodClosingPanel } from './PeriodClosingPanel'
 import { ReferenceListEditor } from './ReferenceListEditor'
 
@@ -141,6 +144,12 @@ export function SettingsView() {
           ))}
         </div>
       </div>
+
+      <CustomFieldEditor />
+
+      <FeatureFlagPanel />
+
+      <FullExportPanel />
     </section>
   )
 }

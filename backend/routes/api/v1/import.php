@@ -14,3 +14,6 @@ Route::middleware(['auth:sanctum', 'can:data.import'])->prefix('imports')->group
 
 // IE-02 — tables to Excel; each table checks its own view permission
 Route::middleware('auth:sanctum')->get('exports/{type}', [ImportController::class, 'export'])->where('type', '[a-z_]+');
+
+// FP-11: everything, for the partner to keep (Settings → Ekspor seluruh data)
+Route::middleware(['auth:sanctum', 'can:setting.manage', 'throttle:6,1'])->get('data-export', [ImportController::class, 'fullExport']);

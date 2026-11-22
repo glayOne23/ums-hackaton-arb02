@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Outlet\Models\Outlet;
 use App\Modules\Outlet\Models\OutletType;
 use App\Modules\Outlet\Models\Region;
+use App\Modules\Setting\CustomFields;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -40,6 +41,10 @@ final class SaveOutlet
             }
 
             $before = $outlet->exists ? $outlet->only(array_keys(self::LABELS)) : null;
+            $customBefore = $outlet->custom_fields;
+            if (array_key_exists('custom_fields', $data)) {
+                $data['custom_fields'] = CustomFields::merge('outlet', $outlet->custom_fields, (array) $data['custom_fields']) ?: null;
+            }
             $outlet->fill($data);
 
             if (! $outlet->exists) {
@@ -52,10 +57,10 @@ final class SaveOutlet
 
             if ($before === null) {
                 History::record($outlet, 'Membuat outlet', by: $actor);
-            } elseif ($changes = History::diff(self::LABELS, $before, $outlet->only(array_keys(self::LABELS)), [
+            } elseif ($changes = [...History::diff(self::LABELS, $before, $outlet->only(array_keys(self::LABELS)), [
                 'outlet_type_id' => fn ($id) => $id ? (string) OutletType::query()->whereKey($id)->value('name') : '(kosong)',
                 'region_id' => fn ($id) => $id ? (string) Region::query()->whereKey($id)->value('name') : '(kosong)',
-            ])) {
+            ]), ...CustomFields::diff('outlet', $customBefore, $outlet->custom_fields)]) {
                 History::record($outlet, 'Mengubah data outlet', $changes, by: $actor);
             }
 

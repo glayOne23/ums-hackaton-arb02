@@ -3,6 +3,9 @@ import { api } from '@/lib/api/client'
 import type {
   ClosedPeriodsInfo,
   ClosePreview,
+  CustomFieldDef,
+  CustomFieldEntity,
+  FeatureFlag,
   ReferenceItem,
   SettingChange,
   SettingsResponse,
@@ -101,5 +104,47 @@ export function useSaveReference(path: string) {
       api<{ data: ReferenceItem }>(id ? `${path}/${id}` : path, { method: id ? 'PATCH' : 'POST', body }),
     // The outlet and product forms read the same lists under their own keys
     onSuccess: () => queryClient.invalidateQueries(),
+  })
+}
+
+/** FP-06: extra fields; `all` includes switched-off ones (Settings only). */
+export function useCustomFields(entity: CustomFieldEntity, all = false) {
+  return useQuery({
+    queryKey: [...settingKeys.all, 'custom-fields', entity, all] as const,
+    queryFn: ({ signal }) =>
+      api<{ data: CustomFieldDef[] }>(`/custom-fields?entity=${entity}${all ? '&all=1' : ''}`, { signal }).then(
+        (r) => r.data,
+      ),
+    staleTime: 5 * 60_000,
+  })
+}
+
+export function useSaveCustomField() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...body }: Partial<CustomFieldDef> & { id?: string }) =>
+      api<{ data: CustomFieldDef }>(id ? `/custom-fields/${id}` : '/custom-fields', {
+        method: id ? 'PATCH' : 'POST',
+        body,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...settingKeys.all, 'custom-fields'] }),
+  })
+}
+
+/** FP-07: Settings → Fitur bertahap */
+export function useFeatureFlags() {
+  return useQuery({
+    queryKey: [...settingKeys.all, 'feature-flags'] as const,
+    queryFn: ({ signal }) =>
+      api<{ data: FeatureFlag[]; roles: { name: string; label: string }[] }>('/feature-flags', { signal }),
+  })
+}
+
+export function useSaveFeatureFlag() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ key, ...body }: Pick<FeatureFlag, 'key' | 'audience' | 'roles' | 'users'>) =>
+      api<{ data: FeatureFlag }>(`/feature-flags/${key}`, { method: 'PUT', body }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...settingKeys.all, 'feature-flags'] }),
   })
 }

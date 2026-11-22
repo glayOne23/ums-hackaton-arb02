@@ -1,3 +1,5 @@
+import { t } from '@/i18n'
+
 /** PG-12: a void that waits for approval, as the API sends it. */
 export interface VoidPendingInfo {
   id: string
@@ -15,5 +17,5 @@ export interface VoidResult<T> {
 
 /** Toast text after asking to void: done now, or waiting for approval. */
 export function voidToast(result: { pending?: boolean }, done: string): string {
-  return result.pending ? 'Pembatalan diajukan. Menunggu persetujuan Pimpinan.' : done
+  return result.pending ? t('voids.requestedToast') : done
 }

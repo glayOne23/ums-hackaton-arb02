@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sales\Actions;
 
+use App\Core\Events\TransactionRecorded;
 use App\Core\Period\ClosedPeriods;
 use App\Core\Support\DocumentNumber;
 use App\Core\Support\Money;
@@ -78,7 +79,10 @@ final class RecordTransaction
         }
 
         try {
-            return [DB::transaction(fn () => $this->record($data, $sales)), true];
+            $transaction = DB::transaction(fn () => $this->record($data, $sales));
+            TransactionRecorded::dispatch($transaction);
+
+            return [$transaction, true];
         } catch (UniqueConstraintViolationException $e) {
             // The same phone sent it twice at the same moment: the other request won
             if ($existing = $this->existing($data['client_uuid'], $sales)) {

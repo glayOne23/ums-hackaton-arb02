@@ -61,3 +61,30 @@ export interface ClosePreview {
   blockers: string[]
   notes: string[]
 }
+
+/** FP-06: an extra field the admin added to outlets or products */
+export type CustomFieldEntity = 'outlet' | 'product'
+export type CustomFieldType = 'text' | 'number' | 'date' | 'choice'
+
+export interface CustomFieldDef {
+  id: string
+  entity: CustomFieldEntity
+  key: string
+  label: string
+  type: CustomFieldType
+  options: string[]
+  is_active: boolean
+}
+
+/** Stored values by field key */
+export type CustomFieldValues = Record<string, string | number>
+
+/** FP-07: a feature rolled out step by step */
+export interface FeatureFlag {
+  key: string
+  label: string
+  help: string
+  audience: 'all' | 'roles' | 'none'
+  roles: string[]
+  users: string[]
+}

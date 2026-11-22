@@ -2,6 +2,7 @@
 
 namespace App\Modules\Product\Http\Controllers;
 
+use App\Core\Features\Flags;
 use App\Core\History\History;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Pennant\Feature;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -29,6 +31,8 @@ class ProductPhotoController extends Controller
 
     public function store(Request $request, Product $product): JsonResponse
     {
+        // FP-07: only where the photo feature is rolled out
+        abort_unless(Feature::for($this->actor($request))->active(Flags::PRODUCT_PHOTO), 403, 'Fitur foto produk belum dinyalakan untuk Anda.');
         $request->validate(
             ['photo' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:1024']],
             [
@@ -51,6 +55,7 @@ class ProductPhotoController extends Controller
 
     public function destroy(Request $request, Product $product): Response
     {
+        abort_unless(Feature::for($this->actor($request))->active(Flags::PRODUCT_PHOTO), 403, 'Fitur foto produk belum dinyalakan untuk Anda.');
         if ($product->photo_path) {
             Storage::disk(self::DISK)->delete($product->photo_path);
             $product->forceFill(['photo_path' => null])->save();

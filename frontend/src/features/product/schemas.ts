@@ -35,6 +35,8 @@ export const productFormSchema = z.object({
   is_active: z.boolean(),
   /** One alias per line */
   aliases: z.string(),
+  /** FP-06: the admin's extra fields, by key, as typed */
+  custom_fields: z.record(z.string(), z.string()),
 })
 
 export type ProductFormInput = z.infer<typeof productFormSchema>

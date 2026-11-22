@@ -10,12 +10,13 @@ import { Button } from '@/components/ui/button'
 import { ROW_ACTION, RowActionLabel } from '@/components/common/RowActions'
 import { api, ApiError } from '@/lib/api/client'
 import { formatCurrency, formatNumber } from '@/lib/format'
-import { usePermission } from '@/stores/session'
+import { useFeature, usePermission } from '@/stores/session'
 import { productKeys, useDeleteProduct, useProduct } from '../api'
 import { ProductPhoto } from './ProductPhoto'
 import type { Product } from '../types'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
+import { CustomFieldList } from '@/features/setting/components/CustomFields'
 
 /** Product data, readable by everyone with product.view; change and delete with product.manage. */
 export function ProductDetail({ productId }: { productId: string }) {
@@ -39,6 +40,8 @@ export function ProductDetail({ productId }: { productId: string }) {
 
 function Content({ product }: { product: Product }) {
   const canManage = usePermission('product.manage')
+  // FP-07: rolled out step by step
+  const photoFeature = useFeature('product_photo')
   const canSeeStock = usePermission('inventory.view')
 
   return (
@@ -82,9 +85,10 @@ function Content({ product }: { product: Product }) {
         <Info label="Nomor BPOM" value={product.bpom_number} />
         <Info label="Stok minimum gudang" value={`${formatNumber(product.min_stock_qty)} ${product.unit}`} />
         <Info label="Nama lain di Excel lama" value={product.aliases?.join(', ') || null} />
+        <CustomFieldList entity="product" values={product.custom_fields} />
       </section>
 
-      <ProductPhoto product={product} canManage={canManage} />
+      {photoFeature && <ProductPhoto product={product} canManage={canManage} />}
 
       <HistoryPanel type="product" id={product.id} />
 

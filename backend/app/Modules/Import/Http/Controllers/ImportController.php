@@ -5,6 +5,7 @@ namespace App\Modules\Import\Http\Controllers;
 use App\Core\Models\ImportBatch;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Import\Actions\FullExport;
 use App\Modules\Import\Actions\PreviewImport;
 use App\Modules\Import\Actions\RevertImport;
 use App\Modules\Import\Actions\RunImport;
@@ -118,6 +119,16 @@ class ImportController extends Controller
             new TableExport($importType->title(), array_map(fn (Column $c) => $c->label, $importType->columns()), $rows),
             "SIGAP {$importType->title()} ".now()->format('Y-m-d').'.xlsx',
         );
+    }
+
+    /** FP-11: the whole database as one ZIP of JSON or CSV files. */
+    public function fullExport(Request $request, FullExport $export): BinaryFileResponse
+    {
+        $format = $request->validate(['format' => ['required', 'in:json,csv']])['format'];
+        $path = $export->handle($format, $this->user($request));
+
+        return response()->download($path, 'SIGAP data lengkap '.now()->format('Y-m-d').' '.strtoupper($format).'.zip')
+            ->deleteFileAfterSend();
     }
 
     private function type(string $key): ImportType

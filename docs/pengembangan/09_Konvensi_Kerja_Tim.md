@@ -127,6 +127,14 @@ Sebuah tugas dianggap selesai bila:
 - [ ] Pemeriksaan §5 lulus, PR disetujui reviewer dan lulus uji QA
 - [ ] Dokumen diperbarui bila keputusan berubah (atau ADR baru di `docs/adr/`)
 
+### 6.1 Teks, fitur baru, dan integrasi (kesiapan jangka panjang, SRS §6.1)
+
+- **Teks tampilan (FP-08).** Teks baru di frontend ditulis di `frontend/src/i18n/id.ts` dan dipanggil dengan `t('kelompok.kunci')`; TypeScript menolak kunci yang salah. Komponen bersama (menu, paginasi, bilah simpan, status koneksi, pembaruan aplikasi) sudah memakainya; layar lain dipindah bertahap saat disentuh. Pesan validasi backend tanpa pesan khusus memakai `backend/lang/id/validation.php`; tambahkan nama kolom baru di bagian `attributes`.
+- **Fitur baru yang diuji bertahap (FP-07).** Tambahkan satu entri di `App\Core\Features\Flags::ALL`, lalu periksa `Feature::for($user)->active(...)` di server dan `useFeature('...')` di PWA. Admin mengatur siapa yang melihatnya di Pengaturan → Fitur bertahap.
+- **Kolom tambahan (FP-06).** Jangan menambah kolom tabel untuk informasi opsional outlet/produk; admin menambahkannya di Pengaturan → Kolom tambahan (`cfg_custom_fields`, nilai di `custom_fields`).
+- **Integrasi (FP-04).** Sistem lain mendengarkan event `transaction.recorded`, `stock.changed`, dan `invoice.paid` lewat webhook (`WEBHOOK_URL`, ditandatangani `X-SIGAP-Signature`). Event baru: kelas di `app/Core/Events` yang mengimplementasikan `DomainEvent`.
+- **Ekspor penuh (FP-11).** Tabel baru dengan prefix modul otomatis ikut di Pengaturan → Ekspor seluruh data; kolom rahasia baru ditambahkan ke `FullExport::HIDDEN`.
+
 ## 7. Menjalankan secara lokal
 
 Prasyarat: PHP 8.5, Composer 2, Node.js 26 LTS, MySQL 8.4+ (lihat README).

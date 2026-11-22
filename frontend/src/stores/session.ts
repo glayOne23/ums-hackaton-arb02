@@ -13,6 +13,8 @@ export interface User {
   /** UI labels for `roles`, sent by the API. Optional: sessions saved before it existed lack it. */
   role_labels?: string[]
   permissions: string[]
+  /** FP-07: features rolled out to this user. Missing in sessions saved before flags existed */
+  features?: string[]
   area: Area
 }
 
@@ -52,6 +54,14 @@ export function hasPermission(permission: string): boolean {
 
 export function usePermission(permission: string): boolean {
   return useSession((s) => s.user?.permissions.includes(permission) ?? false)
+}
+
+/**
+ * FP-07: is a step-by-step feature on for this user? A session saved before
+ * flags existed has no list yet: treat every feature as on until /auth/me refreshes it.
+ */
+export function useFeature(feature: string): boolean {
+  return useSession((s) => s.user?.features?.includes(feature) ?? true)
 }
 
 /** Area home path, used after signing in and when redirecting from the wrong area. */

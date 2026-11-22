@@ -123,7 +123,8 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
 | `cfg_settings` | `pengaturan` (§3.1) | `key` (PK, string), `value` (JSON, sehingga angka tetap angka dan saklar tetap true/false), `updated_by`. Hanya kunci yang pernah diubah admin yang disimpan; tipe, batas, nilai awal, dan label layar ada di kode (`Setting\SettingDefinitions`). Disimpan lewat `Setting\Actions\SaveSettings`; setiap perubahan masuk riwayat (`sys_activity_log`, `log_name = setting`) | ada |
-| `cfg_custom_fields` | Field kustom (§12, FP-06) | `entity` (`outlet`, `product`, `mfg_order`), `key`, `label`, `type`, `options` (JSON), `is_required`, `sort_order` | nanti |
+| `cfg_custom_fields` | definisi field kustom (SDD §12, FP-06) | `entity` (`outlet`, `product`), `key` (dibuat dari nama, tetap), `label`, `type` (`text`, `number`, `date`, `choice`), `options` (JSON pilihan), `is_active`, `sort`. Nilai disimpan di kolom JSON `custom_fields` entitasnya; dicek dan digabung oleh `App\Modules\Setting\CustomFields` | ada |
+| `cfg_feature_flags` | feature flag (SDD §12, FP-07) | `key` (daftar di `App\Core\Features\Flags::ALL`), `audience` (`all`, `roles`, `none`), `roles` (JSON), `users` (JSON username), `updated_by`. Tanpa baris = nilai bawaan flag. Pennant memakai store `array`: keputusan dibaca dari tabel ini setiap request | ada |
 
 ### 5.5 `crm_` — outlet
 

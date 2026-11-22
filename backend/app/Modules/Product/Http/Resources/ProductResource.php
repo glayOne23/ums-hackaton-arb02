@@ -30,6 +30,8 @@ class ProductResource extends JsonResource
             'selling_price' => (float) $this->selling_price,
             'min_stock_qty' => $this->min_stock_qty,
             'is_active' => $this->is_active,
+            // FP-06: the admin's extra fields, by key ({} when none)
+            'custom_fields' => (object) ($this->custom_fields ?? []),
             // PR-01: the photo is fetched from /products/{id}/photo; the version changes when it is replaced
             'has_photo' => $this->photo_path !== null,
             'photo_version' => $this->photo_path !== null ? $this->updated_at?->getTimestamp() : null,

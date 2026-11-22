@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Actions;
 
+use App\Core\Events\StockChanged;
 use App\Models\User;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\Batch;
@@ -46,7 +47,7 @@ final class RecordStockMovement
                 $this->increase($to, $batch, $qty);
             }
 
-            return StockMovement::query()->create([
+            $movement = StockMovement::query()->create([
                 'batch_id' => $batch->id,
                 'from_location_id' => $from?->id,
                 'to_location_id' => $to?->id,
@@ -57,6 +58,10 @@ final class RecordStockMovement
                 'note' => $note,
                 'created_by' => $actor->id,
             ]);
+            // FP-04: sent once the whole database transaction has committed
+            StockChanged::dispatch($movement);
+
+            return $movement;
         });
     }
 

@@ -6,6 +6,7 @@ use App\Core\History\History;
 use App\Models\User;
 use App\Modules\Product\Models\Category;
 use App\Modules\Product\Models\Product;
+use App\Modules\Setting\CustomFields;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +31,10 @@ final class SaveProduct
         return DB::transaction(function () use ($data, $actor, $product) {
             $product ??= new Product;
             $before = $product->exists ? $this->snapshot($product) : null;
+            $customBefore = $product->custom_fields;
+            if (array_key_exists('custom_fields', $data)) {
+                $data['custom_fields'] = CustomFields::merge('product', $product->custom_fields, (array) $data['custom_fields']) ?: null;
+            }
 
             $product->fill(Arr::except($data, ['aliases']));
             if (isset($data['code'])) {
@@ -48,10 +53,10 @@ final class SaveProduct
 
             if ($before === null) {
                 History::record($product, 'Membuat produk', by: $actor);
-            } elseif ($changes = History::diff(self::LABELS, $before, $this->snapshot($product), [
+            } elseif ($changes = [...History::diff(self::LABELS, $before, $this->snapshot($product), [
                 'category_id' => fn ($id) => $id ? (string) Category::query()->whereKey($id)->value('name') : '(kosong)',
                 'selling_price' => fn ($price) => $price === null ? '(kosong)' : 'Rp '.number_format((float) $price, 0, ',', '.'),
-            ])) {
+            ]), ...CustomFields::diff('product', $customBefore, $product->custom_fields)]) {
                 History::record($product, 'Mengubah data produk', $changes, by: $actor);
             }
 

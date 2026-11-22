@@ -1,3 +1,5 @@
+import type { CustomFieldValues } from '@/features/setting/types'
+
 /** Shapes returned by the Product API (backend: App\Modules\Product\Http). */
 
 export interface Ref {
@@ -16,6 +18,8 @@ export interface Category extends Ref {
 
 export interface Product {
   id: string
+  /** FP-06: the admin's extra fields */
+  custom_fields?: CustomFieldValues
   code: string
   name: string
   category?: Ref

@@ -1,6 +1,7 @@
 import { LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { t } from '@/i18n'
 
 /**
  * UI guide §7.5: "Simpan" for a long form (Pengaturan, Peran & izin).
@@ -20,14 +21,10 @@ export function SaveBar({ changes, pending, onSave }: { changes: number; pending
           'fixed inset-x-0 bottom-16 z-10 border-t border-border bg-card p-3 shadow-raised sm:sticky sm:bottom-4 sm:justify-between sm:rounded-lg sm:border sm:px-4',
       )}
     >
-      {dirty && (
-        <p className="hidden font-medium sm:block">
-          <span className="tabular-nums">{changes}</span> perubahan belum disimpan
-        </p>
-      )}
+      {dirty && <p className="hidden font-medium sm:block">{t('save.unsaved', { count: changes })}</p>}
       <Button size="cta" className="sm:h-10 sm:w-auto" disabled={!dirty || pending} onClick={onSave}>
         {pending && <LoaderCircle className="size-5 animate-spin" aria-hidden />}
-        {dirty ? `Simpan (${changes} perubahan)` : 'Belum ada perubahan'}
+        {dirty ? t('save.saveChanges', { count: changes }) : t('save.nothingChanged')}
       </Button>
     </div>
   )

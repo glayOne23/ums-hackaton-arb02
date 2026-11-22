@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Http\Resources;
 
+use App\Core\Features\Flags;
 use App\Models\User;
 use App\Modules\Auth\Models\Role;
 use App\Modules\Auth\Roles;
@@ -32,6 +33,8 @@ class UserResource extends JsonResource
             // UI labels, so the frontend never keeps its own copy of the role names
             'role_labels' => $roleModels->map(fn (Role $role) => $role->displayName())->values(),
             'permissions' => $this->getAllPermissions()->pluck('name')->sort()->values(),
+            // FP-07: flags on for this user; the PWA hides what is not on yet
+            'features' => Flags::activeFor($this->resource),
             // The frontend uses this to open the right area after signing in.
             // A user with any field role works from the sales phone screens.
             'area' => $roleModels->contains('area', Roles::AREA_FIELD) ? Roles::AREA_FIELD : Roles::AREA_OFFICE,
