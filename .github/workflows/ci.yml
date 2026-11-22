@@ -1,0 +1,85 @@
+# Pemeriksaan otomatis setiap Pull Request dan push ke main (dokumen 09 §5).
+# E2E (Playwright) belum ikut: butuh MySQL + data contoh; jalankan lokal dengan `npm run test:e2e`.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Pint · Larastan · Pest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          # Sama dengan backend/docker/dev.Dockerfile, ditambah sqlite untuk tes (phpunit.xml)
+          extensions: pdo_mysql, pdo_sqlite, sqlite3, zip, intl, gd, bcmath, pcntl, exif, mbstring
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Siapkan .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+
+      - name: Format (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Analisis statis (Larastan)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=2G
+
+      - name: Tes (Pest)
+        run: vendor/bin/pest --parallel
+
+  frontend:
+    name: Frontend (lint · typecheck · Vitest · build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci --no-fund --no-audit
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tes unit (Vitest)
+        run: npm run test
+
+      - name: Build
+        run: npm run build

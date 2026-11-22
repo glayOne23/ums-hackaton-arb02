@@ -91,6 +91,8 @@ Gunakan **Draft PR** untuk pekerjaan yang belum selesai tetapi ingin diperlihatk
 
 Jalankan dari folder masing-masing. Semua harus lulus.
 
+Sejak 22 Nov 2026, **GitHub Actions** ([.github/workflows/ci.yml](../../.github/workflows/ci.yml)) menjalankan semua pemeriksaan di bawah, kecuali e2e, di setiap Pull Request dan setiap push ke `main`. PR dengan tanda ❌ di tab *Checks* tidak boleh di-merge. E2E belum masuk CI karena butuh MySQL dan data contoh, jadi tetap dijalankan lokal sebelum PR yang mengubah alur layar.
+
 **Backend** (`backend/`)
 
 ```bash
