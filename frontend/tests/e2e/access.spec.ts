@@ -44,6 +44,7 @@ test('a new role starts as a copy of Admin Gudang and gets the approval (PG-08)'
 
   await office.getByRole('button', { name: 'Peran baru' }).click()
   await office.getByLabel('Nama peran (wajib)').fill(ROLE)
+  await office.getByLabel('Tugas utama').fill('Mengawasi stok gudang (uji e2e).')
   await office.getByLabel('Salin izin dari').selectOption({ label: 'Admin Gudang' })
   await office.getByRole('button', { name: 'Buat peran' }).click()
   await expect(office.getByText(`Peran ${ROLE} dibuat`)).toBeVisible()
@@ -59,6 +60,12 @@ test('a new role starts as a copy of Admin Gudang and gets the approval (PG-08)'
 
   await office.getByRole('button', { name: 'Riwayat perubahan' }).click()
   await expect(office.getByText('Izin ditambah: Setujui penyesuaian opname').first()).toBeVisible()
+
+  // The duties typed here show in the table on the Pengguna page
+  await office.getByRole('link', { name: 'Pengguna', exact: true }).first().click()
+  await expect(
+    office.getByRole('table', { name: 'Penjelasan tiap peran' }).getByRole('row', { name: new RegExp(ROLE) }),
+  ).toContainText('Mengawasi stok gudang (uji e2e).')
 })
 
 test('the office adds a user with that role, who can sign in at once', async ({ browser }) => {

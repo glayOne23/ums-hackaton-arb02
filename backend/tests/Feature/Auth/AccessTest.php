@@ -205,3 +205,22 @@ it('keeps users and roles to people who may manage access', function () {
     $this->actingAs($this->warehouse)->getJson('/api/v1/roles')->assertForbidden();
     $this->actingAs($this->warehouse)->postJson('/api/v1/roles', ['label' => 'X', 'area' => 'office'])->assertForbidden();
 });
+
+it('keeps each role\'s main duties, written and changed by the admin (AK-02)', function () {
+    // Default roles start with the SDD text
+    $this->actingAs($this->admin)->getJson('/api/v1/roles')
+        ->assertJsonPath('data.0.name', Roles::MANAGER)
+        ->assertJsonPath('data.0.description', Roles::DESCRIPTIONS[Roles::MANAGER]);
+
+    $id = $this->actingAs($this->admin)->postJson('/api/v1/roles', [
+        'label' => 'Kepala Gudang', 'area' => 'office', 'description' => 'Mengawasi stok dan menyetujui barang keluar.',
+    ])->assertCreated()->assertJsonPath('data.description', 'Mengawasi stok dan menyetujui barang keluar.')->json('data.id');
+
+    $this->actingAs($this->admin)->patchJson("/api/v1/roles/{$id}", ['description' => 'Mengawasi stok gudang.'])
+        ->assertOk()->assertJsonPath('data.description', 'Mengawasi stok gudang.');
+    $this->actingAs($this->admin)->patchJson("/api/v1/roles/{$id}", ['description' => str_repeat('x', 256)])
+        ->assertJsonValidationErrors('description');
+
+    $this->actingAs($this->admin)->getJson('/api/v1/users/history')
+        ->assertJsonPath('data.0.changes.0', 'Tugas utama: Mengawasi stok dan menyetujui barang keluar. → Mengawasi stok gudang.');
+});

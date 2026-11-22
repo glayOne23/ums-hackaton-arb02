@@ -35,6 +35,7 @@ class RoleController extends Controller
     {
         $data = $request->validate([
             'label' => ['required', 'string', 'max:60'],
+            'description' => ['nullable', 'string', 'max:255'],
             'area' => ['required', Rule::in(array_keys(Roles::AREAS))],
             'permissions' => ['sometimes', 'array'],
             'permissions.*' => ['string'],
@@ -50,6 +51,7 @@ class RoleController extends Controller
     {
         $data = $request->validate([
             'label' => ['sometimes', 'string', 'max:60'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:255'],
             'area' => ['sometimes', Rule::in(array_keys(Roles::AREAS))],
             'permissions' => ['sometimes', 'array'],
             'permissions.*' => ['string'],
@@ -74,6 +76,8 @@ class RoleController extends Controller
             'id' => $role->id,
             'name' => $role->name,
             'label' => $role->displayName(),
+            // Main duties, written by the admin (Pengguna → Peran dan hak akses)
+            'description' => $role->description,
             'area' => $role->area,
             'is_default' => $role->isDefault(),
             'users_count' => $this->holders()[$role->id] ?? 0,

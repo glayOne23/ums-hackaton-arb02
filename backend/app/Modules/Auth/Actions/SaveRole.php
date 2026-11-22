@@ -19,7 +19,7 @@ use Spatie\Permission\PermissionRegistrar;
 final class SaveRole
 {
     /**
-     * @param  array{label?: string, area?: string, permissions?: list<string>, copy_from?: int|null}  $data
+     * @param  array{label?: string, description?: string|null, area?: string, permissions?: list<string>, copy_from?: int|null}  $data
      */
     public function handle(?Role $role, array $data, User $actor): Role
     {
@@ -47,6 +47,7 @@ final class SaveRole
             $before = [
                 'label' => $isNew ? null : $role->displayName(),
                 'area' => $isNew ? null : $role->area,
+                'description' => $isNew ? null : $role->description,
                 'permissions' => $isNew ? [] : $role->permissions->pluck('name')->all(),
             ];
 
@@ -55,6 +56,9 @@ final class SaveRole
             }
             if (isset($data['area'])) {
                 $role->area = $data['area'];
+            }
+            if (array_key_exists('description', $data)) {
+                $role->description = filled($data['description']) ? trim((string) $data['description']) : null;
             }
             $role->save();
 
@@ -106,7 +110,7 @@ final class SaveRole
     /**
      * Human-readable change lines for the history, e.g. "Izin ditambah: Setujui barang keluar gudang".
      *
-     * @param  array{label: string|null, area: string|null, permissions: list<string>}  $before
+     * @param  array{label: string|null, area: string|null, description: string|null, permissions: list<string>}  $before
      * @param  list<string>  $after
      * @return list<string>
      */
@@ -118,6 +122,9 @@ final class SaveRole
         } else {
             if ($before['label'] !== $role->displayName()) {
                 $lines[] = "Nama: {$before['label']} → {$role->displayName()}";
+            }
+            if ($before['description'] !== $role->description) {
+                $lines[] = 'Tugas utama: '.($before['description'] ?? '(kosong)').' → '.($role->description ?? '(kosong)');
             }
             if ($before['area'] !== $role->area) {
                 $lines[] = 'Layar: '.Roles::AREAS[$before['area'] ?? Roles::AREA_OFFICE].' → '.Roles::AREAS[$role->area];

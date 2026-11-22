@@ -35,6 +35,9 @@ class RolePermissionSeeder extends Seeder
                 $area = in_array($roleName, Roles::FIELD_ROLES, true) ? Roles::AREA_FIELD : Roles::AREA_OFFICE;
                 $role->forceFill(['label' => Roles::LABELS[$roleName], 'area' => $area])->save();
             }
+            if ($role->description === null) {
+                $role->forceFill(['description' => Roles::DESCRIPTIONS[$roleName]])->save();
+            }
 
             if ($role->wasRecentlyCreated) {
                 $role->syncPermissions($permissions);

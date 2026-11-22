@@ -24,6 +24,19 @@ final class Roles
         self::SALES => 'Sales',
     ];
 
+    /**
+     * What each default role is for, in one plain sentence (SDD §7). Starting
+     * text only: admins change it in Peran & izin (auth_roles.description).
+     *
+     * @var array<string, string>
+     */
+    public const DESCRIPTIONS = [
+        self::MANAGER => 'Memantau penjualan, stok, dan tagihan lewat Ringkasan dan Laporan. Menyetujui potongan harga, hasil opname, dan koreksi nota.',
+        self::OFFICE_ADMIN => 'Mengurus data outlet, produk, harga, tagihan, dan setoran sales. Mengelola pengguna, pengaturan, dan impor Excel.',
+        self::WAREHOUSE_ADMIN => 'Mencatat barang masuk, retur, dan opname gudang. Menyiapkan dan menyetujui barang yang dibawa sales.',
+        self::SALES => 'Bekerja dari HP: mengunjungi outlet, mencatat penjualan dan barang titipan, menagih pembayaran, dan meminta barang ke gudang.',
+    ];
+
     public const AREA_FIELD = 'field';
 
     public const AREA_OFFICE = 'office';

@@ -4,6 +4,8 @@ export interface RoleItem {
   id: number
   name: string
   label: string
+  /** Main duties, written by the admin; shown in Pengguna → Peran dan hak akses */
+  description: string | null
   area: Area
   is_default: boolean
   users_count: number

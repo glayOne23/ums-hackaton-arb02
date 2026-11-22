@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Role as SpatieRole;
  *
  * @property string|null $label
  * @property string $area "field" (sales phone screens) or "office"
+ * @property string|null $description main duties, shown in Pengguna → Peran dan hak akses
  */
 class Role extends SpatieRole
 {

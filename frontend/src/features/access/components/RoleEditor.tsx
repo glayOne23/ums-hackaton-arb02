@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
+import { Textarea } from '@/components/ui/textarea'
 import { ApiError } from '@/lib/api/client'
 import { cn } from '@/lib/utils'
 import { useDeleteRole, useRoles, useSaveRole } from '../api'
@@ -81,7 +82,7 @@ export function RoleEditor() {
 
       {selected && !creating && (
         <RoleForm
-          key={`${selected.id}-${selected.permissions.join()}-${selected.label}-${selected.area}`}
+          key={`${selected.id}-${selected.permissions.join()}-${selected.label}-${selected.area}-${selected.description}`}
           role={selected}
           data={roles.data}
           onDeleted={() => setSelectedId(null)}
@@ -90,6 +91,41 @@ export function RoleEditor() {
 
       <AccessHistory />
     </section>
+  )
+}
+
+/** AK-02: what the role is for, shown in Pengguna → Peran dan hak akses. */
+function DutiesField({
+  id,
+  value,
+  onChange,
+  error,
+}: {
+  id: string
+  value: string
+  onChange: (value: string) => void
+  error?: string
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-base">
+        Tugas utama
+      </Label>
+      <p id={`${id}-help`} className="text-sm text-muted-foreground">
+        Satu atau dua kalimat: apa yang dikerjakan peran ini. Tampil di tabel Peran dan hak akses di menu Pengguna.
+      </p>
+      <Textarea
+        id={id}
+        rows={2}
+        maxLength={255}
+        value={value}
+        placeholder="Misalnya: Mengecek stok gudang dan menyetujui barang keluar."
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : `${id}-help`}
+      />
+      <FieldError id={`${id}-error`} message={error} />
+    </div>
   )
 }
 
@@ -136,6 +172,7 @@ function NewRoleForm({
 }) {
   const save = useSaveRole()
   const [label, setLabel] = useState('')
+  const [description, setDescription] = useState('')
   const [area, setArea] = useState<Area>('office')
   const [source, setSource] = useState<string>(copyFrom ? String(copyFrom) : '')
   const errors = save.error instanceof ApiError ? save.error.fieldErrors : {}
@@ -147,7 +184,13 @@ function NewRoleForm({
       onSubmit={(e) => {
         e.preventDefault()
         save.mutate(
-          { label, area, copy_from: source ? Number(source) : null, ...(source ? {} : { permissions: [] }) },
+          {
+            label,
+            description: description.trim() || null,
+            area,
+            copy_from: source ? Number(source) : null,
+            ...(source ? {} : { permissions: [] }),
+          },
           {
             onSuccess: (r) => {
               toast.success(`Peran ${r.data.label} dibuat. Periksa centang izinnya.`)
@@ -188,6 +231,12 @@ function NewRoleForm({
           </NativeSelect>
         </div>
       </div>
+      <DutiesField
+        id="new-role-description"
+        value={description}
+        onChange={setDescription}
+        error={errors.description?.[0]}
+      />
       <AreaPicker value={area} onChange={setArea} data={data} />
       {save.error && Object.keys(errors).length === 0 && (
         <p role="alert" className="text-danger-text">
@@ -211,6 +260,7 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
   const save = useSaveRole()
   const remove = useDeleteRole()
   const [label, setLabel] = useState(role.label)
+  const [description, setDescription] = useState(role.description ?? '')
   const [area, setArea] = useState<Area>(role.area)
   const [permissions, setPermissions] = useState<Set<string>>(() => new Set(role.permissions))
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -219,7 +269,11 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
   const original = new Set(role.permissions)
   const permissionChanges =
     [...permissions].filter((p) => !original.has(p)).length + role.permissions.filter((p) => !permissions.has(p)).length
-  const changes = permissionChanges + (label.trim() !== role.label ? 1 : 0) + (area !== role.area ? 1 : 0)
+  const changes =
+    permissionChanges +
+    (label.trim() !== role.label ? 1 : 0) +
+    (description.trim() !== (role.description ?? '') ? 1 : 0) +
+    (area !== role.area ? 1 : 0)
 
   const toggle = (name: string, on: boolean) =>
     setPermissions((current) => {
@@ -231,7 +285,13 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
 
   const submit = () =>
     save.mutate(
-      { id: role.id, label: label.trim(), area, permissions: [...permissions] },
+      {
+        id: role.id,
+        label: label.trim(),
+        description: description.trim() || null,
+        area,
+        permissions: [...permissions],
+      },
       { onSuccess: (r) => toast.success(`Peran ${r.data.label} tersimpan.`) },
     )
 
@@ -255,6 +315,12 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
           />
           <FieldError id="role-label-error" message={errors.label?.[0]} />
         </div>
+        <DutiesField
+          id="role-description"
+          value={description}
+          onChange={setDescription}
+          error={errors.description?.[0]}
+        />
         <AreaPicker value={area} onChange={setArea} data={data} />
         <p className="text-muted-foreground">
           {role.users_count === 0 ? 'Belum ada pengguna dengan peran ini.' : `Dipakai ${role.users_count} pengguna.`}{' '}

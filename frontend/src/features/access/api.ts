@@ -45,6 +45,7 @@ export function useSaveRole() {
     }: {
       id?: number
       label?: string
+      description?: string | null
       area?: Area
       permissions?: string[]
       copy_from?: number | null

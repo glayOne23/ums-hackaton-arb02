@@ -6,19 +6,6 @@ import { formatNumber } from '@/lib/format'
 import { useRoles } from '../api'
 import type { RoleItem } from '../types'
 
-/** What each default role is for, in one plain sentence (SDD §7). Roles made by an admin get the fallback. */
-const DUTIES: Record<string, string> = {
-  manager:
-    'Memantau penjualan, stok, dan tagihan lewat Ringkasan dan Laporan. Menyetujui potongan harga, hasil opname, dan koreksi nota.',
-  office_admin:
-    'Mengurus data outlet, produk, harga, tagihan, dan setoran sales. Mengelola pengguna, pengaturan, dan impor Excel.',
-  warehouse_admin:
-    'Mencatat barang masuk, retur, dan opname gudang. Menyiapkan dan menyetujui barang yang dibawa sales.',
-  sales:
-    'Bekerja dari HP: mengunjungi outlet, mencatat penjualan dan barang titipan, menagih pembayaran, dan meminta barang ke gudang.',
-}
-const CUSTOM_DUTY = 'Peran tambahan buatan admin. Aksesnya mengikuti centang di Peran & izin.'
-
 /**
  * AK-02: one look at what every role is for and what it may open, read from the
  * live role settings, so the table always matches the ticks in Peran & izin.
@@ -86,7 +73,11 @@ function RoleDuties({ roles, areas }: { roles: RoleItem[]; areas: { value: strin
               <th scope="row" className="px-4 py-3 font-semibold whitespace-nowrap">
                 {role.label}
               </th>
-              <td className="px-4 py-3">{DUTIES[role.name] ?? CUSTOM_DUTY}</td>
+              <td className="px-4 py-3">
+                {role.description || (
+                  <span className="text-muted-foreground">Belum diisi. Tulis di Peran & izin → Tugas utama.</span>
+                )}
+              </td>
               <td className="px-4 py-3">
                 <span className="inline-flex items-center gap-1.5 rounded-sm bg-slate-100 px-2 py-0.5 text-sm font-medium whitespace-nowrap text-slate-700">
                   {role.area === 'field' ? (
