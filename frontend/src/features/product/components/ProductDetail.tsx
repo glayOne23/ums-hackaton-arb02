@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
+import { ROW_ACTION, RowActionLabel } from '@/components/common/RowActions'
 import { api, ApiError } from '@/lib/api/client'
 import { formatCurrency, formatNumber } from '@/lib/format'
 import { usePermission } from '@/stores/session'
@@ -119,7 +120,8 @@ function Info({ label, value }: { label: string; value: string | null }) {
 }
 
 /** Move to the trash, with "Urungkan" in the toast (UX-07). */
-function DeleteProductButton({ product }: { product: Product }) {
+/** Also the compact "Hapus" row action of the product table. */
+export function DeleteProductButton({ product, compact = false }: { product: Product; compact?: boolean }) {
   const [open, setOpen] = useState(false)
   const remove = useDeleteProduct()
   const navigate = useNavigate()
@@ -145,9 +147,15 @@ function DeleteProductButton({ product }: { product: Product }) {
         if (!next) remove.reset()
       }}
       trigger={
-        <Button variant="danger-outline">
+        <Button
+          variant="danger-outline"
+          size={compact ? 'row' : 'default'}
+          className={compact ? ROW_ACTION : undefined}
+          aria-label={compact ? `Hapus ${product.name}` : undefined}
+          title={compact ? 'Hapus' : undefined}
+        >
           <Trash2 aria-hidden />
-          Hapus produk
+          {compact ? <RowActionLabel>Hapus</RowActionLabel> : 'Hapus produk'}
         </Button>
       }
       title={`Hapus ${product.name}?`}
@@ -163,7 +171,8 @@ function DeleteProductButton({ product }: { product: Product }) {
               action: { label: 'Urungkan', onClick: undo },
               duration: 8000,
             })
-            navigate({ to: '/office/products' })
+            // From the detail page go back to the list; from the table stay (filters kept)
+            if (!compact) navigate({ to: '/office/products' })
           },
         })
       }

@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import {
   ArchiveRestore,
+  ChevronRight,
   CircleAlert,
   CircleCheck,
   CloudOff,
@@ -48,8 +49,8 @@ export function CorrectionCenter({ tab }: { tab: CorrectionTab }) {
                   aria-current={shown === t.key ? 'page' : undefined}
                   className={
                     shown === t.key
-                      ? 'flex h-11 items-center rounded-full border border-primary bg-accent px-4 font-medium whitespace-nowrap text-accent-foreground'
-                      : 'flex h-11 items-center rounded-full border border-border bg-card px-4 font-medium whitespace-nowrap'
+                      ? 'flex h-11 items-center rounded-full border choice-on px-4 whitespace-nowrap'
+                      : 'flex h-11 items-center rounded-full border choice px-4 font-medium whitespace-nowrap'
                   }
                 >
                   {t.label}
@@ -152,7 +153,7 @@ function ReviewRow({ transaction: t }: { transaction: Transaction }) {
           <Link
             to="/office/visits/$transactionId"
             params={{ transactionId: t.id }}
-            className="font-semibold text-leaf-700 underline-offset-4 hover:underline"
+            className="font-semibold text-leaf-800 underline decoration-leaf-600/40 underline-offset-4 hover:decoration-leaf-700"
           >
             {t.number} · {t.outlet?.name}
           </Link>
@@ -188,7 +189,7 @@ function ReviewRow({ transaction: t }: { transaction: Transaction }) {
             Pakai data HP
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="text-leaf-700">
+        <Button asChild variant="ghost">
           <Link to="/office/visits/$transactionId" params={{ transactionId: t.id }}>
             <PencilLine aria-hidden />
             Sesuaikan manual
@@ -211,13 +212,12 @@ function PendingList() {
       {pending.data.map((c) => (
         <li key={c.id} className="flex flex-col gap-1">
           <PendingCorrectionCard correction={c} showNota />
-          <Link
-            to="/office/visits/$transactionId"
-            params={{ transactionId: c.transaction.id }}
-            className="self-start px-1 text-leaf-700 underline-offset-4 hover:underline"
-          >
-            Buka nota {c.transaction.number}
-          </Link>
+          <Button asChild variant="secondary" className="self-start">
+            <Link to="/office/visits/$transactionId" params={{ transactionId: c.transaction.id }}>
+              Buka nota {c.transaction.number}
+              <ChevronRight aria-hidden />
+            </Link>
+          </Button>
         </li>
       ))}
     </ul>

@@ -106,10 +106,7 @@ function AreaPicker({ value, onChange, data }: { value: Area; onChange: (area: A
             role="radio"
             aria-checked={value === area.value}
             onClick={() => onChange(area.value)}
-            className={cn(
-              'h-11 rounded-md border px-4',
-              value === area.value ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
-            )}
+            className={cn('h-11 rounded-md border px-4', value === area.value ? 'choice-on' : 'choice')}
           >
             {area.label}
           </button>
@@ -268,7 +265,10 @@ function RoleForm({ role, data, onDeleted }: { role: RoleItem; data: RolesRespon
         {data.groups.map((group) => {
           const ticked = group.items.filter((item) => permissions.has(item.name)).length
           return (
-            <fieldset key={group.title} className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4">
+            <fieldset
+              key={group.title}
+              className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4"
+            >
               <legend className="px-1 text-lg font-semibold">
                 {group.title}{' '}
                 <span className="text-base font-normal text-muted-foreground">

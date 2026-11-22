@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { ROW_ACTION, RowActionLabel } from '@/components/common/RowActions'
 import { Button } from '@/components/ui/button'
 import { outletKeys, restoreOutlet, useDeleteOutlet } from '../api'
 import type { Outlet } from '../types'
@@ -20,7 +21,7 @@ import type { Outlet } from '../types'
  * Move an outlet to the trash. The dialog states the impact in plain words
  * (UI guide §7.6), and the toast offers "Urungkan" right away (UX-07).
  */
-export function DeleteOutletButton({ outlet }: { outlet: Outlet }) {
+export function DeleteOutletButton({ outlet, compact = false }: { outlet: Outlet; compact?: boolean }) {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -46,7 +47,8 @@ export function DeleteOutletButton({ outlet }: { outlet: Outlet }) {
           action: { label: 'Urungkan', onClick: undo },
           duration: 8000,
         })
-        navigate({ to: '/office/outlets' })
+        // From the profile, go back to the list; from the table, stay (filters are kept, the list refreshes)
+        if (!compact) navigate({ to: '/office/outlets' })
       },
     })
 
@@ -59,9 +61,16 @@ export function DeleteOutletButton({ outlet }: { outlet: Outlet }) {
       }}
     >
       <AlertDialogTrigger asChild>
-        <Button variant="danger-outline">
+        {/* compact: the "Hapus" row action in the outlet table */}
+        <Button
+          variant="danger-outline"
+          size={compact ? 'row' : 'default'}
+          className={compact ? ROW_ACTION : undefined}
+          aria-label={compact ? `Hapus ${outlet.name}` : undefined}
+          title={compact ? 'Hapus' : undefined}
+        >
           <Trash2 aria-hidden />
-          Hapus outlet
+          {compact ? <RowActionLabel>Hapus</RowActionLabel> : 'Hapus outlet'}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

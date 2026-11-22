@@ -25,7 +25,7 @@
   --color-earth-900: #1c1917; /* primary text — 16.7:1 */
 
   /* --- Typography --- */
-  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* --- Shape --- */
   --radius-sm: 6px;
@@ -34,7 +34,7 @@
 
   /* --- Depth (UI guide §4): soft, low shadows; never stacked or blurred glass --- */
   --shadow-card: 0 1px 2px rgb(20 40 24 / 0.06), 0 1px 3px rgb(20 40 24 / 0.08);
-  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.10), 0 1px 3px rgb(20 40 24 / 0.08);
+  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.1), 0 1px 3px rgb(20 40 24 / 0.08);
 
   /* --- Motion --- */
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
@@ -66,7 +66,7 @@
   --destructive-foreground: #ffffff;
 
   --border: #dbe3d8; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
-  --input: var(--color-earth-500);
+  --input: #6b8a72; /* field border: green-grey 3.8:1, reads as "fill me in", not as locked grey */
   --ring: var(--color-leaf-600);
 
   /* Brand surface: app header (white on leaf-700 = 7.1:1, readable in sunlight) */
@@ -104,7 +104,7 @@
 }
 
 /* High-contrast mode (UX-08): <html data-contrast="high"> — all text ≥ 7:1 */
-:root[data-contrast="high"] {
+:root[data-contrast='high'] {
   --background: #ffffff;
   --primary: var(--color-leaf-700);
   --muted-foreground: var(--color-earth-900);
@@ -116,7 +116,7 @@
 }
 
 /* Inside the brand header: text, icons, and hover/focus switch to light on dark green */
-[data-surface="brand"] {
+[data-surface='brand'] {
   --foreground: var(--brand-foreground);
   --muted-foreground: var(--color-leaf-100); /* 6.5:1 on leaf-700 */
   --accent: rgb(255 255 255 / 0.14);
@@ -126,13 +126,42 @@
   background-color: var(--brand);
   color: var(--foreground);
 }
-:root[data-contrast="high"] [data-surface="brand"] {
+:root[data-contrast='high'] [data-surface='brand'] {
   --muted-foreground: #ffffff;
 }
 
 /* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
-:root[data-font-size="large"] { font-size: 112.5%; }
-:root[data-font-size="x-large"] { font-size: 125%; }
+:root[data-font-size='large'] {
+  font-size: 112.5%;
+}
+:root[data-font-size='x-large'] {
+  font-size: 125%;
+}
+
+/*
+ * Choices: tabs, filter chips, segmented options (UI guide §7.10).
+ * Unselected still looks tappable (green-grey border, green text); selected is solid
+ * dark green. Descriptions inside a selected choice turn light green (6.5:1).
+ */
+@utility choice {
+  border-color: var(--input);
+  background-color: var(--card);
+  color: var(--color-leaf-800);
+  &:hover {
+    border-color: var(--color-leaf-600);
+    background-color: var(--color-leaf-50);
+  }
+}
+@utility choice-on {
+  /* Tripled selector: wins over .choice and .choice:hover whatever order Tailwind emits them in */
+  &&& {
+    border-color: var(--color-leaf-700);
+    background-color: var(--color-leaf-700);
+    color: #ffffff;
+    font-weight: 600;
+    --muted-foreground: var(--color-leaf-100);
+  }
+}
 
 /* Map semantic variables to Tailwind classes (bg-primary, text-danger-text, etc.) */
 @theme inline {
@@ -184,7 +213,9 @@
 }
 
 @layer base {
-  html { color-scheme: light; }
+  html {
+    color-scheme: light;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -196,7 +227,9 @@
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }

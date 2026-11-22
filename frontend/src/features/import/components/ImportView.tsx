@@ -62,7 +62,7 @@ export function ImportView() {
               }}
               className={cn(
                 'flex flex-col gap-1 rounded-lg border p-4 text-left',
-                type === t.key ? 'border-primary bg-accent' : 'border-border bg-card hover:border-primary',
+                type === t.key ? 'border-primary bg-accent' : 'choice',
               )}
             >
               <span className="font-semibold">
@@ -216,10 +216,7 @@ function PreviewStep({ preview, type, onDone }: { preview: ImportPreview; type: 
               role="radio"
               aria-checked={filter === f.value}
               onClick={() => setFilter(f.value)}
-              className={cn(
-                'h-11 rounded-full border px-4 sm:h-10',
-                filter === f.value ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
-              )}
+              className={cn('h-11 rounded-full border px-4 sm:h-10', filter === f.value ? 'choice-on' : 'choice')}
             >
               {f.label} ({formatNumber(count)})
             </button>

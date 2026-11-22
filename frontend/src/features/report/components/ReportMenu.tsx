@@ -64,7 +64,7 @@ export function ReportMenu() {
 }
 
 const LINK =
-  'flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card shadow-card p-4 hover:border-primary hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none'
+  'flex min-h-16 items-center gap-3 rounded-lg border border-border bg-card shadow-card p-4 transition-shadow hover:border-leaf-600 hover:shadow-raised focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none'
 
 function MenuGroup({
   title,
@@ -82,10 +82,15 @@ function MenuGroup({
             {item.link(
               <>
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-semibold">{item.title}</span>
+                  <span className="font-semibold text-leaf-800">{item.title}</span>
                   <span className="text-sm text-muted-foreground">{item.description}</span>
                 </span>
-                <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+                <span
+                  className="grid size-9 shrink-0 place-items-center rounded-full bg-leaf-50 text-leaf-700"
+                  aria-hidden
+                >
+                  <ChevronRight className="size-5" />
+                </span>
               </>,
             )}
           </li>

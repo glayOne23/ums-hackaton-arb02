@@ -161,9 +161,7 @@ export function ReturnForm({ onSaved, onCancel }: { onSaved: (r: Sent<StockRetur
                   className={cn(
                     'flex min-h-12 cursor-pointer flex-col items-center justify-center rounded-md border px-2 py-1 text-center',
                     'has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
-                    line.condition === option.value
-                      ? 'border-primary bg-accent text-accent-foreground'
-                      : 'border-input bg-card',
+                    line.condition === option.value ? 'choice-on' : 'choice',
                   )}
                 >
                   <input

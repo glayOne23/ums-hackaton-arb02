@@ -7,6 +7,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { trackLastSync } from '@/lib/offline/lastSync'
+import { listenForInstall } from '@/lib/install'
 import { applyPreferences } from '@/lib/preferences'
 import { PERSIST_MAX_AGE, queryPersister, shouldPersistQuery } from '@/lib/offline/persister'
 import { routeTree } from '@/routeTree.gen'
@@ -20,6 +21,9 @@ const queryClient = new QueryClient({
 
 // UX-08: bigger text / high contrast chosen on this device, before the first paint
 applyPreferences()
+
+// PW-02: keep the browser's install offer for the "Pasang aplikasi" button (it can fire right away)
+listenForInstall()
 
 // PW-07: "data per jam …" on screens opened without a signal
 trackLastSync(queryClient)

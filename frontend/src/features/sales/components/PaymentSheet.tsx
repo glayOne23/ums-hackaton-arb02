@@ -112,10 +112,7 @@ export function PaymentSheet({ open, onOpenChange, total, previousUnpaid, hint, 
                 role="radio"
                 aria-checked={method === value}
                 onClick={() => setMethod(value)}
-                className={cn(
-                  'h-12 flex-1 rounded-md border text-base',
-                  method === value ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
-                )}
+                className={cn('h-12 flex-1 rounded-md border text-base', method === value ? 'choice-on' : 'choice')}
               >
                 {value === 'cash' ? 'Tunai' : 'Transfer'}
               </button>

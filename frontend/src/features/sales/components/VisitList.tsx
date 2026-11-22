@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight, CircleAlert, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { OpenHint } from '@/components/common/OpenHint'
 import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
@@ -61,26 +62,29 @@ export function VisitList() {
                 <Link
                   to="/office/visits/$transactionId"
                   params={{ transactionId: t.id }}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4 hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-shadow hover:border-leaf-600 hover:shadow-raised"
                 >
-                  <span className="min-w-0">
-                    <span className="block font-semibold wrap-break-word">{t.outlet?.name}</span>
-                    <span className="block text-sm text-muted-foreground">
-                      {t.number} · {formatTableDate(new Date(t.transacted_at))} {formatTime(new Date(t.transacted_at))}{' '}
-                      · {t.sales?.name} · {t.type.label}
+                  <span className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="min-w-0">
+                      <span className="block font-semibold wrap-break-word">{t.outlet?.name}</span>
+                      <span className="block text-sm text-muted-foreground">
+                        {t.number} · {formatTableDate(new Date(t.transacted_at))}{' '}
+                        {formatTime(new Date(t.transacted_at))} · {t.sales?.name} · {t.type.label}
+                      </span>
+                    </span>
+                    <span className="flex flex-wrap items-center gap-2 sm:justify-end">
+                      <span className="font-semibold tabular-nums">
+                        Laku {t.sold_qty} · {formatCurrency(t.total)}
+                      </span>
+                      {t.invoice && <InvoiceStatusChip status={t.invoice.status} />}
+                      {t.needs_review && (
+                        <StatusChip variant="warning" icon={CircleAlert}>
+                          Perlu dicek
+                        </StatusChip>
+                      )}
                     </span>
                   </span>
-                  <span className="flex flex-wrap items-center gap-2 sm:justify-end">
-                    <span className="font-semibold tabular-nums">
-                      Laku {t.sold_qty} · {formatCurrency(t.total)}
-                    </span>
-                    {t.invoice && <InvoiceStatusChip status={t.invoice.status} />}
-                    {t.needs_review && (
-                      <StatusChip variant="warning" icon={CircleAlert}>
-                        Perlu dicek
-                      </StatusChip>
-                    )}
-                  </span>
+                  <OpenHint label="Lihat nota" />
                 </Link>
               </li>
             ))}

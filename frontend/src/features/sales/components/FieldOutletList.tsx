@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, CircleCheck, MessageCircle, Plus, Search, Store, Wallet } from 'lucide-react'
+import { ChevronRight, CircleAlert, CircleCheck, MessageCircle, Plus, Search, Store, Wallet } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
@@ -12,6 +12,7 @@ import { usePermission } from '@/stores/session'
 import { useWorkPackage } from '../api'
 import { daysSince, isDue } from '../calc'
 import type { PackageOutlet } from '../types'
+import { InstallBanner } from '@/components/layout/InstallApp'
 import { PendingNotice } from './PendingNotice'
 
 type Filter = 'all' | 'due' | 'unpaid'
@@ -43,6 +44,8 @@ export function FieldOutletList() {
 
   return (
     <section className="flex flex-col gap-4">
+      {/* PW-02: one tap to put SIGAP on the home screen */}
+      <InstallBanner />
       <PendingNotice />
       <div className="relative">
         <Search
@@ -178,13 +181,15 @@ function OutletRow({ outlet, done }: { outlet: PackageOutlet; done: boolean }) {
             </span>
           )}
         </span>
+        {/* Opens the visit: the chevron makes the whole card read as a button */}
+        <ChevronRight className="size-6 shrink-0 self-center text-leaf-700" aria-hidden />
       </Link>
       {outlet.whatsapp_number && (
         <a
           href={whatsappLink(outlet.whatsapp_number)}
           target="_blank"
           rel="noreferrer"
-          className="my-3 mr-3 grid size-12 shrink-0 place-items-center self-start rounded-md border border-border text-leaf-700"
+          className="my-3 mr-3 grid size-12 shrink-0 place-items-center self-start rounded-md border border-leaf-600 bg-leaf-50 text-leaf-800 active:bg-leaf-200"
           aria-label={`WhatsApp ${outlet.name}`}
         >
           <MessageCircle className="size-6" aria-hidden />
@@ -238,10 +243,7 @@ function FilterChip({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={cn(
-        'h-11 rounded-full border px-4 text-base',
-        active ? 'border-leaf-700 bg-leaf-700 font-semibold text-white' : 'border-border bg-card shadow-card',
-      )}
+      className={cn('h-11 rounded-full border px-4 text-base', active ? 'choice-on' : 'choice shadow-card')}
     >
       {children}
     </button>

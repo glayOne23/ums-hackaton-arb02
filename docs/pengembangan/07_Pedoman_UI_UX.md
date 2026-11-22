@@ -177,13 +177,16 @@ Semua komponen dasar berasal dari **shadcn/ui** di `frontend/src/components/ui/`
 
 | Varian | Tampilan | Kapan |
 | --- | --- | --- |
-| `primary` | Latar `leaf-600`, teks putih semibold | **Satu per layar**: aksi yang menyelesaikan tugas ("Lanjut", "Simpan kunjungan") |
-| `secondary` | Latar putih, garis `earth-300`, teks `earth-900` | Aksi alternatif ("Sebagian…", "Cetak") |
-| `ghost` | Tanpa latar, teks `leaf-700` | Aksi kecil ("Perbaiki", "Riwayat") |
+| `default` (primary) | Latar `leaf-600`, teks putih semibold, bayangan hijau tipis; hover `leaf-700` | **Satu per layar**: aksi yang menyelesaikan tugas ("Lanjut", "Simpan kunjungan") |
+| `outline` | Latar putih, **garis `leaf-600`**, teks `leaf-800` semibold; hover `leaf-50` | Aksi alternatif ("Sebagian…", "Cetak", "Ubah") |
+| `secondary` (tonal) | Latar `leaf-100`, teks `leaf-800` | Aksi sering dan aman: "Detail" di baris tabel, "Lihat kartu stok" |
+| `ghost` | Tanpa latar, teks `link` (`leaf-700`; putih di pita merek) | Aksi kecil ("Perbaiki", "Riwayat", "Nanti saja") |
 | `danger` | Latar `#b91c1c`, teks putih | Hanya di dialog konfirmasi hapus/batalkan |
 | `danger-outline` | Garis dan teks merah | Tombol pemicu hapus/batalkan sebelum dialog |
 
-Ukuran: HP tinggi 48 px (utama menempel 56 px); desktop 40 px. Label tombol = **kata kerja + objek** ("Simpan kunjungan", bukan "OK"). Saat proses: tombol nonaktif + spinner kecil + label tetap, cegah ketuk dua kali.
+**Abu-abu hanya berarti nonaktif** (sejak 22 Nov 2026). Semua tombol yang bisa ditekan berwarna hijau (atau merah untuk hapus); tombol nonaktif menjadi abu-abu datar `earth-200` + teks `earth-600` tanpa bayangan, bukan hijau pudar. Kolom isian memakai garis hijau keabuan `--input` (`#6b8a72`, 3,8:1) dan berubah hijau saat disorot; kolom nonaktif bergaris putus-putus di latar `muted`.
+
+Ukuran: HP tinggi 48 px (utama menempel 56 px); desktop 40 px; aksi di baris tabel `size="row"` 40 px. Label tombol = **kata kerja + objek** ("Simpan kunjungan", bukan "OK"). Saat proses: tombol nonaktif + spinner kecil + label tetap, cegah ketuk dua kali.
 
 ### 7.2 Stepper angka (`NumberStepper`)
 
@@ -203,6 +206,7 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 
 - Kartu outlet (M1): nama `text-lg` semibold di baris 1; wilayah dan status di baris 2–3; seluruh kartu bisa diketuk (bukan hanya tombol kecil di dalamnya).
 - **Garis aksen kiri** 4 px menunjukkan tanda paling mendesak di kartu: merah (`danger`) dekat kedaluwarsa → hijau (`success`) selesai hari ini → kuning (`warning`) belum bayar atau lama tidak dikunjungi. Garis ini pelengkap; chip status (warna + ikon + teks) tetap wajib.
+- **Setiap kartu atau baris yang bisa diketuk diakhiri penanda buka** (`components/common/OpenHint`): panah `›` hijau, ditambah label pendek di laptop ("Lihat nota", "Buka"). Kartu yang membuka-tutup memakai panah bawah di lingkaran `leaf-50`. Tautan teks lepas diganti tombol (`secondary`).
 - Lingkaran inisial outlet (`tile-brand`) hanya hiasan untuk memudahkan memindai; **disembunyikan pada ukuran huruf Besar dan Sangat besar** agar nama dan status mendapat ruang.
 - Urutan informasi: **nama → status yang perlu ditindak → keterangan**.
 - Maksimal 3 baris informasi per kartu di HP. Sisanya di halaman detail.
@@ -210,6 +214,8 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 ### 7.4 Tabel admin (`DataTable`)
 
 - Dibangun dengan TanStack Table, satu komponen untuk desktop (tabel) dan HP (kartu) — PW-04.
+- **Kolom Aksi wajib** di tabel data yang barisnya punya halaman sendiri (`components/common/RowActions`): **Detail** (`secondary`, ikon mata), **Ubah** (`outline`, ikon pensil), **Hapus** (`danger-outline`, ikon tempat sampah, membuka dialog dampak yang sama dengan halaman detail). Ubah/Hapus hanya tampil bagi pemegang izin. Di layar ≥ 1536 px berlabel; di bawahnya tombol ikon 40 px dengan `title` dan `aria-label`. Nama di kolom pertama tetap tautan (hijau, bergaris bawah tipis).
+- Baris tabel berubah `leaf-50` saat disorot; tabel boleh bergulir mendatar, isinya tidak pernah terpotong.
 - Wajib: kolom cari, filter, urut per kolom, jumlah baris, ekspor Excel (UX-10). Header lengket saat digulir.
 - Angka dan uang **rata kanan**, teks rata kiri, status di tengah-kiri sebagai chip.
 - Tinggi baris 48 px (normal) atau 40 px (rapat, bisa dipilih). Garis antar-baris `earth-200`, tanpa garis vertikal; zebra tidak dipakai.
@@ -254,6 +260,16 @@ Jangan memakai dialog untuk konfirmasi hal yang bisa diperbaiki; lebih baik simp
 
 - **lucide-react** saja. Garis 2 px. Ukuran: 16 px (dalam teks/tabel), 20 px (tombol), 24 px (navigasi bawah, status penting).
 - Ikon navigasi dan ikon tombol aksi **selalu disertai label teks**. Tombol hanya-ikon hanya untuk aksi yang sangat umum (tutup ×, kembali ←, cari) dan wajib punya `aria-label`.
+
+### 7.10 Pilihan, tab, dan saringan
+
+Tab, chip saringan, dan pilihan bersegmen memakai utilitas `choice` (belum dipilih: garis `--input`, teks `leaf-800`, hover `leaf-50`) dan `choice-on` (terpilih: latar `leaf-700`, teks putih; teks keterangan di dalamnya otomatis `leaf-100`). Jangan membuat varian sendiri dengan garis abu-abu; pilihan yang belum dipilih harus tetap terlihat bisa ditekan.
+
+### 7.11 Pasang aplikasi (PW-02)
+
+- `lib/install.ts` menyimpan tawaran pasang dari browser (`beforeinstallprompt`) sejak aplikasi dibuka; `InstallAppButton` memunculkan dialog pasang resmi. Di iPhone/iPad (tanpa tawaran itu) tombol membuka langkah Bagikan → **Tambahkan ke Layar Utama**.
+- HP sales: kartu "Pasang SIGAP di HP" di atas Outlet saya; "Nanti saja" menyembunyikannya 7 hari di perangkat itu. Semua peran: bagian **Aplikasi** di lembar Bantuan.
+- Tidak tampil sama sekali bila SIGAP sudah dibuka dari ikon (terpasang) atau browser tidak bisa memasang. Browser hanya menawarkan pemasangan lewat **HTTPS** dengan service worker aktif, jadi tombol tidak muncul di `npm run dev`.
 
 ## 8. Gerak (motion)
 
@@ -318,6 +334,9 @@ Reviewer menolak PR yang belum memenuhi butir di bawah.
 - [ ] Hanya memakai token dari `tokens.css`; tidak ada warna hex/ukuran px acak di komponen
 - [ ] Satu tombol primary per layar; di HP menempel di bawah
 - [ ] Status memakai `StatusChip` (warna + ikon + teks)
+- [ ] Tidak ada tombol, kolom, atau pilihan aktif yang tampil abu-abu (abu-abu = nonaktif, §7.1)
+- [ ] Tabel data punya kolom Aksi (Detail · Ubah · Hapus sesuai izin, §7.4)
+- [ ] Setiap kartu/baris yang bisa diketuk punya penanda buka `›` (§7.3)
 - [ ] Diuji di 360 px, 768 px, 1280 px; tanpa gulir horizontal
 - [ ] Diuji dengan ukuran huruf 125% dan mode kontras tinggi
 - [ ] Area sentuh ≥ 48 px di layar sales
@@ -366,7 +385,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --color-earth-900: #1c1917; /* primary text — 16.7:1 */
 
   /* --- Typography --- */
-  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* --- Shape --- */
   --radius-sm: 6px;
@@ -375,7 +394,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
 
   /* --- Depth (UI guide §4): soft, low shadows; never stacked or blurred glass --- */
   --shadow-card: 0 1px 2px rgb(20 40 24 / 0.06), 0 1px 3px rgb(20 40 24 / 0.08);
-  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.10), 0 1px 3px rgb(20 40 24 / 0.08);
+  --shadow-raised: 0 4px 12px rgb(20 40 24 / 0.1), 0 1px 3px rgb(20 40 24 / 0.08);
 
   /* --- Motion --- */
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
@@ -407,7 +426,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   --destructive-foreground: #ffffff;
 
   --border: #dbe3d8; /* decorative card/divider lines; inputs keep --input (≥ 3:1) */
-  --input: var(--color-earth-500);
+  --input: #6b8a72; /* field border: green-grey 3.8:1, reads as "fill me in", not as locked grey */
   --ring: var(--color-leaf-600);
 
   /* Brand surface: app header (white on leaf-700 = 7.1:1, readable in sunlight) */
@@ -445,7 +464,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
 }
 
 /* High-contrast mode (UX-08): <html data-contrast="high"> — all text ≥ 7:1 */
-:root[data-contrast="high"] {
+:root[data-contrast='high'] {
   --background: #ffffff;
   --primary: var(--color-leaf-700);
   --muted-foreground: var(--color-earth-900);
@@ -457,7 +476,7 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
 }
 
 /* Inside the brand header: text, icons, and hover/focus switch to light on dark green */
-[data-surface="brand"] {
+[data-surface='brand'] {
   --foreground: var(--brand-foreground);
   --muted-foreground: var(--color-leaf-100); /* 6.5:1 on leaf-700 */
   --accent: rgb(255 255 255 / 0.14);
@@ -467,13 +486,42 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
   background-color: var(--brand);
   color: var(--foreground);
 }
-:root[data-contrast="high"] [data-surface="brand"] {
+:root[data-contrast='high'] [data-surface='brand'] {
   --muted-foreground: #ffffff;
 }
 
 /* User-selected font size (UX-08): <html data-font-size="large|x-large"> */
-:root[data-font-size="large"] { font-size: 112.5%; }
-:root[data-font-size="x-large"] { font-size: 125%; }
+:root[data-font-size='large'] {
+  font-size: 112.5%;
+}
+:root[data-font-size='x-large'] {
+  font-size: 125%;
+}
+
+/*
+ * Choices: tabs, filter chips, segmented options (UI guide §7.10).
+ * Unselected still looks tappable (green-grey border, green text); selected is solid
+ * dark green. Descriptions inside a selected choice turn light green (6.5:1).
+ */
+@utility choice {
+  border-color: var(--input);
+  background-color: var(--card);
+  color: var(--color-leaf-800);
+  &:hover {
+    border-color: var(--color-leaf-600);
+    background-color: var(--color-leaf-50);
+  }
+}
+@utility choice-on {
+  /* Tripled selector: wins over .choice and .choice:hover whatever order Tailwind emits them in */
+  &&& {
+    border-color: var(--color-leaf-700);
+    background-color: var(--color-leaf-700);
+    color: #ffffff;
+    font-weight: 600;
+    --muted-foreground: var(--color-leaf-100);
+  }
+}
 
 /* Map semantic variables to Tailwind classes (bg-primary, text-danger-text, etc.) */
 @theme inline {
@@ -525,7 +573,9 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
 }
 
 @layer base {
-  html { color-scheme: light; }
+  html {
+    color-scheme: light;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -537,7 +587,9 @@ Jangan menulis hex langsung di komponen; pakai kelas Tailwind dari token ini (mi
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }

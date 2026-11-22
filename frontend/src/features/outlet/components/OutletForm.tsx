@@ -219,9 +219,7 @@ export function OutletForm({ outlet, onSaved, onCancel, onProposed }: Props) {
               className={cn(
                 'flex h-12 cursor-pointer items-center justify-center rounded-md border px-2 text-center font-medium sm:h-10',
                 'has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
-                saleMode === mode.value
-                  ? 'border-primary bg-accent text-accent-foreground'
-                  : 'border-input bg-card text-foreground',
+                saleMode === mode.value ? 'choice-on' : 'choice',
               )}
             >
               <input type="radio" value={mode.value} className="sr-only" {...register('sale_mode')} />

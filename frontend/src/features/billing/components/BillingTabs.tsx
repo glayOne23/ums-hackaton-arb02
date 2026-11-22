@@ -20,8 +20,8 @@ export function BillingTabs() {
             <Link
               to={tab.to}
               activeOptions={{ exact: true }}
-              className="flex h-11 items-center rounded-full border border-border bg-card px-4 font-medium whitespace-nowrap"
-              activeProps={{ className: 'border-primary bg-accent text-accent-foreground' }}
+              className="flex h-11 items-center rounded-full border choice px-4 font-medium whitespace-nowrap"
+              activeProps={{ className: 'choice-on' }}
             >
               {tab.label}
             </Link>

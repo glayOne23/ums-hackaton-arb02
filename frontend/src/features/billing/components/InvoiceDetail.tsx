@@ -154,10 +154,7 @@ function PaymentForm({ invoice }: { invoice: Invoice }) {
             role="radio"
             aria-checked={method === m}
             onClick={() => setMethod(m)}
-            className={cn(
-              'h-11 flex-1 rounded-md border',
-              method === m ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
-            )}
+            className={cn('h-11 flex-1 rounded-md border', method === m ? 'choice-on' : 'choice')}
           >
             {m === 'cash' ? 'Tunai' : 'Transfer'}
           </button>

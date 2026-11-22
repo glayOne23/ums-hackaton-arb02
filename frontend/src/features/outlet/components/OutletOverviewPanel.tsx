@@ -4,6 +4,7 @@ import { useId, useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
+import { OpenHint } from '@/components/common/OpenHint'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatCurrency, formatDate, formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
@@ -56,7 +57,7 @@ export function OutletOverviewPanel({ outletId }: { outletId: string }) {
             onClick={() => setTab(t.key)}
             className={cn(
               'flex h-11 items-center rounded-full border px-4 font-medium whitespace-nowrap',
-              tab === t.key ? 'border-primary bg-accent text-accent-foreground' : 'border-border bg-card',
+              tab === t.key ? 'choice-on' : 'choice',
             )}
           >
             {t.label}
@@ -189,9 +190,10 @@ function VisitsTab({ data }: { data: OutletOverview }) {
               <Link
                 to="/office/visits/$transactionId"
                 params={{ transactionId: v.id }}
-                className="flex flex-wrap items-center justify-between gap-2 py-2 hover:bg-accent/50"
+                className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2 transition-colors hover:bg-leaf-50"
               >
-                {body}
+                <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">{body}</span>
+                <OpenHint label="Buka" />
               </Link>
             ) : (
               <div className="flex flex-wrap items-center justify-between gap-2 py-2">{body}</div>
@@ -238,9 +240,10 @@ function InvoicesTab({ data }: { data: OutletOverview }) {
                 <Link
                   to="/office/billing/invoices/$invoiceId"
                   params={{ invoiceId: i.id }}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2 hover:bg-accent/50"
+                  className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2 transition-colors hover:bg-leaf-50"
                 >
-                  {body}
+                  <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">{body}</span>
+                  <OpenHint label="Buka" />
                 </Link>
               ) : (
                 <div className="flex flex-wrap items-center justify-between gap-2 py-2">{body}</div>

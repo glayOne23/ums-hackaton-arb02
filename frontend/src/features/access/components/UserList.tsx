@@ -87,7 +87,7 @@ export function UserList() {
               onClick={() => setFilters((f) => ({ ...f, status: status.value }))}
               className={cn(
                 'h-11 rounded-md border px-4 sm:h-10',
-                filters.status === status.value ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
+                filters.status === status.value ? 'choice-on' : 'choice',
               )}
             >
               {status.label}

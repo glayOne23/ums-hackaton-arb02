@@ -60,7 +60,10 @@ export function SettingsView() {
       </header>
 
       {settings.data.data.map((section) => (
-        <fieldset key={section.key} className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4">
+        <fieldset
+          key={section.key}
+          className="flex flex-col gap-4 rounded-lg border border-border bg-card shadow-card p-4"
+        >
           <legend className="px-1 text-lg font-semibold">{section.title}</legend>
           {section.key === 'later' && (
             <p className="flex items-center gap-2 text-muted-foreground">
@@ -198,10 +201,7 @@ function SettingField({
                 aria-checked={value === option.value}
                 disabled={disabled}
                 onClick={() => onChange(option.value)}
-                className={cn(
-                  'h-11 rounded-md border px-4',
-                  value === option.value ? 'border-primary bg-accent font-semibold' : 'border-border bg-card',
-                )}
+                className={cn('h-11 rounded-md border px-4', value === option.value ? 'choice-on' : 'choice')}
               >
                 {option.label}
               </button>

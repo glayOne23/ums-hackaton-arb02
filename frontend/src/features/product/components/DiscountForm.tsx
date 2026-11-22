@@ -100,9 +100,7 @@ export function DiscountForm({ onSaved, onCancel }: Props) {
               className={cn(
                 'flex min-h-12 cursor-pointer items-center justify-center rounded-md border px-2 py-1 text-center font-medium sm:min-h-10',
                 'has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50',
-                scope === option.value
-                  ? 'border-primary bg-accent text-accent-foreground'
-                  : 'border-input bg-card text-foreground',
+                scope === option.value ? 'choice-on' : 'choice',
               )}
             >
               <input type="radio" value={option.value} className="sr-only" {...register('scope')} />

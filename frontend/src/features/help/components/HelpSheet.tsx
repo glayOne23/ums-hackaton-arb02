@@ -2,7 +2,9 @@ import { CircleHelp, Lightbulb, MessageCircle } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { InstallAppButton } from '@/components/layout/InstallApp'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
+import { useInstallMode } from '@/lib/install'
 import { type FontSize, setPreferences, usePreferences } from '@/lib/preferences'
 import { cn } from '@/lib/utils'
 import { useSession } from '@/stores/session'
@@ -41,6 +43,7 @@ function HelpContent({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="flex flex-col gap-5">
+      <InstallSection />
       {link ? (
         <Button asChild size="cta">
           <a href={link} target="_blank" rel="noreferrer">
@@ -96,9 +99,7 @@ function HelpContent({ onDone }: { onDone: () => void }) {
               onClick={() => setPreferences({ fontSize: size.value })}
               className={cn(
                 'flex min-h-12 items-center justify-center rounded-md border px-2 text-center font-medium',
-                prefs.fontSize === size.value
-                  ? 'border-primary bg-accent text-accent-foreground'
-                  : 'border-input bg-card',
+                prefs.fontSize === size.value ? 'choice-on' : 'choice',
               )}
             >
               {size.label}
@@ -132,5 +133,21 @@ export function HelpButton({ className, iconWrapClassName }: { className?: strin
         </button>
       )}
     />
+  )
+}
+
+/** PW-02 for every role: install from Bantuan; hidden once installed or when the browser cannot. */
+function InstallSection() {
+  const mode = useInstallMode()
+  if (mode === 'installed' || mode === 'unavailable') return null
+
+  return (
+    <section aria-labelledby="help-install" className="flex flex-col gap-2 rounded-lg bg-leaf-50 p-3">
+      <h3 id="help-install" className="font-semibold text-leaf-800">
+        Aplikasi
+      </h3>
+      <p>Pasang SIGAP agar bisa dibuka dari ikon di layar utama, seperti aplikasi biasa.</p>
+      <InstallAppButton variant="outline" />
+    </section>
   )
 }

@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import {
   Banknote,
   CalendarCheck,
+  ChevronRight,
   CircleAlert,
   Clock,
   type LucideIcon,
@@ -355,6 +356,8 @@ function KpiLabel({ icon: Icon, tone, children }: { icon: LucideIcon; tone: Tone
         <Icon className="size-5" />
       </span>
       <span className="font-medium text-muted-foreground">{children}</span>
+      {/* Only when the tile is a link: the chevron says "opens the report" */}
+      <ChevronRight className="ml-auto hidden size-5 shrink-0 text-leaf-700 [a_&]:block" aria-hidden />
     </span>
   )
 }

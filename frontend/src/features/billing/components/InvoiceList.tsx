@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { CircleAlert, CircleCheck, MessageCircle, Printer, Search } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { OpenHint } from '@/components/common/OpenHint'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -119,7 +120,10 @@ export function InvoiceList() {
 
           <ul className="flex flex-col gap-3 print:hidden">
             {groups.map((group) => (
-              <li key={group.outletId} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
+              <li
+                key={group.outletId}
+                className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-lg font-semibold wrap-break-word">{group.outlet.name}</p>
@@ -135,26 +139,29 @@ export function InvoiceList() {
                       <Link
                         to="/office/billing/invoices/$invoiceId"
                         params={{ invoiceId: invoice.id }}
-                        className="flex flex-wrap items-center justify-between gap-2 py-2 hover:bg-accent/50"
+                        className="-mx-2 flex items-center gap-2 rounded-md px-2 py-2 transition-colors hover:bg-leaf-50"
                       >
-                        <span className="min-w-0">
-                          <span className="block font-medium">{invoice.number}</span>
-                          <span className="block text-sm text-muted-foreground">
-                            {formatTableDate(new Date(invoice.invoice_date))} ·{' '}
-                            <span className={cn(invoice.age_days > 30 && 'font-medium text-warning-text')}>
-                              {invoice.age_days} hari
+                        <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
+                          <span className="min-w-0">
+                            <span className="block font-semibold text-leaf-800">{invoice.number}</span>
+                            <span className="block text-sm text-muted-foreground">
+                              {formatTableDate(new Date(invoice.invoice_date))} ·{' '}
+                              <span className={cn(invoice.age_days > 30 && 'font-medium text-warning-text')}>
+                                {invoice.age_days} hari
+                              </span>
+                              {invoice.sales && ` · ${invoice.sales.name}`}
                             </span>
-                            {invoice.sales && ` · ${invoice.sales.name}`}
+                          </span>
+                          <span className="flex flex-wrap items-center gap-2">
+                            {invoice.overdue && (
+                              <StatusChip variant="danger" icon={CircleAlert}>
+                                Lewat jatuh tempo
+                              </StatusChip>
+                            )}
+                            <span className="font-semibold tabular-nums">{formatCurrency(invoice.owed)}</span>
                           </span>
                         </span>
-                        <span className="flex flex-wrap items-center gap-2">
-                          {invoice.overdue && (
-                            <StatusChip variant="danger" icon={CircleAlert}>
-                              Lewat jatuh tempo
-                            </StatusChip>
-                          )}
-                          <span className="font-semibold tabular-nums">{formatCurrency(invoice.owed)}</span>
-                        </span>
+                        <OpenHint label="Buka" />
                       </Link>
                     </li>
                   ))}

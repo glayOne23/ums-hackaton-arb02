@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronDown, CircleCheck, Clock, PackageOpen, Plus, TriangleAlert } from 'lucide-react'
+import { ChevronDown, CircleCheck, Clock, PackageOpen, Plus, ScrollText, TriangleAlert } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { StatusChip } from '@/components/common/StatusChip'
@@ -86,7 +86,7 @@ export function WarehouseStockView() {
               type="button"
               variant="outline"
               aria-pressed={filter === value}
-              className={filter === value ? 'border-primary bg-accent text-accent-foreground' : ''}
+              className={filter === value ? 'border-leaf-700 bg-leaf-700 text-white hover:bg-leaf-700' : ''}
               onClick={() => setFilter(value)}
             >
               {label}
@@ -176,7 +176,9 @@ function StockRow({ row }: { row: ProductStock }) {
             <span className="block text-2xl font-semibold tabular-nums">{formatNumber(row.qty)}</span>
             <span className="block text-sm text-muted-foreground">{product.unit}</span>
           </span>
-          <ChevronDown className={`size-5 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
+          <span className="grid size-9 place-items-center rounded-full bg-leaf-50 text-leaf-700" aria-hidden>
+            <ChevronDown className={`size-5 transition-transform ${open ? 'rotate-180' : ''}`} />
+          </span>
         </span>
       </button>
 
@@ -213,13 +215,12 @@ function StockRow({ row }: { row: ProductStock }) {
           ) : (
             <p className="text-muted-foreground">Belum ada stok untuk produk ini.</p>
           )}
-          <Link
-            to="/office/inventory/stock-card/$productId"
-            params={{ productId: product.id }}
-            className="w-fit font-medium text-leaf-700 underline underline-offset-4"
-          >
-            Lihat kartu stok
-          </Link>
+          <Button asChild variant="secondary" className="w-fit">
+            <Link to="/office/inventory/stock-card/$productId" params={{ productId: product.id }}>
+              <ScrollText aria-hidden />
+              Lihat kartu stok
+            </Link>
+          </Button>
         </div>
       )}
     </li>

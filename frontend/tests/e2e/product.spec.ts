@@ -81,7 +81,8 @@ test('office admin stops the discount and moves the product to the trash', async
   await expect(office.getByRole('main').getByRole('listitem').filter({ hasText: name })).toHaveCount(0)
 
   await office.goto(`/office/products?search=${code}`)
-  await office.getByRole('link', { name }).filter({ visible: true }).click()
+  // Starts with the name: the table's name link or the phone card, not the "Detail …"/"Ubah …" row actions
+  await office.getByRole('link', { name: new RegExp(`^${name}`) }).filter({ visible: true }).click()
   await office.getByRole('button', { name: 'Hapus produk' }).click()
   await office.getByRole('alertdialog').getByRole('button', { name: 'Hapus produk' }).click()
   await expect(office).toHaveURL(/\/office\/products$/)

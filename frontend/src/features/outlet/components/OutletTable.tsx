@@ -1,9 +1,13 @@
 import { createColumnHelper, tableFeatures, useTable } from '@tanstack/react-table'
 import { Link } from '@tanstack/react-router'
-import { CirclePause } from 'lucide-react'
+import { ChevronRight, CirclePause, Eye, Pencil } from 'lucide-react'
+import { ROW_ACTION, RowActionLabel, RowActions, RowActionsHeader } from '@/components/common/RowActions'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { usePermission } from '@/stores/session'
 import type { Outlet } from '../types'
+import { DeleteOutletButton } from './DeleteOutletButton'
 
 const features = tableFeatures({})
 const helper = createColumnHelper<typeof features, Outlet>()
@@ -25,7 +29,7 @@ const columns = helper.columns([
           <Link
             to="/office/outlets/$outletId"
             params={{ outletId: outlet.id }}
-            className="font-medium text-foreground underline-offset-4 hover:text-leaf-700 hover:underline"
+            className="font-semibold text-leaf-800 underline decoration-leaf-600/40 underline-offset-4 hover:decoration-leaf-700"
           >
             {outlet.name}
           </Link>
@@ -55,14 +59,56 @@ const columns = helper.columns([
     header: 'Sales',
     cell: (info) => info.getValue() || <span className="text-muted-foreground">Belum ada</span>,
   }),
+  helper.display({
+    id: 'actions',
+    header: () => <RowActionsHeader />,
+    cell: (info) => <OutletRowActions outlet={info.row.original} />,
+  }),
 ])
+
+/** Row actions seen at a glance (doc 05, UX-10): the same pages and dialog as on the profile. */
+function OutletRowActions({ outlet }: { outlet: Outlet }) {
+  const canManage = usePermission('outlet.manage')
+
+  return (
+    <RowActions>
+      <Button asChild variant="secondary" size="row" className={ROW_ACTION}>
+        <Link
+          to="/office/outlets/$outletId"
+          params={{ outletId: outlet.id }}
+          aria-label={`Detail ${outlet.name}`}
+          title="Detail"
+        >
+          <Eye aria-hidden />
+          <RowActionLabel>Detail</RowActionLabel>
+        </Link>
+      </Button>
+      {canManage && (
+        <>
+          <Button asChild variant="outline" size="row" className={ROW_ACTION}>
+            <Link
+              to="/office/outlets/$outletId/edit"
+              params={{ outletId: outlet.id }}
+              aria-label={`Ubah ${outlet.name}`}
+              title="Ubah"
+            >
+              <Pencil aria-hidden />
+              <RowActionLabel>Ubah</RowActionLabel>
+            </Link>
+          </Button>
+          <DeleteOutletButton outlet={outlet} compact />
+        </>
+      )}
+    </RowActions>
+  )
+}
 
 /** W3 outlet table for tablet and desktop. Phones use OutletCards instead. */
 export function OutletTable({ outlets }: { outlets: Outlet[] }) {
   const table = useTable({ features, columns, data: outlets })
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-card">
       <table className="w-full text-left">
         <thead className="sticky top-0 bg-muted">
           {table.getHeaderGroups().map((group) => (
@@ -84,7 +130,7 @@ export function OutletTable({ outlets }: { outlets: Outlet[] }) {
         </thead>
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t border-earth-200">
+            <tr key={row.id} className="border-t border-border transition-colors hover:bg-leaf-50">
               {row.getAllCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -110,23 +156,27 @@ export function OutletCards({ outlets }: { outlets: Outlet[] }) {
           <Link
             to="/office/outlets/$outletId"
             params={{ outletId: outlet.id }}
-            className="flex flex-col gap-1 rounded-lg border border-border bg-card shadow-card p-4 active:bg-accent"
+            className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card active:bg-accent"
           >
-            <span className="flex items-start justify-between gap-2">
-              <span className="text-lg font-semibold">{outlet.name}</span>
-              {!outlet.is_active && (
-                <StatusChip variant="neutral" icon={CirclePause}>
-                  Nonaktif
-                </StatusChip>
-              )}
+            <span className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="flex items-start justify-between gap-2">
+                <span className="text-lg font-semibold">{outlet.name}</span>
+                {!outlet.is_active && (
+                  <StatusChip variant="neutral" icon={CirclePause}>
+                    Nonaktif
+                  </StatusChip>
+                )}
+              </span>
+              <span className="text-muted-foreground">
+                {outlet.outlet_type?.name} · {outlet.region?.name} · {outlet.district}
+              </span>
+              <span className="text-muted-foreground">
+                {outlet.sale_mode.label} ·{' '}
+                {outlet.sales?.length ? outlet.sales.map((s) => s.name).join(', ') : 'Belum ada sales'}
+              </span>
             </span>
-            <span className="text-muted-foreground">
-              {outlet.outlet_type?.name} · {outlet.region?.name} · {outlet.district}
-            </span>
-            <span className="text-muted-foreground">
-              {outlet.sale_mode.label} ·{' '}
-              {outlet.sales?.length ? outlet.sales.map((s) => s.name).join(', ') : 'Belum ada sales'}
-            </span>
+            {/* "This opens": every tappable card ends with a chevron (UI guide §7.3) */}
+            <ChevronRight className="size-6 shrink-0 text-leaf-700" aria-hidden />
           </Link>
         </li>
       ))}
