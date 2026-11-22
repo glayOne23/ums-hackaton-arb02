@@ -7,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './tests/e2e',
+  // Needs the demo database instead of the sample data: npm run test:demo (playwright.demo.config.ts)
+  testIgnore: '**/demo-scenario.spec.ts',
   // Each sample account signs in once per run (tests/e2e/support/global-setup.ts)
   globalSetup: './tests/e2e/support/global-setup.ts',
   outputDir: './test-results',

@@ -94,6 +94,10 @@ Semua rancangan ada di [`docs/pengembangan/`](docs/pengembangan/). Baca sesuai k
 
 Bahan pendukung ada di [`docs/referensi/`](docs/referensi/) (profil mitra, proposal, review Figma). Keputusan teknis baru dicatat di [`docs/adr/`](docs/adr/).
 
+**Demo Day:** naskah ±4 menit, file impor, dan gladi otomatis ada di [`docs/demo/`](docs/demo/NASKAH_DEMO.md). Data demo dibuat dengan `php artisan migrate:fresh --seed --seeder=DemoSeeder`, lalu `npm run test:demo` menjalankan ketujuh langkah SRS §7 di aplikasi hasil build.
+
+**Demo Day:** naskah ±4 menit, file impor, dan gladi otomatis ada di [`docs/demo/`](docs/demo/NASKAH_DEMO.md). Data demo dibuat dengan `php artisan migrate:fresh --seed --seeder=DemoSeeder`, lalu `npm run test:demo` menjalankan ketujuh langkah SRS §7 di aplikasi hasil build.
+
 ## 🗂️ Struktur repo
 
 ```text
