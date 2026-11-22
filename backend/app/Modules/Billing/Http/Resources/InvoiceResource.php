@@ -5,6 +5,7 @@ namespace App\Modules\Billing\Http\Resources;
 use App\Core\Support\Money;
 use App\Modules\Billing\Enums\InvoiceStatus;
 use App\Modules\Billing\Models\Invoice;
+use App\Modules\Setting\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -42,6 +43,10 @@ class InvoiceResource extends JsonResource
             // TG-01: how long it has been unpaid
             'age_days' => (int) $this->invoice_date->diffInDays(now()->startOfDay()),
             'overdue' => $open && $this->due_date->lt(now()->startOfDay()),
+            // TG-04: due within the reminder days (Pengaturan → Penagihan); 0 days = never
+            'due_soon' => $open && Setting::int('due_reminder_days') > 0
+                && $this->due_date->gte(now()->startOfDay())
+                && $this->due_date->lte(now()->startOfDay()->addDays(Setting::int('due_reminder_days'))),
             'status' => ['value' => $this->status->value, 'label' => $this->status->label()],
             'payments' => PaymentResource::collection($this->whenLoaded('payments')),
         ];

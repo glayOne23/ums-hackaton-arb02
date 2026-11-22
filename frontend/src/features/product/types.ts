@@ -24,6 +24,9 @@ export interface Product {
   selling_price: number
   min_stock_qty: number
   is_active: boolean
+  /** PR-01: optional photo, fetched from /products/{id}/photo */
+  has_photo: boolean
+  photo_version: number | null
   aliases?: string[]
   created_at: string
   updated_at: string

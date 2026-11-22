@@ -267,7 +267,7 @@ function RequestCard({ request }: { request: StockRequest }) {
             </div>
           </ConfirmDialog>
         )}
-        {canPrepare && request.status.value !== 'submitted' && <RevertStatusButton request={request} />}
+        {canPrepare && request.can_revert && <RevertStatusButton request={request} />}
       </div>
       <HistoryPanel type="stock_request" id={request.id} />
     </li>

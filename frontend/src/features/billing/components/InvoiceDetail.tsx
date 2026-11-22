@@ -7,6 +7,8 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { FieldError } from '@/components/common/FieldError'
 import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
 import { StatusChip } from '@/components/common/StatusChip'
+import { VoidPendingNote } from '@/components/common/VoidPending'
+import { voidToast } from '@/lib/void-request'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -210,6 +212,7 @@ function PaymentRow({ payment, canVoid }: { payment: Payment; canVoid: boolean }
           {payment.transaction_id && ' · saat kunjungan'}
           {payment.note && ` · ${payment.note}`}
         </p>
+        {payment.void_pending && <VoidPendingNote pending={payment.void_pending} />}
         {payment.is_void && (
           <p className="text-sm text-danger-text">
             Dibatalkan{payment.voided_by && ` oleh ${payment.voided_by}`}: {payment.void_reason}
@@ -222,7 +225,7 @@ function PaymentRow({ payment, canVoid }: { payment: Payment; canVoid: boolean }
             Sudah disetor
           </StatusChip>
         )}
-        {canVoid && !payment.is_void && !payment.remitted && (
+        {canVoid && !payment.is_void && !payment.remitted && !payment.void_pending && (
           <ConfirmDialog
             open={open}
             onOpenChange={(next) => {
@@ -239,9 +242,9 @@ function PaymentRow({ payment, canVoid }: { payment: Payment; canVoid: boolean }
               voidPayment.mutate(
                 { id: payment.id, reason },
                 {
-                  onSuccess: () => {
+                  onSuccess: (result) => {
                     setOpen(false)
-                    toast.success('Pembayaran dibatalkan')
+                    toast.success(voidToast(result, 'Pembayaran dibatalkan'))
                   },
                 },
               )

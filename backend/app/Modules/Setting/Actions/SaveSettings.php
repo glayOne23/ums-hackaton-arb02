@@ -52,7 +52,7 @@ final class SaveSettings
                 activity('setting')
                     ->causedBy($actor)
                     ->event('updated')
-                    ->withProperties(['key' => $key, 'old' => $old, 'new' => $new])
+                    ->withProperties(['key' => $key, 'old' => $this->shown($key, $old), 'new' => $this->shown($key, $new)])
                     ->log(SettingDefinitions::get($key)['label']);
                 $changed[] = $key;
             }
@@ -63,5 +63,15 @@ final class SaveSettings
         $this->store->flush();
 
         return $changed;
+    }
+
+    /** A picture is logged as words, not as its data (it would fill the history). */
+    private function shown(string $key, int|bool|string $value): int|bool|string
+    {
+        if (SettingDefinitions::get($key)['type'] !== 'image') {
+            return $value;
+        }
+
+        return $value === '' ? '(kosong)' : '(gambar)';
     }
 }

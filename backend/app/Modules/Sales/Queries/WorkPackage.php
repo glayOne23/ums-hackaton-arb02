@@ -29,7 +29,7 @@ final class WorkPackage
         'billing_threshold', 'billing_threshold_unit', 'expiry_withdrawal_months',
         'visit_cycle_days', 'credit_term_days', 'form_photo_required', 'data_saver',
         // Printed on the nota (PG-09)
-        'company_name', 'company_address', 'company_whatsapp',
+        'company_name', 'company_address', 'company_whatsapp', 'company_logo',
     ];
 
     public function __construct(

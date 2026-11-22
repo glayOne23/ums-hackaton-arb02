@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/api/client'
+import { api, apiBlobUrl } from '@/lib/api/client'
 import { toQueryString } from '@/lib/api/query'
 import type { DiscountFormInput, ProductFormInput } from './schemas'
 import { toDiscountPayload, toProductPayload } from './schemas'
@@ -29,6 +29,36 @@ export function useProducts(filters: ProductFilters & { per_page?: number }) {
     queryKey: productKeys.list(filters),
     queryFn: ({ signal }) => api<Paginated<Product>>(`/products${toQueryString({ ...filters })}`, { signal }),
     placeholderData: keepPreviousData,
+  })
+}
+
+/** PR-01: the product photo as an object URL; the version changes when it is replaced. */
+export function useProductPhoto(id: string, version: number | null) {
+  return useQuery({
+    queryKey: [...productKeys.detail(id), 'photo', version] as const,
+    queryFn: ({ signal }) => apiBlobUrl(`/products/${id}/photo`, signal),
+    enabled: version !== null,
+    staleTime: Infinity,
+  })
+}
+
+export function useUploadProductPhoto(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (photo: Blob) => {
+      const body = new FormData()
+      body.append('photo', photo, 'produk.jpg')
+      return api(`/products/${id}/photo`, { method: 'POST', body })
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
+  })
+}
+
+export function useRemoveProductPhoto(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api(`/products/${id}/photo`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
   })
 }
 

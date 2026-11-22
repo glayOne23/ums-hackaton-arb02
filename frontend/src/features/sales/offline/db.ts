@@ -37,7 +37,7 @@ export interface Receipt {
   /** Hemat data was on when saved: the photo waits for Wi-Fi */
   photo_wifi_only?: boolean
   /** Company lines for the nota (PG-09); missing on notas saved before the setting existed */
-  company?: { name: string; address: string; whatsapp: string }
+  company?: { name: string; address: string; whatsapp: string; logo?: string }
   created_at: string
   sent_at: string | null
 }

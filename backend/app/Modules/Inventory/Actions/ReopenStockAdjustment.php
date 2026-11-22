@@ -6,6 +6,7 @@ use App\Core\History\History;
 use App\Models\User;
 use App\Modules\Inventory\Enums\AdjustmentStatus;
 use App\Modules\Inventory\Models\StockAdjustment;
+use App\Modules\Setting\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -22,7 +23,8 @@ final class ReopenStockAdjustment
 
     public static function mayReopen(StockAdjustment $adjustment): bool
     {
-        return $adjustment->counted_date->isToday()
+        return Setting::string('status_back_stock_adjustment') === 'same_day'
+            && $adjustment->counted_date->isToday()
             && in_array($adjustment->status, [AdjustmentStatus::Pending, AdjustmentStatus::Applied], true);
     }
 
@@ -36,6 +38,11 @@ final class ReopenStockAdjustment
             if (! $adjustment->counted_date->isToday()) {
                 throw ValidationException::withMessages([
                     'adjustment' => "Opname {$adjustment->number} bukan dari hari ini. Simpan opname baru dengan alasan selisihnya.",
+                ]);
+            }
+            if (Setting::string('status_back_stock_adjustment') !== 'same_day') {
+                throw ValidationException::withMessages([
+                    'adjustment' => 'Opname tidak boleh dibuka ulang (Pengaturan → Perpindahan status). Simpan opname baru dengan alasan selisihnya.',
                 ]);
             }
             if (! self::mayReopen($adjustment)) {

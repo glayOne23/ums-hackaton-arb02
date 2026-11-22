@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, CircleCheck, MessageCircle, Printer, Search, Wallet } from 'lucide-react'
+import { CircleAlert, CircleCheck, Clock, MessageCircle, Printer, Search, Wallet } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { EmptyState, FilterBar, PageHeader } from '@/components/common/PageHeader'
@@ -163,6 +163,11 @@ export function InvoiceList() {
                             </span>
                           </span>
                           <span className="flex flex-wrap items-center gap-2">
+                            {invoice.due_soon && (
+                              <StatusChip variant="warning" icon={Clock}>
+                                Jatuh tempo {formatTableDate(new Date(invoice.due_date))}
+                              </StatusChip>
+                            )}
                             {invoice.overdue && (
                               <StatusChip variant="danger" icon={CircleAlert}>
                                 Lewat jatuh tempo

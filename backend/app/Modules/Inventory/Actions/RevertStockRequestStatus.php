@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Models\StockRequest;
 use App\Modules\Inventory\Models\StockRequestItem;
+use App\Modules\Setting\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -32,11 +33,27 @@ final class RevertStockRequestStatus
 
     public function __construct(private readonly ReverseMovements $reverse) {}
 
+    /** PG-14: may stock requests move back at all (Settings → Perpindahan status)? */
+    public static function allowed(): bool
+    {
+        return Setting::string('status_back_stock_request') === 'one_step';
+    }
+
+    /** May this request move back now? */
+    public static function mayRevert(StockRequest $request): bool
+    {
+        return self::allowed() && isset(self::BACK[$request->status->value]);
+    }
+
     public function handle(StockRequest $request, string $reason, User $actor): StockRequest
     {
         $reason = trim($reason);
         if ($reason === '') {
             throw ValidationException::withMessages(['reason' => 'Tulis alasan, misalnya "jumlah yang disiapkan salah".']);
+        }
+
+        if (! self::allowed()) {
+            throw ValidationException::withMessages(['reason' => 'Status permintaan barang tidak boleh dimundurkan (Pengaturan → Perpindahan status).']);
         }
 
         return DB::transaction(function () use ($request, $reason, $actor) {

@@ -30,6 +30,9 @@ class ProductResource extends JsonResource
             'selling_price' => (float) $this->selling_price,
             'min_stock_qty' => $this->min_stock_qty,
             'is_active' => $this->is_active,
+            // PR-01: the photo is fetched from /products/{id}/photo; the version changes when it is replaced
+            'has_photo' => $this->photo_path !== null,
+            'photo_version' => $this->photo_path !== null ? $this->updated_at?->getTimestamp() : null,
             'aliases' => $this->whenLoaded('aliases', fn () => $this->aliases->map(fn (ProductAlias $a) => $a->alias)->values()),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

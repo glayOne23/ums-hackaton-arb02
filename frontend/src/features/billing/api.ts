@@ -1,3 +1,4 @@
+import type { VoidResult } from '@/lib/void-request'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
 import type { Invoice, InvoiceList, Payment, PaymentMethodValue, PendingRemittance, Remittance } from './types'
@@ -59,7 +60,7 @@ export function useVoidPayment() {
   const invalidate = useInvalidateBilling()
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api<{ data: Payment }>(`/billing/payments/${id}/void`, { method: 'POST', body: { reason } }),
+      api<VoidResult<Payment>>(`/billing/payments/${id}/void`, { method: 'POST', body: { reason } }),
     onSuccess: invalidate,
   })
 }

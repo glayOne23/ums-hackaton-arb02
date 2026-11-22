@@ -1,3 +1,5 @@
+import type { VoidPendingInfo } from '@/lib/void-request'
+
 /** Shapes returned by the Inventory API (backend: App\Modules\Inventory). */
 
 export interface ValueLabel<T extends string = string> {
@@ -67,6 +69,8 @@ export interface StockCard {
 
 export interface GoodsReceipt {
   id: string
+  /** PG-12: a void waiting for approval */
+  void_pending: VoidPendingInfo | null
   number: string
   received_date: string
   note: string | null
@@ -90,6 +94,8 @@ export interface StockRequestItem {
 
 export interface StockRequest {
   id: string
+  /** PG-14: Settings allow moving this one back a step now */
+  can_revert: boolean
   number: string
   status: ValueLabel<StockRequestStatusValue>
   sales: { id: number; name: string }
@@ -107,6 +113,8 @@ export type ReturnConditionValue = 'sellable' | 'damaged' | 'expired'
 
 export interface StockReturn {
   id: string
+  /** PG-12: a void waiting for approval */
+  void_pending: VoidPendingInfo | null
   number: string
   sales: { id: number; name: string }
   received_date: string

@@ -1,0 +1,86 @@
+# SIGAP on one server (FP-09, NF-05). Run from the repository root:
+#
+#   cp infra/docker/.env.example infra/docker/.env      # then fill it in
+#   docker compose -f infra/docker/compose.yaml build
+#   docker compose -f infra/docker/compose.yaml up -d
+#   docker compose -f infra/docker/compose.yaml run --rm app php artisan migrate --force
+#
+# Steps for a first install are in README → "Menjalankan di server".
+# Local development uses backend/compose.yaml instead (ADR 0003).
+
+name: sigap
+
+x-app: &app
+  build:
+    context: ../..
+    dockerfile: infra/docker/Dockerfile
+    target: app
+  image: sigap-app
+  env_file: .env
+  environment:
+    DB_HOST: db
+    # Caddy sits in front; trust its X-Forwarded-Proto so URLs are https
+    TRUSTED_PROXIES: "*"
+  volumes:
+    # Form photos, product photos, logs, and backups survive a new image
+    - storage:/app/storage
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+      target: web
+    image: sigap-web
+    environment:
+      SIGAP_DOMAIN: ${SIGAP_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      # HTTPS certificates; keep them, or Let's Encrypt limits new ones
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  app:
+    <<: *app
+
+  # Queued jobs: push notifications, imports (README "Pekerja antrean")
+  queue:
+    <<: *app
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+
+  # routes/console.php: backup 01.30, Tempat Sampah 02.00, morning notifications 07.00
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-sigap}
+      MYSQL_USER: ${DB_USERNAME:-sigap}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Isi DB_PASSWORD di infra/docker/.env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Isi DB_ROOT_PASSWORD di infra/docker/.env}
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  storage:
+  mysql:
+  caddy_data:
+  caddy_config:

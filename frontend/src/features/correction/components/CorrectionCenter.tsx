@@ -22,9 +22,18 @@ import type { Transaction } from '@/features/sales/types'
 import { formatDate, formatRelativeDay, formatTableDate, formatTime } from '@/lib/format'
 import { useSession } from '@/stores/session'
 import { type CorrectionTab, TABS, useCorrectionTabs } from '../tabs'
-import { useDeviceSyncs, useMarkReviewed, useNeedsReview, usePendingCorrections, useRestore, useTrash } from '../api'
+import {
+  useDeviceSyncs,
+  useMarkReviewed,
+  useNeedsReview,
+  usePendingCorrections,
+  useRestore,
+  useTrash,
+  useVoidRequests,
+} from '../api'
 import type { TrashItem } from '../types'
 import { PendingCorrectionCard } from './PendingCorrectionCard'
+import { PendingVoidCard } from './PendingVoidCard'
 
 /**
  * W13: everything that needs fixing or can be brought back — notas marked
@@ -210,26 +219,53 @@ function ReviewRow({ transaction: t }: { transaction: Transaction }) {
 }
 
 function PendingList() {
+  const canApprove = useSession((s) => s.user?.permissions.includes('correction.approve') ?? false)
   const pending = usePendingCorrections()
+  const voids = useVoidRequests(canApprove)
 
-  if (pending.isPending) return <Skeleton />
+  if (pending.isPending || (canApprove && voids.isPending)) return <Skeleton />
   if (pending.isError) return <ErrorState message={pending.error.message} onRetry={() => pending.refetch()} />
-  if (pending.data.length === 0) return <Empty text="Tidak ada koreksi yang menunggu persetujuan." />
+  if (voids.isError) return <ErrorState message={voids.error.message} onRetry={() => voids.refetch()} />
+  const voidList = voids.data ?? []
+  if (pending.data.length === 0 && voidList.length === 0) return <Empty text="Tidak ada yang menunggu persetujuan." />
 
   return (
-    <ul className="flex flex-col gap-3">
-      {pending.data.map((c) => (
-        <li key={c.id} className="flex flex-col gap-1">
-          <PendingCorrectionCard correction={c} showNota />
-          <Button asChild variant="secondary" className="self-start">
-            <Link to="/office/visits/$transactionId" params={{ transactionId: c.transaction.id }}>
-              Buka nota {c.transaction.number}
-              <ChevronRight aria-hidden />
-            </Link>
-          </Button>
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-6">
+      {pending.data.length > 0 && (
+        <section aria-labelledby="pending-notas" className="flex flex-col gap-3">
+          <h2 id="pending-notas" className="text-lg font-semibold">
+            Koreksi nota
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {pending.data.map((c) => (
+              <li key={c.id} className="flex flex-col gap-1">
+                <PendingCorrectionCard correction={c} showNota />
+                <Button asChild variant="secondary" className="self-start">
+                  <Link to="/office/visits/$transactionId" params={{ transactionId: c.transaction.id }}>
+                    Buka nota {c.transaction.number}
+                    <ChevronRight aria-hidden />
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {voidList.length > 0 && (
+        <section aria-labelledby="pending-voids" className="flex flex-col gap-3">
+          <h2 id="pending-voids" className="text-lg font-semibold">
+            Pembatalan pembayaran & dokumen gudang
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {voidList.map((r) => (
+              <li key={r.id}>
+                <PendingVoidCard request={r} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
   )
 }
 

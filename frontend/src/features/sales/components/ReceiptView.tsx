@@ -53,10 +53,13 @@ function ReceiptCard({ receipt }: { receipt: Receipt }) {
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-card shadow-card p-4 print:border-0">
         {/* Printed nota header (PG-09) */}
         {receipt.company && (
-          <div className="hidden print:block">
-            <p className="text-lg font-bold">{receipt.company.name}</p>
-            {receipt.company.address && <p>{receipt.company.address}</p>}
-            {receipt.company.whatsapp && <p>WA {receipt.company.whatsapp}</p>}
+          <div className="hidden print:flex print:items-center print:gap-3">
+            {receipt.company.logo && <img src={receipt.company.logo} alt="" className="size-14 object-contain" />}
+            <div>
+              <p className="text-lg font-bold">{receipt.company.name}</p>
+              {receipt.company.address && <p>{receipt.company.address}</p>}
+              {receipt.company.whatsapp && <p>WA {receipt.company.whatsapp}</p>}
+            </div>
           </div>
         )}
         <p className="flex items-center gap-2 text-xl font-semibold text-success-text">

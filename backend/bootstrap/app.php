@@ -12,7 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // NF-05: behind the HTTPS proxy (Caddy in infra/docker), trust its X-Forwarded-* headers so
+        // generated URLs are https. TRUSTED_PROXIES is empty in local development.
+        $proxies = env('TRUSTED_PROXIES');
+        if (filled($proxies)) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', (string) $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // The PWA always receives JSON from /api, errors included

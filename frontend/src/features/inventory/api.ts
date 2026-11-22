@@ -1,3 +1,4 @@
+import type { VoidResult } from '@/lib/void-request'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api/client'
 import { sendOrQueue } from '@/lib/offline/outbox'
@@ -191,9 +192,7 @@ export function useVoidGoodsReceipt() {
   const invalidate = useInvalidateInventory()
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api<{ data: GoodsReceipt }>(`/inventory/goods-receipts/${id}/void`, { method: 'POST', body: { reason } }).then(
-        (r) => r.data,
-      ),
+      api<VoidResult<GoodsReceipt>>(`/inventory/goods-receipts/${id}/void`, { method: 'POST', body: { reason } }),
     networkMode: 'always',
     onSuccess: invalidate,
   })
@@ -204,9 +203,7 @@ export function useVoidStockReturn() {
   const invalidate = useInvalidateInventory()
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api<{ data: StockReturn }>(`/inventory/returns/${id}/void`, { method: 'POST', body: { reason } }).then(
-        (r) => r.data,
-      ),
+      api<VoidResult<StockReturn>>(`/inventory/returns/${id}/void`, { method: 'POST', body: { reason } }),
     networkMode: 'always',
     onSuccess: invalidate,
   })

@@ -5,6 +5,7 @@ use App\Modules\Product\Http\Controllers\DiscountController;
 use App\Modules\Product\Http\Controllers\PriceListController;
 use App\Modules\Product\Http\Controllers\ProductController;
 use App\Modules\Product\Http\Controllers\ProductMergeController;
+use App\Modules\Product\Http\Controllers\ProductPhotoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ProductController::class, 'store'])->middleware('can:product.manage');
         Route::get('{product}', [ProductController::class, 'show'])->middleware('can:product.view')->whereUlid('product');
         Route::patch('{product}', [ProductController::class, 'update'])->middleware('can:product.manage')->whereUlid('product');
+        // PR-01: optional product photo
+        Route::get('{product}/photo', [ProductPhotoController::class, 'show'])->middleware('can:product.view')->whereUlid('product');
+        Route::post('{product}/photo', [ProductPhotoController::class, 'store'])->middleware('can:product.manage')->whereUlid('product');
+        Route::delete('{product}/photo', [ProductPhotoController::class, 'destroy'])->middleware('can:product.manage')->whereUlid('product');
         // KR-08: merge a duplicate into this product
         Route::get('{product}/merge', [ProductMergeController::class, 'preview'])->middleware('can:product.manage')->whereUlid('product');
         Route::post('{product}/merge', [ProductMergeController::class, 'store'])->middleware('can:product.manage')->whereUlid('product');

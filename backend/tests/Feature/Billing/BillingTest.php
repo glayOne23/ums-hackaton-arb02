@@ -123,3 +123,19 @@ it('keeps a shortfall with its note instead of hiding it (TG-03)', function () {
     $this->actingAs($this->manager)->postJson('/api/v1/billing/remittances', ['sales_user_id' => $this->sales->id])
         ->assertForbidden();
 });
+
+it('holds the void of an older payment until the manager approves it (PG-12)', function () {
+    $invoice = visitWith(2, 100000);
+    $payment = Payment::query()->firstOrFail();
+    $this->travel(3)->days();
+
+    $this->actingAs($this->admin)->postJson("/api/v1/billing/payments/{$payment->id}/void", ['reason' => 'Salah outlet'])
+        ->assertStatus(202);
+    expect($invoice->refresh()->status->value)->toBe('paid');
+    $this->actingAs($this->admin)->getJson("/api/v1/billing/invoices/{$invoice->id}")
+        ->assertJsonPath('data.payments.0.void_pending.reason', 'Salah outlet');
+
+    $id = $this->actingAs($this->manager)->getJson('/api/v1/void-requests')->json('data.0.id');
+    $this->actingAs($this->manager)->postJson("/api/v1/void-requests/{$id}/approve")->assertOk();
+    expect($invoice->refresh()->status->value)->toBe('unpaid');
+});

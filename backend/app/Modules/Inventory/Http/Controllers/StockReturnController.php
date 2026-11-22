@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Http\Controllers;
 
+use App\Core\Approval\VoidApprovals;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Inventory\Actions\ReceiveReturn;
@@ -57,11 +58,18 @@ class StockReturnController extends Controller
     }
 
     /** KR-04: void a return entered by mistake; the goods go back to the sales. */
-    public function void(Request $request, StockReturn $stockReturn, VoidStockReturn $void): StockReturnResource
+    public function void(Request $request, StockReturn $stockReturn, VoidStockReturn $void, VoidApprovals $approvals): StockReturnResource|JsonResponse
     {
         $reason = (string) ($request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? '');
         /** @var User $user */
         $user = $request->user();
+
+        // PG-12: after the direct-fix window the void waits for approval
+        if ($approvals->needsApproval('stock_return', $stockReturn, $user)) {
+            $approvals->request('stock_return', $stockReturn, $reason, $user);
+
+            return response()->json(['pending' => true, 'message' => 'Pembatalan diajukan dan menunggu persetujuan.'], 202);
+        }
 
         return new StockReturnResource($void->handle($stockReturn, $reason, $user)->load(self::RELATIONS));
     }

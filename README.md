@@ -94,7 +94,7 @@ Semua rancangan ada di [`docs/pengembangan/`](docs/pengembangan/). Baca sesuai k
 
 Bahan pendukung ada di [`docs/referensi/`](docs/referensi/) (profil mitra, proposal, review Figma). Keputusan teknis baru dicatat di [`docs/adr/`](docs/adr/).
 
-**Demo Day:** naskah ±4 menit, file impor, dan gladi otomatis ada di [`docs/demo/`](docs/demo/NASKAH_DEMO.md). Data demo dibuat dengan `php artisan migrate:fresh --seed --seeder=DemoSeeder`, lalu `npm run test:demo` menjalankan ketujuh langkah SRS §7 di aplikasi hasil build.
+**Panduan untuk mitra:** [Panduan Penggunaan](docs/panduan/Panduan_Penggunaan.md) per peran (sales, Admin Kantor, Admin Gudang, Pimpinan) dan [Panduan Migrasi Data](docs/panduan/Panduan_Migrasi_Data.md) dari Excel lama.
 
 **Demo Day:** naskah ±4 menit, file impor, dan gladi otomatis ada di [`docs/demo/`](docs/demo/NASKAH_DEMO.md). Data demo dibuat dengan `php artisan migrate:fresh --seed --seeder=DemoSeeder`, lalu `npm run test:demo` menjalankan ketujuh langkah SRS §7 di aplikasi hasil build.
 
@@ -166,7 +166,21 @@ Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend te
 
 ### Menjalankan di server
 
-Di luar langkah Laravel biasa (`composer install --no-dev`, `.env` produksi, `php artisan migrate --force`, `npm run build` untuk frontend), server butuh tiga hal:
+**Cara cepat: Docker + HTTPS otomatis** (`infra/docker/`). Butuh server Linux dengan Docker, dan domain yang mengarah ke server itu (port 80 dan 443 terbuka). Caddy mengambil dan memperbarui sertifikat HTTPS sendiri, sehingga PWA bisa dipasang dan notifikasi push berjalan.
+
+```bash
+cp infra/docker/.env.example infra/docker/.env   # isi SIGAP_DOMAIN, APP_URL, kata sandi DB
+docker compose -f infra/docker/compose.yaml build
+docker compose -f infra/docker/compose.yaml run --rm app php artisan key:generate --show   # salin ke APP_KEY
+docker compose -f infra/docker/compose.yaml run --rm app php artisan webpush:vapid --show   # salin ke VAPID_*
+docker compose -f infra/docker/compose.yaml up -d
+docker compose -f infra/docker/compose.yaml run --rm app php artisan migrate --force --seed
+docker compose -f infra/docker/compose.yaml run --rm app php artisan sigap:admin-pertama <username> <nomor-hp>   # akun admin pertama
+```
+
+Isinya: `web` (Caddy: PWA + HTTPS), `app` (PHP-FPM), `queue`, `scheduler` (backup, Tempat Sampah, notifikasi pagi), dan `db` (MySQL 8.4). Foto, log, dan backup tersimpan di volume `storage`, jadi aman saat image diganti. Untuk versi baru: `git pull`, `build`, `up -d`, lalu `migrate --force`. `--seed` mengisi peran, izin, dan daftar pilihan awal (di produksi tanpa data contoh); `sigap:admin-pertama` mencetak kata sandi awal akun admin.
+
+**Cara manual.** Di luar langkah Laravel biasa (`composer install --no-dev`, `.env` produksi, `php artisan migrate --force`, `npm run build` untuk frontend), server butuh tiga hal:
 
 1. **Kunci push, sekali:** `php artisan webpush:vapid` (mengisi `VAPID_PUBLIC_KEY` dan `VAPID_PRIVATE_KEY` di `.env`). Jangan dibuat ulang setelah dipakai, karena langganan push di HP pengguna terikat ke kunci itu. Isi juga `VAPID_SUBJECT=mailto:email-admin` (atau URL https aplikasi); push ke iPhone menolak nilai lain.
 2. **Pekerja antrean** yang selalu hidup, misalnya lewat Supervisor atau systemd: `php artisan queue:work --tries=3`.

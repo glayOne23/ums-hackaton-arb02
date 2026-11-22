@@ -1,5 +1,5 @@
-import { History, Lock, Settings } from 'lucide-react'
-import { useState } from 'react'
+import { History, ImageOff, ImagePlus, Lock, Settings } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api/client'
 import { formatDate, formatTime } from '@/lib/format'
+import { imageToDataUrl } from '@/lib/image'
 import { cn } from '@/lib/utils'
 import { useSaveSettings, useSettingHistory, useSettings } from '../api'
 import type { SettingItem, SettingValue } from '../types'
@@ -174,6 +175,8 @@ function SettingField({
           <span className="text-base">{item.label}</span>
           {changed && <ChangedDot />}
         </label>
+      ) : item.type === 'image' ? (
+        <ImageSetting id={id} label={item.label} value={String(value)} changed={changed} onChange={onChange} />
       ) : item.type === 'choice' ? (
         <div role="radiogroup" aria-labelledby={`${id}-label`} className="flex flex-col gap-2">
           <span id={`${id}-label`} className="text-base">
@@ -225,6 +228,67 @@ function SettingField({
         </p>
       )}
       <FieldError id={`${id}-error`} message={error} />
+    </div>
+  )
+}
+
+/** PG-09: a small picture (the nota logo), shrunk on this device before it is saved. */
+function ImageSetting({
+  id,
+  label,
+  value,
+  changed,
+  onChange,
+}: {
+  id: string
+  label: string
+  value: string
+  changed: boolean
+  onChange: (value: SettingValue) => void
+}) {
+  const input = useRef<HTMLInputElement>(null)
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span id={`${id}-label`} className="text-base">
+        {label} {changed && <ChangedDot />}
+      </span>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="grid size-24 place-items-center overflow-hidden rounded-md border border-border bg-slate-50">
+          {value ? (
+            <img src={value} alt="Logo di nota" className="size-full object-contain" />
+          ) : (
+            <ImageOff className="size-7 text-slate-500" aria-label="Belum ada logo" />
+          )}
+        </div>
+        <input
+          ref={input}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="sr-only"
+          tabIndex={-1}
+          aria-hidden
+          onChange={async (e) => {
+            const file = e.target.files?.[0]
+            e.target.value = ''
+            if (!file) return
+            try {
+              onChange(await imageToDataUrl(file))
+            } catch {
+              toast.error('Gambar tidak bisa dibaca. Pilih file PNG atau JPG.')
+            }
+          }}
+        />
+        <Button type="button" variant="outline" aria-describedby={`${id}-label`} onClick={() => input.current?.click()}>
+          <ImagePlus aria-hidden />
+          {value ? 'Ganti logo' : 'Pilih logo'}
+        </Button>
+        {value && (
+          <Button type="button" variant="ghost" onClick={() => onChange('')}>
+            Hapus logo
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

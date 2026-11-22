@@ -52,6 +52,8 @@ export interface PackageSettings {
   company_name: string
   company_address: string
   company_whatsapp: string
+  /** PG-09: small data URL, '' when none */
+  company_logo?: string
 }
 
 /** Everything the phone needs for a day in the field (GET /sales/work-package). */

@@ -56,6 +56,7 @@ export function buildReceipt(draft: Draft, now: Date = new Date()): Receipt {
       name: draft.settings.company_name,
       address: draft.settings.company_address,
       whatsapp: draft.settings.company_whatsapp,
+      logo: draft.settings.company_logo ?? '',
     },
     created_at: now.toISOString(),
     sent_at: null,

@@ -29,3 +29,21 @@ export async function compressImage(file: Blob, maxBytes = 200_000, maxSide = 12
   if (!best) throw new Error('Foto tidak bisa diproses. Coba ambil ulang.')
   return best
 }
+
+/**
+ * PG-09: a logo as a small data URL (longest side ≤ maxSide px), kept as a
+ * setting and sent to the phones, so it prints on the nota without a signal.
+ * WebP keeps it small; browsers that cannot write WebP fall back to PNG.
+ */
+export async function imageToDataUrl(file: Blob, maxSide = 256): Promise<string> {
+  const bitmap = await createImageBitmap(file)
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+  canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+
+  const webp = canvas.toDataURL('image/webp', 0.9)
+  return webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/png')
+}

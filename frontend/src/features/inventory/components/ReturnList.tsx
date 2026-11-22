@@ -7,6 +7,8 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Pagination } from '@/components/common/Pagination'
+import { VoidPendingNote } from '@/components/common/VoidPending'
+import { voidToast } from '@/lib/void-request'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatNumber, formatTableDate } from '@/lib/format'
@@ -87,7 +89,8 @@ export function ReturnList() {
                     </li>
                   ))}
                 </ul>
-                {canManage && ret.status === 'active' && <VoidReturnButton stockReturn={ret} />}
+                {ret.void_pending && <VoidPendingNote pending={ret.void_pending} />}
+                {canManage && ret.status === 'active' && !ret.void_pending && <VoidReturnButton stockReturn={ret} />}
               </li>
             ))}
           </ul>
@@ -137,9 +140,9 @@ function VoidReturnButton({ stockReturn }: { stockReturn: StockReturn }) {
         voidReturn.mutate(
           { id: stockReturn.id, reason },
           {
-            onSuccess: () => {
+            onSuccess: (result) => {
               setOpen(false)
-              toast.success(`${stockReturn.number} dibatalkan`)
+              toast.success(voidToast(result, `${stockReturn.number} dibatalkan`))
             },
           },
         )

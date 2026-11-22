@@ -1,10 +1,13 @@
 /** Shapes of the Billing API (backend: App\Modules\Billing). */
 import type { InvoiceStatus } from '@/components/common/InvoiceStatusChip'
+import type { VoidPendingInfo } from '@/lib/void-request'
 
 export type PaymentMethodValue = 'cash' | 'transfer'
 
 export interface Payment {
   id: string
+  /** PG-12: a void waiting for approval */
+  void_pending: VoidPendingInfo | null
   amount: number
   method: { value: PaymentMethodValue; label: string }
   paid_at: string
@@ -40,6 +43,8 @@ export interface Invoice {
   owed: number
   age_days: number
   overdue: boolean
+  /** TG-04: falls due within the reminder days */
+  due_soon: boolean
   status: InvoiceStatus
   payments?: Payment[]
 }

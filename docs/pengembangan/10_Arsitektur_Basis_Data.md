@@ -112,7 +112,8 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
 | `core_approvals` | `persetujuan` (§4.4) | `type` (`discount`, `stock_request`, `stock_adjustment`, …), `approvable_type` + `approvable_id` (morph ke dokumen), `status` (`pending`, `approved`, `rejected`), `requested_by`, `decided_by`, `decided_at`, `note` | MVP |
-| `core_status_transitions` | `aturan_status` (§4.5) | `document_type`, `from_status`, `to_status`, `permission`, `requires_reason` | nanti |
+| `core_status_transitions` | `aturan_status` (§4.5) | `document_type`, `from_status`, `to_status`, `permission`, `requires_reason`. Untuk purwarupa, aturan mundur per jenis dokumen disimpan sebagai pengaturan `status_back_*` (§6, PG-14); tabel ini dibuat bila perpindahan status perlu diatur per pasangan status (mis. maklon) | nanti |
+| `core_void_requests` | `persetujuan` pembatalan (§4.4, PG-12) | `subject_type` (`payment`, `goods_receipt`, `stock_return`), `subject_id`, `subject_label`, `reason`, `status` (`pending`, `approved`, `rejected`), `requested_by`, `decided_by`, `decided_at`, `decision_note`. Dibuat oleh `App\Core\Approval\VoidApprovals` bila dokumen lebih lama dari `edit_window_days` dan aturan `approve_payment_void`/`approve_warehouse_void` menyala; dokumen baru dibatalkan setelah disetujui pemegang `correction.approve` (layar Koreksi → Menunggu persetujuan) | ada |
 | `core_status_histories` | `riwayat_status` (§4.5) | `statusable_type` + `statusable_id`, `from_status`, `to_status`, `user_id`, `reason`. Diisi saat status dimundurkan dengan alasan (KR-05), sekarang untuk permintaan barang lewat `Inventory\Actions\RevertStockRequestStatus`: Sudah keluar → Disiapkan (barang ditarik kembali dari bawaan sales), Disiapkan → Diajukan, Ditolak → Diajukan. Aturan per jenis dokumen masih di kode (`core_status_transitions` nanti) | ada |
 | `core_import_batches` | `sesi_impor` (§4.5) | `type` (`outlets`, `products`, `consignment_stock`), `file_name`, `row_count`, `imported_count`, `merged_count`, `skipped_count`, `merges` (JSON: isian yang dilengkapi tiap baris yang digabung, untuk pembatalan), `status` (`imported`, `reverted`), `created_by`, `reverted_by`, `reverted_at`. Outlet dan produk hasil impor menyimpan `import_batch_id`; stok titipan awal dicatat sebagai mutasi `receipt` dengan `source` = sesi impor. Dibuat lewat `Import\Actions\RunImport` setelah pratinjau; dibatalkan lewat `Import\Actions\RevertImport` (KR-14) hanya bila datanya belum dipakai; baris outlet yang mirip outlet lama bisa di-[Gabung] (W10, OT-06): tidak dibuat baru, hanya melengkapi alamat/WA/siklus yang kosong dan menambah penugasan sales; membatalkan sesi mengembalikan isian itu kecuali sudah diubah orang | ada |
 | `core_closed_periods` | `periode_tutup` (§4.5, KR-15) | `period` (teks `2026-10`, sama di MySQL dan SQLite), `closed_by`, `closed_at`. Baris terakhir berarti "ditutup sampai": semua bulan sampai bulan itu tertutup. Selama `period_closing_enabled` menyala, dokumen bertanggal di bulan tertutup tidak bisa dibuat, dikoreksi, atau dibatalkan (`App\Core\Period\ClosedPeriods::assertOpen`: nota, pembayaran, barang masuk, retur, barang keluar, impor, target); kunjungan HP yang terlambat terkirim dicatat dengan tanggal hari ini dan ditandai Perlu dicek. Ditutup/dibuka kembali lewat `App\Core\Period\ClosePeriod` di layar Pengaturan; ditolak bila masih ada koreksi, nota perlu dicek, atau opname yang menunggu di bulan itu | ada |
@@ -139,7 +140,7 @@ Nama izin: `<resource>.<action>`, misalnya `outlet.manage` atau `discount.approv
 | Tabel | Konsep di SDD | Kolom penting | Status |
 | --- | --- | --- | --- |
 | `prd_categories` | `kategori_produk` | `name` (unik), `is_active` | ada |
-| `prd_products` | `produk` | `code` (diisi admin, unik termasuk produk terhapus, disimpan huruf besar), `name`, `category_id`, `bpom_number` (wajib di form; kolom boleh kosong untuk impor lama), `unit`, `selling_price`, `min_stock_qty` (batas peringatan stok gudang), `is_active`, `merged_into_id`, `custom_fields`, `created_by`, `updated_by`, `deleted_by`, `deleted_at`. Stok tidak disimpan di sini, tetapi di `inv_`. Hapus = tempat sampah; ditolak bila modul lain memakai produk (`Product\Contracts\ProductUsage`); produk dobel digabung lewat `Product\Actions\MergeProducts` (KR-08): batch dan stok, baris nota, permintaan barang, potongan, dan nama lain pindah (`Product\Contracts\ProductMergeStep`), nama produk dobel menjadi nama lain; ditolak bila nomor batch yang sama ada di kedua produk | ada |
+| `prd_products` | `produk` | `code` (diisi admin, unik termasuk produk terhapus, disimpan huruf besar), `name`, `category_id`, `bpom_number` (wajib di form; kolom boleh kosong untuk impor lama), `unit`, `selling_price`, `min_stock_qty`, `photo_path` (PR-01: foto opsional di disk privat, dibaca lewat `GET /products/{id}/photo`) (batas peringatan stok gudang), `is_active`, `merged_into_id`, `custom_fields`, `created_by`, `updated_by`, `deleted_by`, `deleted_at`. Stok tidak disimpan di sini, tetapi di `inv_`. Hapus = tempat sampah; ditolak bila modul lain memakai produk (`Product\Contracts\ProductUsage`); produk dobel digabung lewat `Product\Actions\MergeProducts` (KR-08): batch dan stok, baris nota, permintaan barang, potongan, dan nama lain pindah (`Product\Contracts\ProductMergeStep`), nama produk dobel menjadi nama lain; ditolak bila nomor batch yang sama ada di kedua produk | ada |
 | `prd_product_aliases` | Nama lama produk untuk impor (§10) | `product_id`, `alias` (unik) | ada |
 | `prd_discounts` | `potongan` | `outlet_type_id`, `product_id`, `outlet_id` (minimal satu terisi; outlet tidak digabung dengan jenis outlet), `discount_percent`, `valid_from`, `status` (`pending`, `active`, `inactive`, `rejected`), `created_by`, `decided_by`, `decided_at`, `decision_note` (wajib saat ditolak). Urutan menang: outlet + produk > outlet > jenis outlet + produk > produk > jenis outlet, lalu `valid_from` terbaru (`Product\Actions\ResolveDiscount`). Tidak diubah setelah berlaku: perubahan = potongan baru | ada |
 
@@ -209,16 +210,22 @@ Kunci memakai snake_case Bahasa Inggris. Kunci persetujuan mengikuti pola `appro
 | `expiry_withdrawal_months` | `batas_tarik_ed_bulan` | 6 |
 | `visit_cycle_days` | `siklus_kunjungan_hari` | 30 |
 | `credit_term_days` | `tempo_hari` | 30 |
+| `due_reminder_days` | `pengingat_jatuh_tempo_hari` (TG-04: notifikasi pagi untuk tagihan outlet tempo yang jatuh tempo dalam N hari; 0 = mati) | 3 |
 | `form_photo_required` | `foto_form_wajib` | false |
 | `approve_stock_request` | `setujui_barang_keluar` | true |
 | `approve_discount` | `setujui_potongan` | true |
 | `approve_stock_adjustment` | `setujui_opname` | false |
 | `edit_window_days` | `batas_ubah_hari` | 0 (hari yang sama) |
-| `approve_correction` | `setujui_koreksi` | true |
+| `approve_correction` | `setujui_koreksi` (nota kunjungan dan penjualan) | true |
+| `approve_payment_void` | `setujui_batal_pembayaran` (PG-12; berlaku lewat `edit_window_days`) | true |
+| `approve_warehouse_void` | `setujui_batal_dokumen_gudang` (PG-12; barang masuk dan retur, lewat `edit_window_days`) | true |
+| `status_back_stock_request` | `aturan_status` permintaan barang (PG-14, bagian "Perpindahan status") | `one_step` (atau `none`) |
+| `status_back_stock_adjustment` | `aturan_status` opname (PG-14, KR-13) | `same_day` (atau `none`) |
 | `trash_retention_days` | `masa_tempat_sampah_hari` (dihapus permanen tiap malam oleh `sigap:purge-trash`, `App\Core\Trash\PurgeTrash`) | 30 |
 | `period_closing_enabled` | `tutup_buku` (KR-15, bagian "Koreksi & tempat sampah") | false |
 | `data_saver` | `hemat_data` (foto form hanya lewat Wi-Fi, NF-02) | false |
 | `company_name`, `company_address`, `company_whatsapp` | Data perusahaan di nota (PG-09) | `CV Arba'in Jaya Mandiri`, kosong, kosong |
+| `company_logo` | Logo di nota (PG-09): data URL kecil (≤ 256 px, dibuat di perangkat), ikut paket kerja HP agar tercetak tanpa sinyal; riwayat mencatat "(gambar)", bukan isinya | kosong |
 | `help_whatsapp` | `wa_bantuan` (tujuan tombol Bantuan, UX-09; kosong = `company_whatsapp`) | kosong |
 | `mfg_*` | `maklon_*` (dokumen 06 §6), misalnya `mfg_sample_fee`, `mfg_max_sample_revisions` | — |
 

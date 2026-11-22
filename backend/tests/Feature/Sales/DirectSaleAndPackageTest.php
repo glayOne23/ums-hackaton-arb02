@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/SalesHelpers.php';
 
+use App\Core\Notify\DailyDigest;
 use App\Models\User;
 use App\Modules\Auth\Roles;
 use App\Modules\Outlet\Enums\SaleMode;
@@ -88,4 +89,21 @@ it('stores the form photo privately for the sales and the office (KS-10)', funct
 
     $this->actingAs($this->manager)->get("/api/v1/sales/transactions/{$id}/photo")->assertOk();
     $this->actingAs($this->sales)->getJson("/api/v1/sales/transactions/{$id}")->assertJsonPath('data.has_photo', true);
+});
+
+it('reminds the sales and the office before a tempo invoice falls due (TG-04)', function () {
+    sendSale($this->sales, $this->outlet, 2)->assertCreated();
+    $bell = fn (User $user) => collect($this->actingAs($user)->getJson('/api/v1/notifications')->json('data'))->pluck('title');
+
+    // 30-day term: nothing yet three weeks before
+    $this->travel(20)->days();
+    app(DailyDigest::class)->handle();
+    expect($bell($this->sales)->all())->not->toContain('Tagihan tempo segera jatuh tempo');
+
+    // Three days before (due_reminder_days = 3)
+    $this->travel(7)->days();
+    app(DailyDigest::class)->handle();
+    expect($bell($this->sales)->all())->toContain('Tagihan tempo segera jatuh tempo')
+        ->and($bell($this->admin)->all())->toContain('Tagihan tempo segera jatuh tempo')
+        ->and($bell($this->otherSales)->all())->not->toContain('Tagihan tempo segera jatuh tempo');
 });

@@ -10,6 +10,7 @@ import type {
   HistoryType,
   MergePreview,
   TrashItem,
+  VoidRequestItem,
 } from './types'
 
 const ROOT = ['correction'] as const
@@ -20,6 +21,7 @@ export const correctionKeys = {
   review: [...ROOT, 'review'] as const,
   devices: [...ROOT, 'devices'] as const,
   trash: [...ROOT, 'trash'] as const,
+  voids: [...ROOT, 'voids'] as const,
 }
 
 /**
@@ -84,7 +86,29 @@ export function useDecideCorrection() {
       api<{ data: Correction }>(`/sales/corrections/${id}/${decision}`, { method: 'POST', body: { note } }).then(
         (r) => r.data,
       ),
-    onSuccess: invalidate,
+    // Not awaited: the card closes once its item leaves the refreshed list, and the
+    // caller's toast (mutate onSuccess) would then be skipped
+    onSuccess: () => void invalidate(),
+  })
+}
+
+/** PG-12: voids of payments, goods in, and returns waiting for correction.approve. */
+export function useVoidRequests(enabled = true) {
+  return useQuery({
+    queryKey: correctionKeys.voids,
+    queryFn: ({ signal }) => api<{ data: VoidRequestItem[] }>('/void-requests', { signal }).then((r) => r.data),
+    enabled,
+  })
+}
+
+export function useDecideVoid() {
+  const invalidate = useInvalidateAll()
+  return useMutation({
+    mutationFn: ({ id, decision, note }: { id: string; decision: 'approve' | 'reject'; note?: string }) =>
+      api<{ data: VoidRequestItem }>(`/void-requests/${id}/${decision}`, { method: 'POST', body: { note } }),
+    // Not awaited: the card closes once its item leaves the refreshed list, and the
+    // caller's toast (mutate onSuccess) would then be skipped
+    onSuccess: () => void invalidate(),
   })
 }
 

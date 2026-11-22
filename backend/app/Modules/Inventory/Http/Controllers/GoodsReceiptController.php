@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Http\Controllers;
 
+use App\Core\Approval\VoidApprovals;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Inventory\Actions\ReceiveGoods;
@@ -65,11 +66,18 @@ class GoodsReceiptController extends Controller
     }
 
     /** KR-04: void a receipt entered by mistake; its stock leaves the warehouse again. */
-    public function void(Request $request, GoodsReceipt $goodsReceipt, VoidGoodsReceipt $void): GoodsReceiptResource
+    public function void(Request $request, GoodsReceipt $goodsReceipt, VoidGoodsReceipt $void, VoidApprovals $approvals): GoodsReceiptResource|JsonResponse
     {
         $reason = (string) ($request->validate(['reason' => ['nullable', 'string', 'max:255']])['reason'] ?? '');
         /** @var User $user */
         $user = $request->user();
+
+        // PG-12: after the direct-fix window the void waits for approval
+        if ($approvals->needsApproval('goods_receipt', $goodsReceipt, $user)) {
+            $approvals->request('goods_receipt', $goodsReceipt, $reason, $user);
+
+            return response()->json(['pending' => true, 'message' => 'Pembatalan diajukan dan menunggu persetujuan.'], 202);
+        }
 
         return new GoodsReceiptResource($void->handle($goodsReceipt, $reason, $user)->load(self::RELATIONS));
     }

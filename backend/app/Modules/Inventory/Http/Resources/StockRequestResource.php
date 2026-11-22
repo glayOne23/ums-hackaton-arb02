@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Http\Resources;
 
+use App\Modules\Inventory\Actions\RevertStockRequestStatus;
 use App\Modules\Inventory\Models\Batch;
 use App\Modules\Inventory\Models\StockRequest;
 use App\Modules\Inventory\Models\StockRequestItem;
@@ -28,6 +29,8 @@ class StockRequestResource extends JsonResource
             'id' => $this->id,
             'number' => $this->number,
             'status' => ['value' => $this->status->value, 'label' => $this->status->label()],
+            // PG-14: the "Ubah status" button shows only when Settings allow moving back
+            'can_revert' => RevertStockRequestStatus::mayRevert($this->resource),
             'sales' => ['id' => $this->sales_user_id, 'name' => $this->salesUser->name],
             'note' => $this->note,
             'warehouse_note' => $this->warehouse_note,

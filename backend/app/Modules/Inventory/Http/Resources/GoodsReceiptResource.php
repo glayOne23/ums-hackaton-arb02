@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Http\Resources;
 
+use App\Core\Approval\VoidApprovals;
 use App\Modules\Inventory\Models\GoodsReceipt;
 use App\Modules\Inventory\Models\GoodsReceiptItem;
 use Illuminate\Http\Request;
@@ -24,6 +25,8 @@ class GoodsReceiptResource extends JsonResource
             'note' => $this->note,
             'created_by' => $this->creator?->name,
             'status' => $this->status,
+            // PG-12: a void waiting for approval (the document is unchanged until then)
+            'void_pending' => VoidApprovals::pendingSummary('goods_receipt', (string) $this->id),
             'voided' => $this->voided_at ? [
                 'by' => $this->voider?->name,
                 'at' => $this->voided_at->toIso8601String(),

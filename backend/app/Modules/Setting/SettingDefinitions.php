@@ -11,7 +11,7 @@ namespace App\Modules\Setting;
  * screen never offers a switch that does nothing.
  *
  * @phpstan-type Definition array{
- *     section: string, label: string, help?: string, type: 'int'|'bool'|'string'|'choice',
+ *     section: string, label: string, help?: string, type: 'int'|'bool'|'string'|'choice'|'image',
  *     default: int|bool|string, min?: int, max?: int, max_length?: int,
  *     options?: array<string, string>, suffix?: string, editable?: bool
  * }
@@ -26,6 +26,7 @@ final class SettingDefinitions
         'approval' => 'Persetujuan',
         'report' => 'Laporan',
         'correction' => 'Koreksi & tempat sampah',
+        'status' => 'Perpindahan status',
         'company' => 'Data perusahaan di nota',
         'later' => 'Belum dipakai',
     ];
@@ -45,6 +46,11 @@ final class SettingDefinitions
         'credit_term_days' => [
             'section' => 'billing', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 365, 'suffix' => 'hari',
             'label' => 'Tempo untuk outlet tempo',
+        ],
+        'due_reminder_days' => [
+            'section' => 'billing', 'type' => 'int', 'default' => 3, 'min' => 0, 'max' => 30, 'suffix' => 'hari',
+            'label' => 'Ingatkan tagihan outlet tempo sebelum jatuh tempo',
+            'help' => 'Notifikasi pagi ke sales dan kantor (TG-04). 0 = tidak diingatkan.',
         ],
         'expiry_withdrawal_months' => [
             'section' => 'expiry', 'type' => 'int', 'default' => 6, 'min' => 0, 'max' => 36, 'suffix' => 'bulan',
@@ -94,6 +100,11 @@ final class SettingDefinitions
             'section' => 'company', 'type' => 'string', 'default' => '', 'max_length' => 20,
             'label' => 'Nomor WhatsApp',
         ],
+        'company_logo' => [
+            'section' => 'company', 'type' => 'image', 'default' => '', 'max_length' => 200000,
+            'label' => 'Logo di nota',
+            'help' => 'Dicetak di atas nota. Gambar diperkecil otomatis agar hemat kuota HP sales (PG-09).',
+        ],
         'help_whatsapp' => [
             'section' => 'company', 'type' => 'string', 'default' => '', 'max_length' => 20,
             'label' => 'Nomor WA admin untuk tombol Bantuan',
@@ -106,13 +117,35 @@ final class SettingDefinitions
         ],
         'approve_correction' => [
             'section' => 'correction', 'type' => 'bool', 'default' => true,
-            'label' => 'Koreksi dan pembatalan nota perlu disetujui',
+            'label' => 'Koreksi dan pembatalan nota kunjungan/penjualan perlu disetujui',
             'help' => 'Disetujui oleh pemegang izin "Setujui koreksi & pembatalan nota".',
+        ],
+        'approve_payment_void' => [
+            'section' => 'correction', 'type' => 'bool', 'default' => true,
+            'label' => 'Pembatalan pembayaran lewat batas di atas perlu disetujui',
+            'help' => 'Pembayaran yang lebih lama dari batas perbaikan langsung baru batal setelah disetujui (PG-12).',
+        ],
+        'approve_warehouse_void' => [
+            'section' => 'correction', 'type' => 'bool', 'default' => true,
+            'label' => 'Pembatalan barang masuk dan retur lewat batas di atas perlu disetujui',
+            'help' => 'Berlaku untuk dokumen gudang yang lebih lama dari batas perbaikan langsung (PG-12).',
         ],
         'trash_retention_days' => [
             'section' => 'correction', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 365, 'suffix' => 'hari',
             'label' => 'Data di Tempat Sampah dihapus permanen setelah',
             'help' => 'Selama itu outlet dan produk yang terhapus masih bisa dipulihkan (KR-09).',
+        ],
+        'status_back_stock_request' => [
+            'section' => 'status', 'type' => 'choice', 'default' => 'one_step',
+            'options' => ['one_step' => 'Boleh mundur satu tahap', 'none' => 'Tidak boleh mundur'],
+            'label' => 'Permintaan barang sales',
+            'help' => 'Mundur satu tahap: Sudah keluar → Disiapkan → Diajukan, dan Ditolak → Diajukan. Selalu dengan alasan dan tercatat (KR-05).',
+        ],
+        'status_back_stock_adjustment' => [
+            'section' => 'status', 'type' => 'choice', 'default' => 'same_day',
+            'options' => ['same_day' => 'Boleh dibuka ulang di hari yang sama', 'none' => 'Tidak boleh dibuka ulang'],
+            'label' => 'Opname gudang',
+            'help' => 'Opname yang dibuka ulang dihitung lagi. Setelah hari itu, selisih diperbaiki dengan opname baru beserta alasannya (KR-13).',
         ],
         'period_closing_enabled' => [
             'section' => 'correction', 'type' => 'bool', 'default' => false,
@@ -154,6 +187,8 @@ final class SettingDefinitions
             'bool' => ['required', 'boolean'],
             'choice' => ['required', 'string', 'in:'.implode(',', array_keys($definition['options'] ?? []))],
             'string' => ['present', 'nullable', 'string', 'max:'.($definition['max_length'] ?? 255)],
+            // A small picture made on the device (data URL); empty = none
+            'image' => ['present', 'nullable', 'string', 'max:'.($definition['max_length'] ?? 200000), 'regex:/^(data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+)?$/'],
         };
     }
 

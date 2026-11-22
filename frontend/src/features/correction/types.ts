@@ -100,3 +100,16 @@ export interface MergePreview {
   notes: string[]
   blocked: string | null
 }
+
+/** PG-12: a void of a payment or warehouse document waiting for approval */
+export interface VoidRequestItem {
+  id: string
+  type: 'payment' | 'goods_receipt' | 'stock_return'
+  type_label: string
+  label: string
+  reason: string
+  status: 'pending' | 'approved' | 'rejected'
+  requested_by: string
+  requested_at: string
+  url: string
+}

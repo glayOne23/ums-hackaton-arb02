@@ -12,6 +12,7 @@ import { api, ApiError } from '@/lib/api/client'
 import { formatCurrency, formatNumber } from '@/lib/format'
 import { usePermission } from '@/stores/session'
 import { productKeys, useDeleteProduct, useProduct } from '../api'
+import { ProductPhoto } from './ProductPhoto'
 import type { Product } from '../types'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
@@ -82,6 +83,8 @@ function Content({ product }: { product: Product }) {
         <Info label="Stok minimum gudang" value={`${formatNumber(product.min_stock_qty)} ${product.unit}`} />
         <Info label="Nama lain di Excel lama" value={product.aliases?.join(', ') || null} />
       </section>
+
+      <ProductPhoto product={product} canManage={canManage} />
 
       <HistoryPanel type="product" id={product.id} />
 

@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $bpom_number
  * @property string $unit
  * @property string $selling_price decimal as string, e.g. "60000.00"
+ * @property string|null $photo_path
  * @property int $min_stock_qty
  * @property bool $is_active
  * @property Carbon|null $deleted_at

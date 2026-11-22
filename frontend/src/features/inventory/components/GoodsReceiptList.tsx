@@ -7,6 +7,8 @@ import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Pagination } from '@/components/common/Pagination'
+import { VoidPendingNote } from '@/components/common/VoidPending'
+import { voidToast } from '@/lib/void-request'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
@@ -94,7 +96,10 @@ export function GoodsReceiptList() {
                     </li>
                   ))}
                 </ul>
-                {canManage && receipt.status === 'active' && <VoidReceiptButton receipt={receipt} />}
+                {receipt.void_pending && <VoidPendingNote pending={receipt.void_pending} />}
+                {canManage && receipt.status === 'active' && !receipt.void_pending && (
+                  <VoidReceiptButton receipt={receipt} />
+                )}
               </li>
             ))}
           </ul>
@@ -143,9 +148,9 @@ function VoidReceiptButton({ receipt }: { receipt: GoodsReceipt }) {
         voidReceipt.mutate(
           { id: receipt.id, reason },
           {
-            onSuccess: () => {
+            onSuccess: (result) => {
               setOpen(false)
-              toast.success(`${receipt.number} dibatalkan`)
+              toast.success(voidToast(result, `${receipt.number} dibatalkan`))
             },
           },
         )

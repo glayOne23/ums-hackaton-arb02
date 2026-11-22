@@ -4,6 +4,7 @@ namespace App\Core\Notify;
 
 use App\Models\User;
 use App\Modules\Inventory\Enums\LocationType;
+use App\Modules\Outlet\Enums\SaleMode;
 use App\Modules\Setting\Setting;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\DB;
  * - each sales: assigned outlets with goods to withdraw, own overdue invoices;
  * - the warehouse (inventory.manage): batches near expiry in the warehouse;
  * - the office (invoice.manage): all overdue invoices.
+ *
+ * TG-04: invoices of tempo outlets (and distributors, who buy on tempo) that
+ * fall due within due_reminder_days get a reminder before, to their sales and
+ * to the office; 0 switches it off.
  */
 final class DailyDigest
 {
@@ -42,6 +47,11 @@ final class DailyDigest
                 $sent += $this->send($sales, 'Barang ED dekat di outlet', "{$outlets} outlet Anda punya barang yang perlu ditarik. Tarik saat kunjungan.", '/field', 'expiry');
             }
 
+            [$count, $cents] = $this->dueSoon($today, $sales->id);
+            if ($count > 0) {
+                $sent += $this->send($sales, 'Tagihan tempo segera jatuh tempo', "{$count} tagihan outlet tempo jatuh tempo dalam ".Setting::int('due_reminder_days').' hari, total Rp '.self::rupiah($cents).'. Ingatkan outletnya.', '/field', 'billing');
+            }
+
             [$count, $cents] = $this->overdue($today, $sales->id);
             if ($count > 0) {
                 $sent += $this->send($sales, 'Tagihan lewat jatuh tempo', "{$count} tagihan, total Rp ".self::rupiah($cents).'. Tagih saat kunjungan.', '/field', 'billing');
@@ -58,6 +68,13 @@ final class DailyDigest
         if ($batches > 0) {
             foreach ($this->notifier->holders('inventory.manage') as $user) {
                 $sent += $this->send($user, 'Batch ED dekat di gudang', "{$batches} batch di gudang ED-nya dekat. Keluarkan lebih dulu atau siapkan retur.", '/office/inventory', 'expiry');
+            }
+        }
+
+        [$count, $cents] = $this->dueSoon($today);
+        if ($count > 0) {
+            foreach ($this->notifier->holders('invoice.manage') as $user) {
+                $sent += $this->send($user, 'Tagihan tempo segera jatuh tempo', "{$count} tagihan outlet tempo jatuh tempo dalam ".Setting::int('due_reminder_days').' hari, total Rp '.self::rupiah($cents).'.', '/office/billing', 'billing');
             }
         }
 
@@ -79,6 +96,27 @@ final class DailyDigest
             ->where('due_date', '<', $today)
             ->when($salesUserId, fn ($q) => $q->where('sales_user_id', $salesUserId))
             ->get(['amount', 'paid_amount']);
+
+        return [$rows->count(), (int) $rows->sum(fn ($r) => (int) round(((float) $r->amount - (float) $r->paid_amount) * 100))];
+    }
+
+    /** @return array{int, int} open tempo invoices due from today up to due_reminder_days ahead */
+    private function dueSoon(string $today, ?int $salesUserId = null): array
+    {
+        $days = Setting::int('due_reminder_days');
+        if ($days <= 0) {
+            return [0, 0];
+        }
+
+        $rows = DB::table('bil_invoices as i')
+            ->join('crm_outlets as o', 'o.id', '=', 'i.outlet_id')
+            ->whereIn('i.status', ['unpaid', 'partial'])
+            ->where('o.sale_mode', SaleMode::Credit->value)
+            // Up to and including the last day; an exclusive upper bound also fits dates stored with a time
+            ->where('i.due_date', '>=', $today)
+            ->where('i.due_date', '<', now()->addDays($days + 1)->toDateString())
+            ->when($salesUserId, fn ($q) => $q->where('i.sales_user_id', $salesUserId))
+            ->get(['i.amount', 'i.paid_amount']);
 
         return [$rows->count(), (int) $rows->sum(fn ($r) => (int) round(((float) $r->amount - (float) $r->paid_amount) * 100))];
     }

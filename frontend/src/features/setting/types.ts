@@ -6,7 +6,7 @@ export interface SettingItem {
   key: string
   label: string
   help: string | null
-  type: 'int' | 'bool' | 'string' | 'choice'
+  type: 'int' | 'bool' | 'string' | 'choice' | 'image'
   value: SettingValue
   default: SettingValue
   min: number | null
