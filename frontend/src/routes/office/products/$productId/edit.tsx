@@ -27,7 +27,7 @@ function EditProductPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Data produk
         </Link>
-        <h1 className="text-2xl font-semibold">Ubah data produk</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Ubah data produk</h1>
         {product.isPending ? (
           <div
             className="h-96 max-w-[720px] animate-pulse rounded-lg bg-muted motion-reduce:animate-none"

@@ -1,7 +1,8 @@
-import { History, LoaderCircle, Lock } from 'lucide-react'
+import { History, LoaderCircle, Lock, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -51,13 +52,11 @@ export function SettingsView() {
 
   return (
     <section className="flex flex-col gap-6 pb-28 sm:pb-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Pengaturan</h1>
-        <p className="text-muted-foreground">
-          Aturan kerja yang bisa diubah tanpa programmer. Perubahan berlaku mulai transaksi berikutnya; HP sales
-          menerimanya saat terhubung.
-        </p>
-      </header>
+      <PageHeader
+        icon={Settings}
+        title="Pengaturan"
+        description="Aturan kerja yang bisa diubah tanpa programmer. Perubahan berlaku mulai transaksi berikutnya; HP sales menerimanya saat terhubung."
+      />
 
       {settings.data.data.map((section) => (
         <fieldset

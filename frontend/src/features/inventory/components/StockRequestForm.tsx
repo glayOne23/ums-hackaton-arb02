@@ -26,7 +26,7 @@ export function StockRequestForm({ onSaved }: { onSaved: (request: StockRequest)
 
   return (
     <section className="flex flex-col gap-4 pb-24">
-      <h1 className="text-xl font-semibold">Minta barang ke gudang</h1>
+      <h1 className="text-xl font-bold tracking-tight">Minta barang ke gudang</h1>
       <div className="relative">
         <Search
           className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground"

@@ -1,9 +1,12 @@
-import { Check, ClipboardList, LoaderCircle, PackageCheck, Undo2 } from 'lucide-react'
+import { Check, ClipboardList, LoaderCircle, PackageCheck, Undo2, Truck } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { FilterBar, PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,25 +32,29 @@ const FILTERS = [
 export function StockRequestBoard() {
   const [status, setStatus] = useState<string>('open')
   const requests = useStockRequests(status)
+  const paged = usePagedItems(requests.data)
 
   return (
     <section className="flex flex-col gap-5">
-      <header>
-        <h1 className="text-2xl font-semibold">Permintaan barang sales</h1>
-        <p className="text-muted-foreground">Batch dengan ED terdekat dipilih otomatis saat disiapkan.</p>
-      </header>
+      <PageHeader
+        icon={Truck}
+        title="Permintaan barang sales"
+        description="Batch dengan ED terdekat dipilih otomatis saat disiapkan."
+      />
       <InventoryTabs />
 
-      <div className="flex max-w-xs flex-col gap-1.5">
-        <Label htmlFor="request-status">Tampilkan</Label>
-        <NativeSelect id="request-status" value={status} onChange={(e) => setStatus(e.target.value)}>
-          {FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </NativeSelect>
-      </div>
+      <FilterBar>
+        <div className="flex w-full flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="request-status">Tampilkan</Label>
+          <NativeSelect id="request-status" value={status} onChange={(e) => setStatus(e.target.value)}>
+            {FILTERS.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+      </FilterBar>
 
       {requests.isPending ? (
         <div className="h-48 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" aria-busy="true" />
@@ -61,11 +68,14 @@ export function StockRequestBoard() {
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-4">
-          {requests.data.map((request) => (
-            <RequestCard key={request.id} request={request} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-4">
+            {paged.items.map((request) => (
+              <RequestCard key={request.id} request={request} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="permintaan" />
+        </>
       )}
     </section>
   )

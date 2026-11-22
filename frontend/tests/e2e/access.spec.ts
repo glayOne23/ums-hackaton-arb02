@@ -17,6 +17,18 @@ const PHONE = `0811${stamp.padStart(8, '9')}`
 let office: Page
 let password = ''
 
+/** User rows: table rows on desktop, cards on phones (only the visible one matches). */
+const userRows = () =>
+  office
+    .getByRole('list', { name: 'Daftar pengguna' })
+    .getByRole('listitem')
+    .or(
+      office
+        .getByRole('table', { name: 'Daftar pengguna' })
+        .getByRole('row')
+        .filter({ has: office.getByRole('cell') }),
+    )
+
 test.beforeAll(async ({ browser }, testInfo) => {
   office = await pageAs(browser, testInfo, 'kantor')
 })
@@ -69,7 +81,7 @@ test('the office adds a user with that role, who can sign in at once', async ({ 
   await sheet.getByRole('button', { name: 'Selesai' }).click()
 
   await office.getByLabel('Cari nama, username, atau nomor HP').fill(USERNAME)
-  const row = office.getByRole('list', { name: 'Daftar pengguna' }).getByRole('listitem')
+  const row = userRows()
   await expect(row).toHaveCount(1)
   await expect(row).toContainText(ROLE)
   await expect(row).toContainText('Belum pernah masuk')
@@ -88,7 +100,7 @@ test('the office adds a user with that role, who can sign in at once', async ({ 
 })
 
 test('a deactivated user moved off the role lets the role be deleted', async () => {
-  const row = office.getByRole('list', { name: 'Daftar pengguna' }).getByRole('listitem')
+  const row = userRows()
   await row.getByRole('button', { name: `Ubah ${USER}` }).click()
   const sheet = office.getByRole('dialog')
   await sheet.getByLabel('Aktif, boleh masuk').uncheck()
@@ -104,4 +116,16 @@ test('a deactivated user moved off the role lets the role be deleted', async () 
   await office.getByRole('alertdialog').getByRole('button', { name: 'Hapus peran' }).click()
   await expect(office.getByText(`Peran ${ROLE} dihapus.`)).toBeVisible()
   await expect(office.locator('#role-select option', { hasText: ROLE })).toHaveCount(0)
+})
+
+test('the Pengguna page explains every role and what it may open (AK-02)', async () => {
+  await office.getByRole('link', { name: 'Pengguna', exact: true }).last().click()
+
+  const duties = office.getByRole('table', { name: 'Penjelasan tiap peran' })
+  await expect(duties.getByRole('row', { name: /Sales/ })).toContainText('Bekerja dari HP')
+
+  // One row per permission, one column per role: a tick is "Boleh", a dash is "Tidak"
+  const matrix = office.getByRole('table', { name: 'Hak akses tiap peran' })
+  const row = matrix.getByRole('row', { name: /^Kelola pengguna, peran & izin/ })
+  await expect(row.getByRole('cell')).toHaveText(['Tidak', 'Boleh', 'Tidak', 'Tidak'])
 })

@@ -27,7 +27,7 @@ function EditOutletPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Profil outlet
         </Link>
-        <h1 className="text-2xl font-semibold">Ubah data outlet</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Ubah data outlet</h1>
         {outlet.isPending ? (
           <div
             className="h-96 max-w-[720px] animate-pulse rounded-lg bg-muted motion-reduce:animate-none"

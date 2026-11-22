@@ -18,7 +18,7 @@ function NewReceiptPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Barang masuk
         </Link>
-        <h1 className="text-2xl font-semibold">Catat barang masuk</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Catat barang masuk</h1>
         <GoodsReceiptForm
           onSaved={(result) => {
             if (result.queued) toast.info('Barang masuk tersimpan di perangkat. Terkirim otomatis saat ada sinyal.')

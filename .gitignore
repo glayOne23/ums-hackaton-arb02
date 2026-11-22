@@ -40,5 +40,6 @@ frontend/.env.local
 
 # Editor & OS
 .idea/
+.vscode/
 .DS_Store
 Thumbs.db

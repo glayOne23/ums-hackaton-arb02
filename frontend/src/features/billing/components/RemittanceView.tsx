@@ -1,9 +1,12 @@
-import { CircleAlert, CircleCheck, HandCoins, LoaderCircle } from 'lucide-react'
+import { CircleAlert, CircleCheck, HandCoins, LoaderCircle, Wallet } from 'lucide-react'
 import { useId, useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,13 +22,15 @@ export function RemittanceView() {
   const canReceive = usePermission('remittance.receive')
   const pending = usePendingRemittances(canReceive)
   const history = useRemittances()
+  const paged = usePagedItems(history.data)
 
   return (
     <section className="flex flex-col gap-5 pb-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Tagihan</h1>
-        <p className="text-muted-foreground">Uang tunai yang dibawa sales dari outlet, belum disetor ke kantor.</p>
-      </header>
+      <PageHeader
+        icon={Wallet}
+        title="Tagihan"
+        description="Uang tunai yang dibawa sales dari outlet, belum disetor ke kantor."
+      />
       <BillingTabs />
 
       {canReceive && (
@@ -59,38 +64,41 @@ export function RemittanceView() {
         ) : history.data.length === 0 ? (
           <p className="text-muted-foreground">Belum ada setoran.</p>
         ) : (
-          <ul className="flex flex-col gap-2">
-            {history.data.map((r) => (
-              <li
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card shadow-card p-3"
-              >
-                <div className="min-w-0">
-                  <p className="font-semibold">
-                    {r.sales?.name} · <span className="tabular-nums">{formatCurrency(r.amount)}</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {r.number} · {formatTableDate(new Date(r.received_at))} {formatTime(new Date(r.received_at))} ·
-                    diterima {r.received_by} · {r.payments_count} pembayaran
-                  </p>
-                  {r.status.value === 'discrepancy' && (
-                    <p className="text-sm text-danger-text">
-                      Seharusnya {formatCurrency(r.expected_amount)}, selisih {formatCurrency(r.difference)}: {r.note}
+          <>
+            <ul className="flex flex-col gap-2">
+              {paged.items.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card shadow-card p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold">
+                      {r.sales?.name} · <span className="tabular-nums">{formatCurrency(r.amount)}</span>
                     </p>
+                    <p className="text-sm text-muted-foreground">
+                      {r.number} · {formatTableDate(new Date(r.received_at))} {formatTime(new Date(r.received_at))} ·
+                      diterima {r.received_by} · {r.payments_count} pembayaran
+                    </p>
+                    {r.status.value === 'discrepancy' && (
+                      <p className="text-sm text-danger-text">
+                        Seharusnya {formatCurrency(r.expected_amount)}, selisih {formatCurrency(r.difference)}: {r.note}
+                      </p>
+                    )}
+                  </div>
+                  {r.status.value === 'received' ? (
+                    <StatusChip variant="success" icon={CircleCheck}>
+                      {r.status.label}
+                    </StatusChip>
+                  ) : (
+                    <StatusChip variant="danger" icon={CircleAlert}>
+                      {r.status.label}
+                    </StatusChip>
                   )}
-                </div>
-                {r.status.value === 'received' ? (
-                  <StatusChip variant="success" icon={CircleCheck}>
-                    {r.status.label}
-                  </StatusChip>
-                ) : (
-                  <StatusChip variant="danger" icon={CircleAlert}>
-                    {r.status.label}
-                  </StatusChip>
-                )}
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+            <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="setoran" />
+          </>
         )}
       </div>
     </section>

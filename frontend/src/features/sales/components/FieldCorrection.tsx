@@ -64,7 +64,7 @@ function Summary({ transaction: t }: { transaction: Transaction }) {
   const at = new Date(t.transacted_at)
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
-      <h1 className="text-xl font-semibold wrap-break-word">Nota {t.number}</h1>
+      <h1 className="text-xl font-bold tracking-tight wrap-break-word">Nota {t.number}</h1>
       <p className="text-muted-foreground">
         {t.outlet?.name} · {formatDate(at)} {formatTime(at)}
       </p>

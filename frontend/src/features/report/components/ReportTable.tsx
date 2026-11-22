@@ -1,3 +1,5 @@
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { cn } from '@/lib/utils'
 import { formatCell, isNumeric } from '../format'
 import type { ReportResult } from '../types'
@@ -8,6 +10,10 @@ import type { ReportResult } from '../types'
  */
 export function ReportTable({ report }: { report: ReportResult }) {
   const { columns, rows, totals } = report
+  // 50 rows a screen; printing shows every row (rows of other pages are hidden on screen only)
+  const paged = usePagedItems(rows, 50)
+  const start = (paged.meta.current_page - 1) * 50
+  const onPage = (i: number) => i >= start && i < start + 50
   const titleColumn =
     ['outlet', 'product', 'sales', 'who'].map((key) => columns.find((c) => c.key === key)).find(Boolean) ??
     columns.find((c) => c.type === 'text') ??
@@ -18,7 +24,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
       <div className="hidden overflow-x-auto rounded-lg border border-border bg-card shadow-card sm:block print:block print:overflow-visible print:border-0">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{report.title}</caption>
-          <thead className="bg-muted print:bg-transparent">
+          <thead className="bg-leaf-50 text-leaf-800 print:bg-transparent print:text-foreground">
             <tr>
               {columns.map((column) => (
                 <th
@@ -36,7 +42,13 @@ export function ReportTable({ report }: { report: ReportResult }) {
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={i} className="break-inside-avoid border-b border-earth-200 last:border-0">
+              <tr
+                key={i}
+                className={cn(
+                  'break-inside-avoid border-b border-earth-200 last:border-0 hover:bg-leaf-50/60',
+                  !onPage(i) && 'hidden print:table-row',
+                )}
+              >
                 {columns.map((column) => (
                   <td
                     key={column.key}
@@ -75,7 +87,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
       </div>
 
       <ul className="flex flex-col gap-3 sm:hidden print:hidden" aria-label={report.title}>
-        {rows.map((row, i) => (
+        {paged.items.map((row, i) => (
           <li key={i} className="rounded-lg border border-border bg-card shadow-card p-4">
             <p className="font-semibold break-words">{formatCell(row[titleColumn.key], titleColumn.type)}</p>
             <dl className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1">
@@ -115,6 +127,7 @@ export function ReportTable({ report }: { report: ReportResult }) {
           </li>
         )}
       </ul>
+      <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="baris" className="print:hidden" />
     </>
   )
 }

@@ -66,7 +66,7 @@ export function ReportView({
       </div>
       <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
           {report.data && (
             <p className="text-muted-foreground print:text-foreground">
               {byMonth ? report.data.month_label : asOf && `Keadaan ${formatDate(asOf)} ${formatTime(asOf)}`}

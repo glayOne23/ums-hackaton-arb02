@@ -1,11 +1,23 @@
-import { CircleAlert, CircleCheck, CircleX, Hourglass, LoaderCircle, RotateCcw, Undo2 } from 'lucide-react'
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleX,
+  Hourglass,
+  LoaderCircle,
+  RotateCcw,
+  Undo2,
+  ClipboardCheck,
+} from 'lucide-react'
 import { type Dispatch, type SetStateAction, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
 import { NumberStepper } from '@/components/common/NumberStepper'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,12 +52,11 @@ export function StockCountView() {
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header>
-        <h1 className="text-2xl font-semibold">Opname gudang</h1>
-        <p className="text-muted-foreground">
-          Jumlah sistem sudah terisi. Ubah hanya yang berbeda dengan hitungan fisik.
-        </p>
-      </header>
+      <PageHeader
+        icon={ClipboardCheck}
+        title="Opname gudang"
+        description="Jumlah sistem sudah terisi. Ubah hanya yang berbeda dengan hitungan fisik."
+      />
       <InventoryTabs />
       {canManage && (
         <div ref={formRef} className="scroll-mt-20">
@@ -197,6 +208,7 @@ function CountForm({ counts, setCounts, reason, setReason }: CountFormProps) {
 
 function AdjustmentHistory({ onReopened }: { onReopened: (adjustment: StockAdjustment) => void }) {
   const adjustments = useStockAdjustments()
+  const paged = usePagedItems(adjustments.data, 10)
 
   return (
     <div className="flex flex-col gap-3">
@@ -208,11 +220,14 @@ function AdjustmentHistory({ onReopened }: { onReopened: (adjustment: StockAdjus
       ) : adjustments.data.length === 0 ? (
         <p className="text-muted-foreground">Belum ada opname dengan selisih.</p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {adjustments.data.map((adjustment) => (
-            <AdjustmentCard key={adjustment.id} adjustment={adjustment} onReopened={onReopened} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-3">
+            {paged.items.map((adjustment) => (
+              <AdjustmentCard key={adjustment.id} adjustment={adjustment} onReopened={onReopened} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="opname" />
+        </>
       )}
     </div>
   )

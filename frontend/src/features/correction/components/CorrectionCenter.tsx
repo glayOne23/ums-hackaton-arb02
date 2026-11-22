@@ -9,10 +9,14 @@ import {
   PencilLine,
   Smartphone,
   Trash2,
+  LifeBuoy,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import type { Transaction } from '@/features/sales/types'
 import { formatDate, formatRelativeDay, formatTableDate, formatTime } from '@/lib/format'
@@ -33,10 +37,11 @@ export function CorrectionCenter({ tab }: { tab: CorrectionTab }) {
 
   return (
     <section className="flex flex-col gap-5 pb-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Koreksi & pemulihan</h1>
-        <p className="text-muted-foreground">Data yang perlu dicek, koreksi yang menunggu, dan data yang terhapus.</p>
-      </header>
+      <PageHeader
+        icon={LifeBuoy}
+        title="Koreksi & pemulihan"
+        description="Data yang perlu dicek, koreksi yang menunggu, dan data yang terhapus."
+      />
 
       {tabs.length > 1 && (
         <nav aria-label="Menu koreksi">
@@ -70,6 +75,7 @@ export function CorrectionCenter({ tab }: { tab: CorrectionTab }) {
 
 function ReviewList() {
   const notas = useNeedsReview()
+  const pagedNotas = usePagedItems(notas.data)
   const devices = useDeviceSyncs()
 
   return (
@@ -89,11 +95,14 @@ function ReviewList() {
         ) : notas.data.length === 0 ? (
           <Empty text="Tidak ada nota yang perlu dicek." />
         ) : (
-          <ul className="flex flex-col gap-3">
-            {notas.data.map((t) => (
-              <ReviewRow key={t.id} transaction={t} />
-            ))}
-          </ul>
+          <>
+            <ul className="flex flex-col gap-3">
+              {pagedNotas.items.map((t) => (
+                <ReviewRow key={t.id} transaction={t} />
+              ))}
+            </ul>
+            <Pagination meta={pagedNotas.meta} onPageChange={pagedNotas.setPage} noun="nota" />
+          </>
         )}
       </section>
 
@@ -226,6 +235,7 @@ function PendingList() {
 
 function TrashList() {
   const trash = useTrash()
+  const paged = usePagedItems(trash.data?.data)
 
   if (trash.isPending) return <Skeleton />
   if (trash.isError) return <ErrorState message={trash.error.message} onRetry={() => trash.refetch()} />
@@ -239,11 +249,14 @@ function TrashList() {
       {trash.data.data.length === 0 ? (
         <Empty text="Tempat sampah kosong." icon={Trash2} />
       ) : (
-        <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
-          {trash.data.data.map((item) => (
-            <TrashRow key={`${item.type}-${item.id}`} item={item} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col divide-y divide-earth-200 rounded-lg border border-border bg-card shadow-card">
+            {paged.items.map((item) => (
+              <TrashRow key={`${item.type}-${item.id}`} item={item} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="data" />
+        </>
       )}
     </div>
   )

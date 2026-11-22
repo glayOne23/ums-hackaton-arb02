@@ -1,8 +1,9 @@
-import { LoaderCircle, Plus, Trash2 } from 'lucide-react'
+import { LoaderCircle, Plus, Trash2, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { FieldError } from '@/components/common/FieldError'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,13 +32,11 @@ export function RoleEditor() {
 
   return (
     <section className="flex flex-col gap-4 pb-28 sm:pb-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Peran & izin</h1>
-        <p className="text-muted-foreground">
-          Centang apa saja yang boleh dilakukan tiap peran. Berlaku untuk semua pengguna peran itu saat aplikasinya
-          terhubung.
-        </p>
-      </header>
+      <PageHeader
+        icon={ShieldCheck}
+        title="Peran & izin"
+        description="Centang apa saja yang boleh dilakukan tiap peran. Berlaku untuk semua pengguna peran itu saat aplikasinya terhubung."
+      />
       <AccessTabs />
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end">

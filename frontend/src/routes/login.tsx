@@ -28,7 +28,7 @@ function LoginPage() {
           <Leaf className="size-8" aria-hidden />
         </span>
         <div>
-          <h1 className="text-2xl font-semibold">SIGAP</h1>
+          <h1 className="text-2xl font-bold tracking-tight">SIGAP</h1>
           <p className="text-muted-foreground">CV Arba&apos;in Jaya Mandiri</p>
         </div>
       </header>

@@ -18,7 +18,7 @@ function NewReturnPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Retur dari sales
         </Link>
-        <h1 className="text-2xl font-semibold">Terima retur</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Terima retur</h1>
         <ReturnForm
           onSaved={(result) => {
             if (result.queued) toast.info('Retur tersimpan di perangkat. Terkirim otomatis saat ada sinyal.')

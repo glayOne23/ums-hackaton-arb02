@@ -18,7 +18,7 @@ function NewProductPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Daftar produk
         </Link>
-        <h1 className="text-2xl font-semibold">Tambah produk</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Tambah produk</h1>
         <ProductForm
           onSaved={(product) => {
             toast.success(`Produk ${product.name} tersimpan`)

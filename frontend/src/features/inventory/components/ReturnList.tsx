@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatNumber, formatTableDate } from '@/lib/format'
@@ -17,21 +19,25 @@ import { InventoryTabs } from './InventoryTabs'
 /** History of returns from sales (GD-05). */
 export function ReturnList() {
   const canManage = usePermission('inventory.manage')
-  const returns = useStockReturns()
+  const [page, setPage] = useState(1)
+  const returns = useStockReturns(page)
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Retur dari sales</h1>
-        {canManage && (
-          <Button asChild className="hidden sm:inline-flex">
-            <Link to="/office/inventory/returns/new">
-              <Plus aria-hidden />
-              Terima retur
-            </Link>
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        icon={Undo2}
+        title="Retur dari sales"
+        actions={
+          canManage && (
+            <Button asChild className="hidden sm:inline-flex">
+              <Link to="/office/inventory/returns/new">
+                <Plus aria-hidden />
+                Terima retur
+              </Link>
+            </Button>
+          )
+        }
+      />
       <InventoryTabs />
 
       {returns.isPending ? (
@@ -44,46 +50,49 @@ export function ReturnList() {
           <p className="text-lg">Belum ada retur.</p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {returns.data.data.map((ret) => (
-            <li key={ret.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
-              <span className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className={cn('text-lg font-semibold', ret.status === 'void' && 'line-through')}>
-                    {ret.number} · {ret.sales.name}
+        <>
+          <ul className="flex flex-col gap-3">
+            {returns.data.data.map((ret) => (
+              <li key={ret.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
+                <span className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className={cn('text-lg font-semibold', ret.status === 'void' && 'line-through')}>
+                      {ret.number} · {ret.sales.name}
+                    </span>
+                    {ret.status === 'void' && (
+                      <StatusChip variant="danger" icon={Ban}>
+                        Dibatalkan
+                      </StatusChip>
+                    )}
                   </span>
-                  {ret.status === 'void' && (
-                    <StatusChip variant="danger" icon={Ban}>
-                      Dibatalkan
-                    </StatusChip>
-                  )}
+                  <span className="text-muted-foreground">
+                    {formatTableDate(new Date(ret.received_date))} · diterima {ret.created_by}
+                  </span>
                 </span>
-                <span className="text-muted-foreground">
-                  {formatTableDate(new Date(ret.received_date))} · diterima {ret.created_by}
-                </span>
-              </span>
-              {ret.voided && (
-                <span className="text-sm text-danger-text">
-                  Dibatalkan{ret.voided.by && ` oleh ${ret.voided.by}`} · {formatTableDate(new Date(ret.voided.at))}:{' '}
-                  {ret.voided.reason}. Barangnya sudah kembali ke bawaan sales.
-                </span>
-              )}
-              <ul className={cn('flex flex-col text-sm', ret.status === 'void' && 'opacity-70')}>
-                {ret.items.map((item, i) => (
-                  <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
-                    <span>
-                      {item.product.name} <span className="text-muted-foreground">· {item.batch_number}</span>
-                    </span>
-                    <span className="whitespace-nowrap">
-                      {item.condition.label} · <span className="tabular-nums">{formatNumber(item.qty)}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {canManage && ret.status === 'active' && <VoidReturnButton stockReturn={ret} />}
-            </li>
-          ))}
-        </ul>
+                {ret.voided && (
+                  <span className="text-sm text-danger-text">
+                    Dibatalkan{ret.voided.by && ` oleh ${ret.voided.by}`} · {formatTableDate(new Date(ret.voided.at))}:{' '}
+                    {ret.voided.reason}. Barangnya sudah kembali ke bawaan sales.
+                  </span>
+                )}
+                <ul className={cn('flex flex-col text-sm', ret.status === 'void' && 'opacity-70')}>
+                  {ret.items.map((item, i) => (
+                    <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
+                      <span>
+                        {item.product.name} <span className="text-muted-foreground">· {item.batch_number}</span>
+                      </span>
+                      <span className="whitespace-nowrap">
+                        {item.condition.label} · <span className="tabular-nums">{formatNumber(item.qty)}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {canManage && ret.status === 'active' && <VoidReturnButton stockReturn={ret} />}
+              </li>
+            ))}
+          </ul>
+          <Pagination meta={returns.data.meta} onPageChange={setPage} noun="retur" />
+        </>
       )}
 
       {canManage && (

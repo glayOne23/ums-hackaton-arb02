@@ -20,7 +20,7 @@ export function ProposeOutletView() {
   return (
     <section className="flex flex-col gap-5 pb-24">
       <header>
-        <h1 className="text-2xl font-semibold">Usulkan outlet baru</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Usulkan outlet baru</h1>
         <p className="text-muted-foreground">
           Outlet aktif setelah dicek admin kantor, lalu muncul di daftar outlet Anda.
         </p>

@@ -15,7 +15,7 @@ export function FieldTodayView() {
   return (
     <section className="flex flex-col gap-6 pb-24">
       <div className="flex flex-col gap-3">
-        <h1 className="text-xl font-semibold">Stok bawaan</h1>
+        <h1 className="text-xl font-bold tracking-tight">Stok bawaan</h1>
         {stock.isPending ? (
           <div className="h-32 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" aria-busy="true" />
         ) : stock.isError ? (

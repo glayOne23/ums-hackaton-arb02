@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronLeft, ChevronRight, CircleAlert, ClipboardList } from 'lucide-react'
+import { CircleAlert, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { EmptyState, FilterBar, PageHeader } from '@/components/common/PageHeader'
+import { Pagination } from '@/components/common/Pagination'
 import { OpenHint } from '@/components/common/OpenHint'
 import { InvoiceStatusChip } from '@/components/common/InvoiceStatusChip'
 import { StatusChip } from '@/components/common/StatusChip'
@@ -21,12 +23,13 @@ export function VisitList() {
 
   return (
     <section className="flex flex-col gap-5 pb-8">
-      <header>
-        <h1 className="text-2xl font-semibold">Kunjungan & penjualan</h1>
-        <p className="text-muted-foreground">Nota dari HP sales. Angka sudah dihitung ulang oleh server.</p>
-      </header>
+      <PageHeader
+        icon={ClipboardList}
+        title="Kunjungan & penjualan"
+        description="Nota dari HP sales. Angka sudah dihitung ulang oleh server."
+      />
 
-      <div className="flex flex-wrap items-end gap-3">
+      <FilterBar className="lg:items-end">
         <div className="flex flex-col gap-1">
           <Label htmlFor="visit-from">Dari tanggal</Label>
           <Input id="visit-from" type="date" value={from} onChange={(e) => (setFrom(e.target.value), setPage(1))} />
@@ -43,17 +46,14 @@ export function VisitList() {
           <CircleAlert aria-hidden />
           Perlu dicek saja
         </Button>
-      </div>
+      </FilterBar>
 
       {list.isPending ? (
         <div className="h-64 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />
       ) : list.isError ? (
         <ErrorState message={list.error.message} onRetry={() => list.refetch()} />
       ) : list.data.data.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <ClipboardList className="size-12 text-muted-foreground" aria-hidden />
-          <p className="text-lg">Belum ada kunjungan di saringan ini.</p>
-        </div>
+        <EmptyState icon={ClipboardList} title="Belum ada kunjungan di saringan ini." />
       ) : (
         <>
           <ul className="flex flex-col gap-3">
@@ -89,19 +89,7 @@ export function VisitList() {
               </li>
             ))}
           </ul>
-          <nav aria-label="Halaman" className="flex items-center justify-between gap-3">
-            <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              <ChevronLeft aria-hidden />
-              Sebelumnya
-            </Button>
-            <span className="text-muted-foreground">
-              Halaman {list.data.meta.current_page} dari {list.data.meta.last_page}
-            </span>
-            <Button variant="outline" disabled={page >= list.data.meta.last_page} onClick={() => setPage((p) => p + 1)}>
-              Berikutnya
-              <ChevronRight aria-hidden />
-            </Button>
-          </nav>
+          <Pagination meta={list.data.meta} onPageChange={setPage} noun="nota" />
         </>
       )}
     </section>

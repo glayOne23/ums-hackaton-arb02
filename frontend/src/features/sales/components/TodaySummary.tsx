@@ -21,7 +21,7 @@ export function TodaySummary() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
-        <h1 className="text-xl font-semibold">Hari ini · {formatDate(now)}</h1>
+        <h1 className="text-xl font-bold tracking-tight">Hari ini · {formatDate(now)}</h1>
         <p className="flex justify-between text-lg">
           <span>Dikunjungi</span>
           <span className="font-semibold tabular-nums">

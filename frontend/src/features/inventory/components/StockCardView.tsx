@@ -3,9 +3,12 @@ import { ArrowLeft, Printer } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 import { formatExpiry, formatNumber, formatTableDate, formatTime } from '@/lib/format'
 import { useStockCard } from '../api'
 
@@ -16,6 +19,10 @@ export function StockCardView({ productId }: { productId: string }) {
     to: format(new Date(), 'yyyy-MM-dd'),
   }))
   const card = useStockCard(productId, range.from, range.to)
+  // 50 rows a screen; printing shows the whole card
+  const paged = usePagedItems(card.data?.data, 50)
+  const start = (paged.meta.current_page - 1) * 50
+  const onPage = (i: number) => i >= start && i < start + 50
 
   return (
     <section className="flex flex-col gap-5">
@@ -26,7 +33,9 @@ export function StockCardView({ productId }: { productId: string }) {
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Kartu stok{card.data ? ` ${card.data.product.name}` : ''}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Kartu stok{card.data ? ` ${card.data.product.name}` : ''}
+          </h1>
           {card.data && (
             <p className="text-muted-foreground">
               {card.data.product.code} · gudang · {formatTableDate(new Date(card.data.from))} –{' '}
@@ -70,7 +79,7 @@ export function StockCardView({ productId }: { productId: string }) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
           <table className="w-full text-left">
-            <thead className="bg-muted text-sm text-muted-foreground">
+            <thead className="bg-leaf-50 text-sm text-leaf-800">
               <tr>
                 <th scope="col" className="h-11 px-3 font-semibold sm:px-4">
                   Tanggal · kejadian
@@ -105,8 +114,11 @@ export function StockCardView({ productId }: { productId: string }) {
                   </td>
                 </tr>
               )}
-              {card.data.data.map((row) => (
-                <tr key={row.id} className="border-t border-earth-200 align-top">
+              {card.data.data.map((row, i) => (
+                <tr
+                  key={row.id}
+                  className={cn('border-t border-earth-200 align-top', !onPage(i) && 'hidden print:table-row')}
+                >
                   <td className="px-3 py-2 sm:px-4">
                     <span className="block font-medium">{row.type.label}</span>
                     <span className="block text-sm text-muted-foreground">
@@ -134,6 +146,12 @@ export function StockCardView({ productId }: { productId: string }) {
               ))}
             </tbody>
           </table>
+          <Pagination
+            meta={paged.meta}
+            onPageChange={paged.setPage}
+            noun="baris"
+            className="rounded-none border-0 border-t shadow-none print:hidden"
+          />
         </div>
       )}
     </section>

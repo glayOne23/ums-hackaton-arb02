@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
@@ -17,21 +19,25 @@ import { InventoryTabs } from './InventoryTabs'
 /** History of goods in (GD-01). */
 export function GoodsReceiptList() {
   const canManage = usePermission('inventory.manage')
-  const receipts = useGoodsReceipts()
+  const [page, setPage] = useState(1)
+  const receipts = useGoodsReceipts(page)
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Barang masuk</h1>
-        {canManage && (
-          <Button asChild className="hidden sm:inline-flex">
-            <Link to="/office/inventory/receipts/new">
-              <Plus aria-hidden />
-              Barang masuk
-            </Link>
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        icon={PackagePlus}
+        title="Barang masuk"
+        actions={
+          canManage && (
+            <Button asChild className="hidden sm:inline-flex">
+              <Link to="/office/inventory/receipts/new">
+                <Plus aria-hidden />
+                Barang masuk
+              </Link>
+            </Button>
+          )
+        }
+      />
       <InventoryTabs />
 
       {receipts.isPending ? (
@@ -44,50 +50,56 @@ export function GoodsReceiptList() {
           <p className="text-lg">Belum ada barang masuk.</p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {receipts.data.data.map((receipt) => (
-            <li key={receipt.id} className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4">
-              <span className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className={cn('text-lg font-semibold', receipt.status === 'void' && 'line-through')}>
-                    {receipt.number}
-                  </span>
-                  {receipt.status === 'void' && (
-                    <StatusChip variant="danger" icon={Ban}>
-                      Dibatalkan
-                    </StatusChip>
-                  )}
-                </span>
-                <span className="text-muted-foreground">
-                  {formatTableDate(new Date(receipt.received_date))} · {receipt.created_by} ·{' '}
-                  {formatNumber(receipt.total_qty)} barang
-                </span>
-              </span>
-              {receipt.note && <span className="text-sm text-muted-foreground">{receipt.note}</span>}
-              {receipt.voided && (
-                <span className="text-sm text-danger-text">
-                  Dibatalkan{receipt.voided.by && ` oleh ${receipt.voided.by}`} ·{' '}
-                  {formatTableDate(new Date(receipt.voided.at))}: {receipt.voided.reason}. Stoknya sudah dikeluarkan
-                  lagi.
-                </span>
-              )}
-              <ul className={cn('flex flex-col text-sm', receipt.status === 'void' && 'opacity-70')}>
-                {receipt.items.map((item, i) => (
-                  <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
-                    <span>
-                      {item.product.name}{' '}
-                      <span className="text-muted-foreground">
-                        · {item.batch_number} · {formatExpiry(new Date(item.expiry_date))}
-                      </span>
+        <>
+          <ul className="flex flex-col gap-3">
+            {receipts.data.data.map((receipt) => (
+              <li
+                key={receipt.id}
+                className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4"
+              >
+                <span className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className={cn('text-lg font-semibold', receipt.status === 'void' && 'line-through')}>
+                      {receipt.number}
                     </span>
-                    <span className="tabular-nums">{formatNumber(item.qty)}</span>
-                  </li>
-                ))}
-              </ul>
-              {canManage && receipt.status === 'active' && <VoidReceiptButton receipt={receipt} />}
-            </li>
-          ))}
-        </ul>
+                    {receipt.status === 'void' && (
+                      <StatusChip variant="danger" icon={Ban}>
+                        Dibatalkan
+                      </StatusChip>
+                    )}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {formatTableDate(new Date(receipt.received_date))} · {receipt.created_by} ·{' '}
+                    {formatNumber(receipt.total_qty)} barang
+                  </span>
+                </span>
+                {receipt.note && <span className="text-sm text-muted-foreground">{receipt.note}</span>}
+                {receipt.voided && (
+                  <span className="text-sm text-danger-text">
+                    Dibatalkan{receipt.voided.by && ` oleh ${receipt.voided.by}`} ·{' '}
+                    {formatTableDate(new Date(receipt.voided.at))}: {receipt.voided.reason}. Stoknya sudah dikeluarkan
+                    lagi.
+                  </span>
+                )}
+                <ul className={cn('flex flex-col text-sm', receipt.status === 'void' && 'opacity-70')}>
+                  {receipt.items.map((item, i) => (
+                    <li key={i} className="flex justify-between gap-3 border-t border-earth-200 py-1.5">
+                      <span>
+                        {item.product.name}{' '}
+                        <span className="text-muted-foreground">
+                          · {item.batch_number} · {formatExpiry(new Date(item.expiry_date))}
+                        </span>
+                      </span>
+                      <span className="tabular-nums">{formatNumber(item.qty)}</span>
+                    </li>
+                  ))}
+                </ul>
+                {canManage && receipt.status === 'active' && <VoidReceiptButton receipt={receipt} />}
+              </li>
+            ))}
+          </ul>
+          <Pagination meta={receipts.data.meta} onPageChange={setPage} noun="catatan" />
+        </>
       )}
 
       {canManage && (

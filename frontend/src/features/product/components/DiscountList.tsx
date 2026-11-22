@@ -4,7 +4,10 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { FilterBar, PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
@@ -47,49 +50,51 @@ export function DiscountList({
 }) {
   const canManage = usePermission('product.manage')
   const discounts = useDiscounts(status)
+  const paged = usePagedItems(discounts.data)
   const pendingCount = discounts.data?.filter((d) => d.status.value === 'pending').length ?? 0
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Potongan</h1>
-          <p className="text-muted-foreground">
-            Yang paling khusus berlaku: outlet + produk, outlet, jenis outlet + produk, produk, lalu jenis outlet.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/office/price-list">
-              <ReceiptText aria-hidden />
-              Daftar harga
-            </Link>
-          </Button>
-          {canManage && (
-            <Button asChild className="hidden sm:inline-flex">
-              <Link to="/office/discounts/new">
-                <Plus aria-hidden />
-                Tambah potongan
+      <PageHeader
+        icon={Percent}
+        title="Potongan"
+        description="Yang paling khusus berlaku: outlet + produk, outlet, jenis outlet + produk, produk, lalu jenis outlet."
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/office/price-list">
+                <ReceiptText aria-hidden />
+                Daftar harga
               </Link>
             </Button>
-          )}
-        </div>
-      </header>
+            {canManage && (
+              <Button asChild className="hidden sm:inline-flex">
+                <Link to="/office/discounts/new">
+                  <Plus aria-hidden />
+                  Tambah potongan
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      <div className="flex max-w-xs flex-col gap-1.5">
-        <Label htmlFor="discount-status">Tampilkan</Label>
-        <NativeSelect
-          id="discount-status"
-          value={status}
-          onChange={(event) => onStatusChange(event.target.value as DiscountStatusFilter)}
-        >
-          {FILTERS.map((filter) => (
-            <option key={filter.value} value={filter.value}>
-              {filter.label}
-            </option>
-          ))}
-        </NativeSelect>
-      </div>
+      <FilterBar>
+        <div className="flex w-full flex-col gap-1.5 sm:max-w-xs">
+          <Label htmlFor="discount-status">Tampilkan</Label>
+          <NativeSelect
+            id="discount-status"
+            value={status}
+            onChange={(event) => onStatusChange(event.target.value as DiscountStatusFilter)}
+          >
+            {FILTERS.map((filter) => (
+              <option key={filter.value} value={filter.value}>
+                {filter.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+      </FilterBar>
 
       {pendingCount > 0 && status === 'current' && (
         <p role="status" className="flex items-center gap-2 rounded-md bg-info-soft px-4 py-3 text-info-text">
@@ -112,11 +117,14 @@ export function DiscountList({
           <p className="text-lg">Tidak ada potongan di sini.</p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {discounts.data.map((discount) => (
-            <DiscountRow key={discount.id} discount={discount} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-3">
+            {paged.items.map((discount) => (
+              <DiscountRow key={discount.id} discount={discount} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="potongan" />
+        </>
       )}
 
       {canManage && (

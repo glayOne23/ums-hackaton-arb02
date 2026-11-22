@@ -46,7 +46,9 @@ function Detail({ transaction: t, fromPhone }: { transaction: Transaction; fromP
     <>
       <header className="flex flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className={cn('text-2xl font-semibold wrap-break-word', struck && 'line-through decoration-2')}>
+          <h1
+            className={cn('text-2xl font-bold tracking-tight wrap-break-word', struck && 'line-through decoration-2')}
+          >
             {t.outlet?.name}
           </h1>
           {t.status.value === 'void' && (

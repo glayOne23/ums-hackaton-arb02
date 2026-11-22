@@ -1,36 +1,51 @@
 import { Link } from '@tanstack/react-router'
 import { Ellipsis } from 'lucide-react'
 import { HelpButton } from '@/features/help/components/HelpSheet'
-import { useNavItems } from './nav-items'
+import { useNavGroups, useNavItems } from './nav-items'
 
-/** Fixed side menu, 256 px, on desktop (≥ 1024 px). */
+/** Fixed side menu, 256 px, on desktop (≥ 1024 px), split into sections (UI guide §5). */
 export function OfficeSideNav() {
-  const items = useNavItems()
+  const groups = useNavGroups()
 
   return (
     <nav aria-label="Menu utama" className="hidden w-64 shrink-0 border-r border-border bg-card lg:block print:hidden">
-      <ul className="sticky top-16 flex flex-col gap-1 p-3">
-        {items.map(({ to, label, icon: Icon, exact }) => (
-          <li key={to}>
-            <Link
-              to={to}
-              activeOptions={{ exact: exact ?? false }}
-              className="flex h-11 items-center gap-3 rounded-md px-3 font-medium text-foreground hover:bg-accent"
-              activeProps={{ className: 'bg-tile-brand font-semibold text-leaf-800' }}
-            >
-              <Icon className="size-5" aria-hidden />
-              {label}
-            </Link>
-          </li>
+      <div className="sticky top-16 flex max-h-[calc(100dvh-4rem)] flex-col gap-5 overflow-y-auto px-3 py-5">
+        {groups.map((group) => (
+          <section key={group.key} aria-labelledby={`nav-${group.key}`} className="flex flex-col gap-1">
+            <h2 id={`nav-${group.key}`} className="px-3 pb-1 text-sm font-semibold text-leaf-700">
+              {group.label}
+            </h2>
+            <ul className="flex flex-col gap-0.5">
+              {group.items.map(({ to, label, icon: Icon, exact }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    activeOptions={{ exact: exact ?? false }}
+                    className={SIDE_LINK}
+                    activeProps={{ className: SIDE_LINK_ACTIVE }}
+                  >
+                    <Icon className="size-5 text-leaf-700" aria-hidden />
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         ))}
         {/* UX-09 */}
-        <li className="mt-2 border-t border-border pt-2">
-          <HelpButton className="flex h-11 w-full items-center gap-3 rounded-md px-3 font-medium text-foreground hover:bg-accent [&_svg]:size-5" />
-        </li>
-      </ul>
+        <div className="border-t border-border pt-3">
+          <HelpButton className={`${SIDE_LINK} w-full [&_svg]:size-5 [&_svg]:text-leaf-700`} />
+        </div>
+      </div>
     </nav>
   )
 }
+
+const SIDE_LINK =
+  'relative flex h-11 items-center gap-3 rounded-md px-3 font-medium text-foreground transition-colors hover:bg-leaf-50 hover:text-leaf-800'
+// Active: tinted pill + a green bar on the left edge, so the place is clear without relying on colour alone
+const SIDE_LINK_ACTIVE =
+  'bg-tile-brand font-semibold text-leaf-800 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-leaf-600'
 
 const BOTTOM_LIMIT = 4
 

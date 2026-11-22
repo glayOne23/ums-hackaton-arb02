@@ -18,7 +18,7 @@ function NewDiscountPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Daftar potongan
         </Link>
-        <h1 className="text-2xl font-semibold">Tambah potongan</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Tambah potongan</h1>
         <DiscountForm
           onSaved={(discount) => {
             toast.success(

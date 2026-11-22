@@ -55,7 +55,7 @@ function ProfileContent({ outlet }: { outlet: Outlet }) {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-muted-foreground tabular-nums">{outlet.code}</p>
-          <h1 className="flex flex-wrap items-center gap-3 text-2xl font-semibold">
+          <h1 className="flex flex-wrap items-center gap-3 text-2xl font-bold tracking-tight">
             {outlet.name}
             {!outlet.is_active && (
               <StatusChip variant="neutral" icon={CirclePause}>

@@ -161,6 +161,17 @@ Lebar minimum yang didukung: **360 px** (NF-04). Tidak boleh ada gulir horizonta
 
 Menu yang tampil mengikuti izin pengguna (PW-01). Menu yang tidak diizinkan **disembunyikan**, bukan ditampilkan abu-abu.
 
+**Menu dikelompokkan** (sejak 22 Nov 2026, `components/layout/nav-items.ts`). Menu samping dan halaman "Lainnya" di HP memakai judul bagian yang sama; bagian tanpa menu yang diizinkan ikut disembunyikan:
+
+| Bagian | Menu |
+| --- | --- |
+| Pantauan | Ringkasan, Laporan |
+| Penjualan | Outlet, Kunjungan, Tagihan |
+| Produk & gudang | Produk, Potongan, Gudang |
+| Administrasi | Koreksi, Impor Excel, Pengguna, Pengaturan |
+
+Menu aktif: latar `tile-brand`, teks `leaf-800` tebal, dan **garis hijau 4 px di tepi kiri**, supaya posisi terbaca tanpa mengandalkan warna saja. Ikon menu berwarna `leaf-700`.
+
 ## 6. Interaksi dan ukuran sentuh
 
 - Area sentuh minimum **48 × 48 px di layar sales**, 44 × 44 px di tempat lain. Jarak antar-target ≥ 8 px.
@@ -168,6 +179,16 @@ Menu yang tampil mengikuti izin pengguna (PW-01). Menu yang tidak diizinkan **di
 - Tidak ada interaksi yang hanya bisa lewat *hover*, *swipe*, atau tekan lama. Bila ada *swipe*, harus ada tombol yang setara.
 - Tombol − / + selalu di kiri dan kanan angka; ketuk angka membuka keypad angka (`inputmode="numeric"`).
 - Ketukan mengubah data harus terasa: tombol berubah warna saat ditekan (`active:`) dan, bila tersedia, getar 10 ms (`navigator.vibrate`) untuk − / +.
+
+### 6.1 Kerangka halaman kantor
+
+Setiap halaman daftar di area kantor tersusun sama, dari atas ke bawah:
+
+1. **`PageHeader`** (`components/common/PageHeader`): ikon modul di kotak `tile-brand`, judul `text-2xl` tebal, satu kalimat tujuan halaman, dan aksi halaman di kanan (tombol primary paling kanan). Di HP aksi turun ke bawah judul.
+2. Tab sub-menu bila ada (`choice`/`choice-on`).
+3. **`FilterBar`**: cari dan saringan dalam satu bilah putih berbayang, satu baris di desktop.
+4. Ringkasan angka (bila ada), lalu tabel atau kartu.
+5. **`Pagination`** di bawah daftar (§7.4).
 
 ## 7. Komponen
 
@@ -220,6 +241,14 @@ Sisa di rak   [ − ]   12   [ + ]   dari 14
 - Angka dan uang **rata kanan**, teks rata kiri, status di tengah-kiri sebagai chip.
 - Tinggi baris 48 px (normal) atau 40 px (rapat, bisa dipilih). Garis antar-baris `earth-200`, tanpa garis vertikal; zebra tidak dipakai.
 - Susunan kolom laporan mengikuti file Excel mitra yang sekarang agar admin "tetap merasa di Excel".
+- Kepala tabel berlatar `leaf-50` dengan teks `leaf-800` semibold.
+
+**Paginasi** (`components/common/Pagination`, sejak 22 Nov 2026). Setiap daftar yang bisa memuat banyak data dipecah per halaman:
+
+- Isi: "1–20 dari 134 outlet", tombol **Sebelumnya**, nomor halaman (pertama, terakhir, halaman sekarang ± 1, sisanya "…"), tombol **Berikutnya**. Halaman sekarang memakai `choice-on` dan `aria-current="page"`. Di HP nomor diganti "Hal. 2 dari 7" dan tombol hanya ikon 44 px (tetap punya `aria-label`).
+- Tidak tampil bila semua data muat di satu halaman. Pindah halaman menggulir kembali ke atas daftar.
+- Data yang dipecah di server (outlet, produk, kunjungan, barang masuk, retur) memakai `meta` dari API. Data yang dikirim utuh (tagihan per outlet, potongan, pengguna, setoran, permintaan barang, stok gudang, opname, koreksi, tempat sampah, riwayat akses) dipecah di layar dengan `usePagedItems` (`lib/pagination.ts`), 20 baris per halaman; saringan baru mengembalikan ke halaman 1.
+- Laporan dan kartu stok menampilkan 50 baris per halaman di layar, tetapi **cetak selalu memuat semua baris**.
 
 ### 7.5 Form
 
@@ -252,7 +281,7 @@ Jangan memakai dialog untuk konfirmasi hal yang bisa diperbaiki; lebih baik simp
 | Keadaan | Aturan |
 | --- | --- |
 | Memuat | *Skeleton* berbentuk konten, bukan spinner layar penuh. Tampilkan data cache dulu bila ada |
-| Kosong | Ikon garis 48 px + satu kalimat penjelas + satu tombol aksi ("Belum ada outlet. Impor dari Excel") |
+| Kosong | `EmptyState`: ikon di lingkaran `leaf-50` + satu kalimat penjelas + satu tombol aksi ("Belum ada outlet. Impor dari Excel") |
 | Galat server | Kalimat biasa + tombol "Coba lagi" + tautan "Hubungi admin" (WhatsApp, UX-09). Kode galat teknis hanya di detail yang bisa dibuka |
 | Tanpa izin | "Menu ini tidak tersedia untuk peran Anda." + tombol kembali |
 
@@ -337,6 +366,8 @@ Reviewer menolak PR yang belum memenuhi butir di bawah.
 - [ ] Tidak ada tombol, kolom, atau pilihan aktif yang tampil abu-abu (abu-abu = nonaktif, §7.1)
 - [ ] Tabel data punya kolom Aksi (Detail · Ubah · Hapus sesuai izin, §7.4)
 - [ ] Setiap kartu/baris yang bisa diketuk punya penanda buka `›` (§7.3)
+- [ ] Halaman kantor memakai `PageHeader` + `FilterBar`; daftar panjang punya `Pagination` (§6.1, §7.4)
+- [ ] Menu baru masuk ke salah satu bagian menu (§5)
 - [ ] Diuji di 360 px, 768 px, 1280 px; tanpa gulir horizontal
 - [ ] Diuji dengan ukuran huruf 125% dan mode kontras tinggi
 - [ ] Area sentuh ≥ 48 px di layar sales

@@ -18,7 +18,7 @@ function NewOutletPage() {
           <ArrowLeft className="size-5" aria-hidden />
           Daftar outlet
         </Link>
-        <h1 className="text-2xl font-semibold">Tambah outlet</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Tambah outlet</h1>
         <OutletForm
           onSaved={(outlet) => {
             toast.success(`Outlet ${outlet.name} tersimpan`)

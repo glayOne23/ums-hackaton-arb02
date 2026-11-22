@@ -1,7 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, CircleCheck, MessageCircle, Printer, Search } from 'lucide-react'
+import { CircleAlert, CircleCheck, MessageCircle, Printer, Search, Wallet } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { EmptyState, FilterBar, PageHeader } from '@/components/common/PageHeader'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { OpenHint } from '@/components/common/OpenHint'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
@@ -37,20 +40,23 @@ export function InvoiceList() {
       (!query || i.number.toLowerCase().includes(query) || (i.outlet?.name.toLowerCase().includes(query) ?? false)),
   )
   const groups = groupByOutlet(shown)
+  const paged = usePagedItems(groups)
   const total = groups.reduce((sum, g) => sum + Math.round(g.owed * 100), 0) / 100
   const salesName = salesOptions.find(([id]) => String(id) === salesId)?.[1]
   const title = `Daftar tagihan belum dibayar${salesName ? ` · ${salesName}` : ''} · ${formatTableDate(today)}`
 
   return (
     <section className="flex flex-col gap-5 pb-8">
-      <header className="print:hidden">
-        <h1 className="text-2xl font-semibold">Tagihan</h1>
-        <p className="text-muted-foreground">Tagihan outlet yang belum lunas, yang paling lama menunggu di atas.</p>
-      </header>
+      <PageHeader
+        icon={Wallet}
+        title="Tagihan"
+        description="Tagihan outlet yang belum lunas, yang paling lama menunggu di atas."
+        className="print:hidden"
+      />
       <BillingTabs />
 
-      <div className="flex flex-wrap items-end gap-3 print:hidden">
-        <div className="relative min-w-0 flex-1 basis-full sm:basis-64">
+      <FilterBar className="print:hidden">
+        <div className="relative min-w-0 flex-1 lg:min-w-64">
           <Search
             className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground"
             aria-hidden
@@ -61,38 +67,42 @@ export function InvoiceList() {
             placeholder="Cari outlet atau nomor tagihan"
             className="pl-10"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => (setSearch(e.target.value), paged.setPage(1))}
           />
         </div>
-        <NativeSelect aria-label="Sales" value={salesId} onChange={(e) => setSalesId(e.target.value)}>
-          <option value="">Semua sales</option>
-          {salesOptions.map(([id, name]) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </NativeSelect>
+        <div className="lg:w-56">
+          <NativeSelect
+            aria-label="Sales"
+            value={salesId}
+            onChange={(e) => (setSalesId(e.target.value), paged.setPage(1))}
+          >
+            <option value="">Semua sales</option>
+            {salesOptions.map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
         <Button
           variant={overdueOnly ? 'default' : 'outline'}
           aria-pressed={overdueOnly}
-          onClick={() => setOverdueOnly((v) => !v)}
+          onClick={() => (setOverdueOnly((v) => !v), paged.setPage(1))}
         >
           <CircleAlert aria-hidden />
           Lewat jatuh tempo
         </Button>
-      </div>
+      </FilterBar>
 
       {invoices.isPending ? (
         <div className="h-64 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />
       ) : invoices.isError ? (
         <ErrorState message={invoices.error.message} onRetry={() => invoices.refetch()} />
       ) : groups.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <CircleCheck className="size-12 text-success-text" aria-hidden />
-          <p className="text-lg">
-            {all.length === 0 ? 'Semua tagihan sudah lunas.' : 'Tidak ada tagihan di saringan ini.'}
-          </p>
-        </div>
+        <EmptyState
+          icon={CircleCheck}
+          title={all.length === 0 ? 'Semua tagihan sudah lunas.' : 'Tidak ada tagihan di saringan ini.'}
+        />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card shadow-card p-4 print:hidden">
@@ -119,7 +129,7 @@ export function InvoiceList() {
           </div>
 
           <ul className="flex flex-col gap-3 print:hidden">
-            {groups.map((group) => (
+            {paged.items.map((group) => (
               <li
                 key={group.outletId}
                 className="flex flex-col gap-2 rounded-lg border border-border bg-card shadow-card p-4"
@@ -169,6 +179,7 @@ export function InvoiceList() {
               </li>
             ))}
           </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="outlet" className="print:hidden" />
 
           {/* Printed collection list: a column for the collector to write what was paid */}
           <div className="hidden print:block">

@@ -10,9 +10,11 @@ import {
   Store,
   TrendingDown,
   Wallet,
+  LayoutDashboard,
 } from 'lucide-react'
 import { type ReactNode, useId } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
 import { formatCurrency, formatCurrencyCompact, formatNumber, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -39,13 +41,16 @@ export function ManagerDashboard({
 
   return (
     <section className="flex flex-col gap-5">
-      <header>
-        <h1 className="text-2xl font-semibold">Ringkasan</h1>
-        <p className="text-muted-foreground">
-          {summary.data?.month_label ?? 'Bulan ini'}
-          {summary.isFetching && !summary.isPending && ' · memperbarui…'}
-        </p>
-      </header>
+      <PageHeader
+        icon={LayoutDashboard}
+        title="Ringkasan"
+        description={
+          <>
+            {summary.data?.month_label ?? 'Bulan ini'}
+            {summary.isFetching && !summary.isPending && ' · memperbarui…'}
+          </>
+        }
+      />
 
       <ReportFilterBar filters={filters} show={['month', 'sales', 'region']} onChange={onFiltersChange} />
 

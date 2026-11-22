@@ -16,8 +16,10 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { ROW_ACTION, RowActionLabel, RowActions, RowActionsHeader } from '@/components/common/RowActions'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
 import { Button } from '@/components/ui/button'
 import { ExportButton } from '@/features/import/components/ExportButton'
 import { Input } from '@/components/ui/input'
@@ -150,29 +152,30 @@ export function ProductList({ filters, onFiltersChange }: Props) {
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Produk</h1>
-          {meta && <p className="text-muted-foreground">{formatNumber(meta.total)} produk</p>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <ExportButton type="products" title="Produk" />
-          <Button variant="outline" asChild>
-            <Link to="/office/price-list">
-              <ReceiptText aria-hidden />
-              Daftar harga
-            </Link>
-          </Button>
-          {canManage && (
-            <Button asChild className="hidden sm:inline-flex">
-              <Link to="/office/products/new">
-                <Plus aria-hidden />
-                Tambah produk
+      <PageHeader
+        icon={Package}
+        title="Produk"
+        description={meta && <>{formatNumber(meta.total)} produk</>}
+        actions={
+          <>
+            <ExportButton type="products" title="Produk" />
+            <Button variant="outline" asChild>
+              <Link to="/office/price-list">
+                <ReceiptText aria-hidden />
+                Daftar harga
               </Link>
             </Button>
-          )}
-        </div>
-      </header>
+            {canManage && (
+              <Button asChild className="hidden sm:inline-flex">
+                <Link to="/office/products/new">
+                  <Plus aria-hidden />
+                  Tambah produk
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
         <div className="flex flex-col gap-1.5">
@@ -317,28 +320,8 @@ export function ProductList({ filters, onFiltersChange }: Props) {
             ))}
           </ul>
 
-          {meta && meta.last_page > 1 && (
-            <nav aria-label="Halaman" className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-muted-foreground">
-                {formatNumber(meta.from ?? 0)}–{formatNumber(meta.to ?? 0)} dari {formatNumber(meta.total)}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={meta.current_page <= 1}
-                  onClick={() => onFiltersChange({ ...filters, page: meta.current_page - 1 })}
-                >
-                  Sebelumnya
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={meta.current_page >= meta.last_page}
-                  onClick={() => onFiltersChange({ ...filters, page: meta.current_page + 1 })}
-                >
-                  Berikutnya
-                </Button>
-              </div>
-            </nav>
+          {meta && (
+            <Pagination meta={meta} onPageChange={(page) => onFiltersChange({ ...filters, page })} noun="produk" />
           )}
         </>
       )}

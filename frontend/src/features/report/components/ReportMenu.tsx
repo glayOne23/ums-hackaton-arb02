@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChartColumn } from 'lucide-react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { usePermission } from '@/stores/session'
 import { useReportCatalog } from '../api'
 
@@ -11,12 +12,11 @@ export function ReportMenu() {
 
   return (
     <section className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Laporan</h1>
-        <p className="text-muted-foreground">
-          Semua laporan bisa disaring per bulan, sales, kabupaten, dan jenis outlet, lalu diunduh ke Excel atau dicetak.
-        </p>
-      </header>
+      <PageHeader
+        icon={ChartColumn}
+        title="Laporan"
+        description="Semua laporan bisa disaring per bulan, sales, kabupaten, dan jenis outlet, lalu diunduh ke Excel atau dicetak."
+      />
 
       {catalog.isPending ? (
         <div className="h-96 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" />

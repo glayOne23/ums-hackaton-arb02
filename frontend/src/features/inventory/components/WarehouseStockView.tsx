@@ -1,8 +1,11 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronDown, CircleCheck, Clock, PackageOpen, Plus, ScrollText, TriangleAlert } from 'lucide-react'
+import { ChevronDown, CircleCheck, Clock, PackageOpen, Plus, ScrollText, TriangleAlert, Warehouse } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { FilterBar, PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
+import { Pagination } from '@/components/common/Pagination'
+import { usePagedItems } from '@/lib/pagination'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatExpiry, formatNumber, formatTableDate } from '@/lib/format'
@@ -27,23 +30,25 @@ export function WarehouseStockView() {
     const attention = row.below_minimum || row.near_expiry_qty > 0 || row.qty === 0
     return matches && (filter === 'all' || attention)
   })
+  const paged = usePagedItems(rows)
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Gudang</h1>
-          <p className="text-muted-foreground">Stok di gudang per produk. Ketuk produk untuk melihat batch.</p>
-        </div>
-        {canManage && (
-          <Button asChild className="hidden sm:inline-flex">
-            <Link to="/office/inventory/receipts/new">
-              <Plus aria-hidden />
-              Barang masuk
-            </Link>
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        icon={Warehouse}
+        title="Gudang"
+        description="Stok di gudang per produk. Ketuk produk untuk melihat batch."
+        actions={
+          canManage && (
+            <Button asChild className="hidden sm:inline-flex">
+              <Link to="/office/inventory/receipts/new">
+                <Plus aria-hidden />
+                Barang masuk
+              </Link>
+            </Button>
+          )
+        }
+      />
 
       <InventoryTabs />
 
@@ -65,7 +70,7 @@ export function WarehouseStockView() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <FilterBar className="sm:flex-row sm:items-center">
         <Input
           type="search"
           aria-label="Cari produk"
@@ -93,7 +98,7 @@ export function WarehouseStockView() {
             </Button>
           ))}
         </div>
-      </div>
+      </FilterBar>
 
       {stock.isPending ? (
         <div className="flex flex-col gap-3" aria-busy="true" aria-label="Memuat stok">
@@ -109,11 +114,14 @@ export function WarehouseStockView() {
           <p className="text-lg">{filter === 'attention' ? 'Semua stok aman.' : 'Tidak ada produk yang cocok.'}</p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {rows.map((row) => (
-            <StockRow key={row.product.id} row={row} />
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-3">
+            {paged.items.map((row) => (
+              <StockRow key={row.product.id} row={row} />
+            ))}
+          </ul>
+          <Pagination meta={paged.meta} onPageChange={paged.setPage} noun="produk" />
+        </>
       )}
 
       {canManage && (

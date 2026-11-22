@@ -3,6 +3,7 @@ import { useId, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api/client'
@@ -40,12 +41,11 @@ export function ImportView() {
 
   return (
     <section className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Impor Excel</h1>
-        <p className="text-muted-foreground">
-          Masukkan data lama dari Excel. Semua baris dicek dulu; tidak ada yang tersimpan sebelum Anda menekan Impor.
-        </p>
-      </header>
+      <PageHeader
+        icon={FileUp}
+        title="Impor Excel"
+        description="Masukkan data lama dari Excel. Semua baris dicek dulu; tidak ada yang tersimpan sebelum Anda menekan Impor."
+      />
 
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-2 text-lg font-semibold">1. Data apa yang diimpor?</legend>

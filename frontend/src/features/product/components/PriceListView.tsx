@@ -41,7 +41,7 @@ export function PriceListView({ outletTypeId, date, onChange }: Props) {
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Daftar harga{typeName ? ` ${typeName}` : ''}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Daftar harga{typeName ? ` ${typeName}` : ''}</h1>
           <p className="text-muted-foreground">
             Berlaku {formatTableDate(new Date(effectiveDate))}. Potongan khusus per outlet tidak termasuk.
           </p>

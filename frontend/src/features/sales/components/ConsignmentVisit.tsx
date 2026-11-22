@@ -310,7 +310,7 @@ export function VisitHeader({ outlet, extra }: { outlet: PackageOutlet; extra?: 
         <ChevronLeft className="size-6" aria-hidden />
       </Link>
       <div className="min-w-0">
-        <h1 className="text-xl font-semibold wrap-break-word">{outlet.name}</h1>
+        <h1 className="text-xl font-bold tracking-tight wrap-break-word">{outlet.name}</h1>
         <p className="text-muted-foreground">
           {[outlet.outlet_type, discount && `potongan ${discount}`, extra].filter(Boolean).join(' · ')}
         </p>

@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { Plus, Store } from 'lucide-react'
 import { ErrorState } from '@/components/common/ErrorState'
+import { PageHeader } from '@/components/common/PageHeader'
+import { Pagination } from '@/components/common/Pagination'
 import { Button } from '@/components/ui/button'
 import { ExportButton } from '@/features/import/components/ExportButton'
 import { formatNumber } from '@/lib/format'
@@ -30,23 +32,24 @@ export function OutletList({ filters, onFiltersChange }: Props) {
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Outlet</h1>
-          {meta && <p className="text-muted-foreground">{formatNumber(meta.total)} outlet</p>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <ExportButton type="outlets" title="Outlet" />
-          {canManage && (
-            <Button asChild className="hidden sm:inline-flex">
-              <Link to="/office/outlets/new">
-                <Plus aria-hidden />
-                Tambah outlet
-              </Link>
-            </Button>
-          )}
-        </div>
-      </header>
+      <PageHeader
+        icon={Store}
+        title="Outlet"
+        description={meta && <>{formatNumber(meta.total)} outlet</>}
+        actions={
+          <>
+            <ExportButton type="outlets" title="Outlet" />
+            {canManage && (
+              <Button asChild className="hidden sm:inline-flex">
+                <Link to="/office/outlets/new">
+                  <Plus aria-hidden />
+                  Tambah outlet
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
       <ProposalReview />
 
@@ -92,28 +95,8 @@ export function OutletList({ filters, onFiltersChange }: Props) {
               </div>
             </>
           )}
-          {meta && meta.last_page > 1 && (
-            <nav aria-label="Halaman" className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-muted-foreground">
-                {formatNumber(meta.from ?? 0)}–{formatNumber(meta.to ?? 0)} dari {formatNumber(meta.total)}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={meta.current_page <= 1}
-                  onClick={() => onFiltersChange({ ...filters, page: meta.current_page - 1 })}
-                >
-                  Sebelumnya
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={meta.current_page >= meta.last_page}
-                  onClick={() => onFiltersChange({ ...filters, page: meta.current_page + 1 })}
-                >
-                  Berikutnya
-                </Button>
-              </div>
-            </nav>
+          {meta && (
+            <Pagination meta={meta} onPageChange={(page) => onFiltersChange({ ...filters, page })} noun="outlet" />
           )}
         </>
       )}
