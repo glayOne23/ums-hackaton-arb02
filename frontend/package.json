@@ -11,6 +11,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:demo": "playwright test -c playwright.demo.config.ts",
     "api:generate": "orval",
     "preview": "vite preview"
   },
