@@ -13,6 +13,7 @@ import {
   Users,
   Warehouse,
 } from 'lucide-react'
+import type { BadgeKey } from '@/features/badges/api'
 import { useSession } from '@/stores/session'
 import { t } from '@/i18n'
 
@@ -38,6 +39,8 @@ export interface NavItem {
   permissions: string[]
   /** Only highlight on the exact path (the dashboard is the parent of every office page) */
   exact?: boolean
+  /** Waiting work counted on this item (number badge); the sum of its tabs' badges */
+  badges?: BadgeKey[]
 }
 
 /** Sections of the side menu (UI guide §5): related pages sit together under one heading. */
@@ -67,7 +70,14 @@ const ITEMS: NavItem[] = [
     group: 'monitor',
     permissions: ['report.view'],
   },
-  { to: '/office/outlets', label: t('nav.items.outlets'), icon: Store, group: 'sales', permissions: ['outlet.view'] },
+  {
+    to: '/office/outlets',
+    label: t('nav.items.outlets'),
+    icon: Store,
+    group: 'sales',
+    permissions: ['outlet.view'],
+    badges: ['outlets.proposals'],
+  },
   {
     to: '/office/visits',
     label: t('nav.items.visits'),
@@ -75,7 +85,14 @@ const ITEMS: NavItem[] = [
     group: 'sales',
     permissions: ['visit.view'],
   },
-  { to: '/office/billing', label: t('nav.items.billing'), icon: Wallet, group: 'sales', permissions: ['invoice.view'] },
+  {
+    to: '/office/billing',
+    label: t('nav.items.billing'),
+    icon: Wallet,
+    group: 'sales',
+    permissions: ['invoice.view'],
+    badges: ['billing.remittances'],
+  },
   {
     to: '/office/products',
     label: t('nav.items.products'),
@@ -89,6 +106,7 @@ const ITEMS: NavItem[] = [
     icon: Percent,
     group: 'stock',
     permissions: ['product.view'],
+    badges: ['discounts.pending'],
   },
   {
     to: '/office/inventory',
@@ -96,6 +114,7 @@ const ITEMS: NavItem[] = [
     icon: Warehouse,
     group: 'stock',
     permissions: ['inventory.view', 'stock_request.view'],
+    badges: ['inventory.requests', 'inventory.count'],
   },
   {
     to: '/office/corrections',
@@ -103,6 +122,7 @@ const ITEMS: NavItem[] = [
     icon: LifeBuoy,
     group: 'admin',
     permissions: ['visit.correct', 'correction.approve', 'outlet.manage', 'product.manage'],
+    badges: ['corrections.review', 'corrections.approval'],
   },
   { to: '/office/imports', label: t('nav.items.imports'), icon: FileUp, group: 'admin', permissions: ['data.import'] },
   { to: '/office/users', label: t('nav.items.users'), icon: Users, group: 'admin', permissions: ['user.manage'] },

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
 import { useNavGroups } from '@/components/layout/nav-items'
+import { NavBadge } from '@/components/layout/OfficeNav'
 import { HelpButton } from '@/features/help/components/HelpSheet'
 
 /** "Lainnya" on phones: every menu item the user may open, in the side-menu sections (UI guide §5). */
@@ -23,13 +24,14 @@ function MenuPage() {
             {group.label}
           </h2>
           <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
-            {group.items.map(({ to, label, icon: Icon }) => (
+            {group.items.map(({ to, label, icon: Icon, badges }) => (
               <li key={to}>
                 <Link to={to} className={ROW}>
                   <span className={ICON_TILE}>
                     <Icon className="size-5" aria-hidden />
                   </span>
                   <span className="flex-1 font-medium">{label}</span>
+                  <NavBadge keys={badges} />
                   <ChevronRight className="size-5 text-leaf-700" aria-hidden />
                 </Link>
               </li>

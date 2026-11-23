@@ -46,6 +46,19 @@ test('a new stock request reaches the warehouse bell and opens the requests (PW-
   await item.click()
   await expect(warehouse).toHaveURL(/\/office\/inventory\/requests/)
 
+  // Number badges: on the menu item and on the tab of the place where the work waits
+  await expect(
+    warehouse
+      .getByRole('navigation', { name: 'Menu utama' })
+      .getByRole('link', { name: /^Gudang \(\d+ menunggu\)$/ })
+      .first(),
+  ).toBeVisible()
+  await expect(
+    warehouse
+      .getByRole('navigation', { name: 'Menu gudang' })
+      .getByRole('link', { name: /^Permintaan sales \(\d+ menunggu\)$/ }),
+  ).toBeVisible()
+
   // Leave the request rejected and the bell read, for the other tests and demos
   await warehouse.getByRole('listitem').filter({ hasText: number }).getByRole('button', { name: 'Tolak' }).click()
   await warehouse.getByLabel('Alasan (wajib)').fill('Uji e2e notifikasi')

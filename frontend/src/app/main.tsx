@@ -19,6 +19,13 @@ const queryClient = new QueryClient({
   },
 })
 
+// Number badges (features/badges) follow every change saved anywhere in the app
+queryClient.getMutationCache().subscribe((event) => {
+  if (event.type === 'updated' && event.action.type === 'success') {
+    void queryClient.invalidateQueries({ queryKey: ['badges'] })
+  }
+})
+
 // UX-08: bigger text / high contrast chosen on this device, before the first paint
 applyPreferences()
 

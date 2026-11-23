@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { NavBadge } from '@/components/layout/OfficeNav'
 import { OutboxNotice } from '@/components/offline/OfficeOffline'
+import type { BadgeKey } from '@/features/badges/api'
 import { useSession } from '@/stores/session'
 
 type InventoryPath =
@@ -9,12 +11,17 @@ type InventoryPath =
   | '/office/inventory/returns'
   | '/office/inventory/count'
 
-const TABS: { to: InventoryPath; label: string; permission: string }[] = [
+const TABS: { to: InventoryPath; label: string; permission: string; badge?: BadgeKey }[] = [
   { to: '/office/inventory', label: 'Stok', permission: 'inventory.view' },
-  { to: '/office/inventory/requests', label: 'Permintaan sales', permission: 'stock_request.view' },
+  {
+    to: '/office/inventory/requests',
+    label: 'Permintaan sales',
+    permission: 'stock_request.view',
+    badge: 'inventory.requests',
+  },
   { to: '/office/inventory/receipts', label: 'Barang masuk', permission: 'inventory.view' },
   { to: '/office/inventory/returns', label: 'Retur', permission: 'inventory.view' },
-  { to: '/office/inventory/count', label: 'Opname', permission: 'inventory.view' },
+  { to: '/office/inventory/count', label: 'Opname', permission: 'inventory.view', badge: 'inventory.count' },
 ]
 
 /** Sub-menu of the warehouse pages; scrolls sideways inside itself on phones, never the page. */
@@ -37,6 +44,7 @@ export function InventoryTabs() {
                 activeProps={{ className: 'choice-on' }}
               >
                 {tab.label}
+                {tab.badge && <NavBadge keys={[tab.badge]} className="ml-2" />}
               </Link>
             </li>
           ))}
