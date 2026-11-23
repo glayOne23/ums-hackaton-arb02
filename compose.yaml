@@ -1,0 +1,119 @@
+# SIGAP fully in Docker, for local development on Windows, macOS, or Linux.
+# Needs only Docker (Docker Desktop on Windows/macOS). From the repository root:
+#
+#   docker compose up -d            # first start: ±5 minutes (images, Composer, npm)
+#   docker compose logs -f backend  # wait for "Server running"
+#
+#   PWA     http://localhost:5173   (sample accounts in README, password sigap123)
+#   API     http://localhost:8000
+#   MySQL   127.0.0.1:3307          (user sigap / sigap, database sigap)
+#
+# Code changes apply right away: backend/ and frontend/ are mounted into the containers.
+# Dependencies (vendor, node_modules) and the database stay in Docker volumes.
+# For production use infra/docker/compose.yaml; backend/compose.yaml is the Linux-only
+# variant that uses a MySQL you run yourself (ADR 0003).
+
+name: sigap-dev
+
+x-backend: &backend
+  build:
+    context: ./backend/docker
+    dockerfile: dev.Dockerfile
+  image: sigap-backend-dev
+  # Your own user on Linux, so files made by artisan/composer stay yours (export UID if it is not 1000)
+  user: "${UID:-1000}:${GID:-1000}"
+  working_dir: /app
+  volumes:
+    - ./backend:/app
+    - backend_vendor:/app/vendor
+  environment:
+    # These win over backend/.env, so .env.example can stay as it is
+    DB_CONNECTION: mysql
+    DB_HOST: db
+    DB_PORT: "3306"
+    DB_DATABASE: sigap
+    DB_USERNAME: sigap
+    DB_PASSWORD: sigap
+    APP_URL: http://localhost:8000
+    # Several requests at once (the PWA loads a few in parallel)
+    PHP_CLI_SERVER_WORKERS: "4"
+  restart: unless-stopped
+
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: sigap
+      MYSQL_USER: sigap
+      MYSQL_PASSWORD: sigap
+      MYSQL_ROOT_PASSWORD: root
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    ports:
+      # 3307 so it does not clash with a MySQL already on the laptop (WampServer, Laragon, …)
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-usigap", "-psigap"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  # API: prepares .env, Composer packages, key, tables, and sample data on first start
+  backend:
+    <<: *backend
+    entrypoint: ["sh", "/app/docker/dev-entrypoint.sh"]
+    # PHP's built-in server, which `artisan serve` runs underneath; called directly because
+    # `artisan serve` drops the DB_* values above and would fall back to backend/.env
+    command: ["sh", "-c", "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://127.0.0.1:8000/up"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  # Queued jobs: push notifications, Excel imports
+  queue:
+    <<: *backend
+    command: ["php", "artisan", "queue:listen", "--tries=1", "--timeout=0"]
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Scheduled tasks: trash purge, morning notifications, backup
+  scheduler:
+    <<: *backend
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # PWA with hot reload; /api is forwarded to the backend container
+  frontend:
+    image: node:26
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      VITE_API_PROXY: http://backend:8000
+      VITE_USE_POLLING: "1"
+    command: ["sh", "-c", "[ -x node_modules/.bin/vite ] || npm ci --no-fund --no-audit; exec npm run dev -- --host 0.0.0.0 --port 5173 --strictPort"]
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  backend_vendor:
+  frontend_node_modules:

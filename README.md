@@ -105,56 +105,205 @@ ums-hackaton-arb02/
 ├── .github/        Template Pull Request & issue
 ├── backend/        API Laravel 13 — modul per domain di app/Modules
 ├── frontend/       PWA React 19 — fitur per domain di src/features
+├── infra/docker/   Docker produksi (Caddy + HTTPS)
+├── compose.yaml    Semua bagian di Docker untuk pengembangan lokal (Cara A)
 └── docs/
     ├── pengembangan/   Dokumen rancangan 01–10 (sumber kebenaran)
     ├── referensi/      Bahan dari repo tim
     └── adr/            Catatan keputusan arsitektur
 ```
 
-## 🚀 Memulai pengembangan
+## 🚀 Menjalankan di lokal
 
-**Prasyarat:** Git, PHP 8.5, Composer 2, Node.js 26 LTS, dan MySQL 8.4 LTS atau lebih baru. Di Windows, WampServer, Laravel Herd, atau Laragon bisa menyediakan PHP dan MySQL.
+SIGAP terdiri dari tiga bagian yang harus hidup bersamaan:
+
+| Bagian | Alamat | Isi |
+| --- | --- | --- |
+| **Frontend** (PWA React) | http://localhost:5173 | Layar yang dibuka di browser. Permintaan `/api` diteruskan ke backend |
+| **Backend** (API Laravel) | http://localhost:8000 | Data, aturan bisnis, login. Ditambah **antrean** (push, impor Excel) dan **scheduler** (tugas terjadwal) |
+| **Basis data** (MySQL 8.4) | port 3306 (Docker: 3307) | Database `sigap` |
+
+Pilih **satu** cara:
+
+| Cara | Cocok untuk | Yang perlu dipasang |
+| --- | --- | --- |
+| [A. Docker](#cara-a--docker-windows-macos-linux) ⭐ | Semua orang. Paling mudah: satu perintah | Git + Docker |
+| [B. Windows tanpa Docker](#cara-b--windows-tanpa-docker) | Laptop Windows yang sudah punya Laragon/Herd/WampServer | Git, PHP 8.5, Composer, MySQL, Node.js 26 |
+| [C. Linux tanpa Docker](#cara-c--linux-tanpa-docker) | Laptop Linux yang ingin semuanya terpasang langsung | Git, PHP 8.5, Composer, MySQL, Node.js 26 |
+| [D. Linux: backend di Docker, MySQL sendiri](#cara-d--linux-backend-di-docker-mysql-sendiri) | Linux yang sudah punya MySQL (di laptop atau container lain) | Git, Docker, Node.js 26 |
+
+Pertama kali, ambil kodenya dulu:
 
 ```bash
-# Backend → http://127.0.0.1:8000
-cd backend
-composer install
-cp .env.example .env        # sesuaikan DB_* dengan MySQL lokal, buat database "sigap"
-php artisan key:generate
-php artisan webpush:vapid    # kunci notifikasi push ke perangkat (sekali)
-php artisan migrate --seed   # tabel + peran/izin + akun contoh
-php artisan serve
-# Di terminal lain, selama mengembangkan:
-php artisan queue:listen --tries=1 --timeout=0   # antrean: push ke perangkat, impor
-php artisan schedule:work                        # tugas terjadwal: Tempat Sampah, notifikasi pagi
-
-# Frontend → http://localhost:5173 (permintaan /api diteruskan ke backend)
-cd frontend
-npm install
-npm run dev
+git clone https://github.com/glayOne23/ums-hackaton-arb02.git
+cd ums-hackaton-arb02
 ```
 
-### Pilihan: backend lewat Docker (Linux)
+### Cara A — Docker (Windows, macOS, Linux)
 
-Untuk yang tidak memasang PHP 8.5 di laptop. Folder `backend` di-mount ke container, jadi perubahan kode langsung terpakai tanpa build ulang. MySQL tetap di luar container ini: boleh MySQL di laptop, boleh container MySQL lain yang port-nya dibuka ke laptop. Frontend tetap dijalankan langsung dengan `npm run dev`. Alasannya di [ADR 0003](docs/adr/0003-opsi-docker-backend-lokal.md).
+Semua bagian (MySQL, backend, antrean, scheduler, frontend) berjalan di container lewat [`compose.yaml`](compose.yaml). Kode di folder `backend/` dan `frontend/` dibaca langsung oleh container, jadi perubahan kode langsung terlihat tanpa build ulang.
+
+**Prasyarat**
+
+- **Windows/macOS:** [Docker Desktop](https://www.docker.com/products/docker-desktop/). Di Windows, pilih backend **WSL 2** saat memasang, lalu pastikan Docker Desktop sudah berjalan (ikon paus di taskbar tidak bergerak lagi).
+- **Linux:** Docker Engine + plugin Compose (`docker compose version` harus jalan).
+
+**Langkah** (dari folder repo; di Windows pakai PowerShell atau Git Bash):
+
+```bash
+docker compose up -d
+```
+
+Start pertama butuh ±5–10 menit: Docker mengunduh image, memasang paket Composer dan npm, membuat `backend/.env`, membuat tabel, lalu mengisi akun dan data contoh. Pantau prosesnya:
+
+```bash
+docker compose logs -f backend    # tunggu sampai muncul "Development Server ... started"
+docker compose ps                 # backend dan db harus "healthy"
+```
+
+Setelah itu buka **http://localhost:5173**, lalu masuk dengan salah satu [akun contoh](#akun-contoh). Start berikutnya hanya butuh beberapa detik.
+
+**Perintah sehari-hari**
+
+| Keperluan | Perintah |
+| --- | --- |
+| Menyalakan | `docker compose up -d` |
+| Mematikan (data tetap tersimpan) | `docker compose down` |
+| Melihat log | `docker compose logs -f backend` (atau `frontend`, `queue`, `db`) |
+| Menjalankan perintah artisan | `docker compose exec backend php artisan <perintah>` |
+| Mengulang database dari awal + data contoh | `docker compose exec backend php artisan migrate:fresh --seed` |
+| Tes backend | `docker compose exec backend vendor/bin/pest` |
+| Tes & lint frontend | `docker compose exec frontend npm run test` · `npm run lint` · `npm run typecheck` |
+| Setelah `composer.json`/`package.json` berubah | `docker compose exec backend composer install` · `docker compose exec frontend npm install` |
+| Hapus semuanya (database, paket) | `docker compose down -v` |
+
+Membuka database dengan HeidiSQL/DBeaver/TablePlus: host `127.0.0.1`, port **3307**, user `sigap`, kata sandi `sigap`, database `sigap`.
+
+> Catatan: paket Composer dan npm disimpan di volume Docker, bukan di folder repo. Editor yang butuh `vendor/` atau `node_modules/` untuk saran kode bisa memasangnya di laptop secara terpisah; keduanya sudah diabaikan git.
+
+### Cara B — Windows tanpa Docker
+
+**Prasyarat**
+
+| Program | Versi | Cara memasang |
+| --- | --- | --- |
+| Git | terbaru | [git-scm.com](https://git-scm.com/download/win) |
+| PHP | **8.5** | Lewat [Laragon](https://laragon.org), [Laravel Herd](https://herd.laravel.com/windows), atau WampServer. Bila PHP 8.5 belum ada di menunya, unduh zip **PHP 8.5 NTS x64** dari [windows.php.net](https://windows.php.net/download/), ekstrak ke folder PHP aplikasi tersebut, lalu pilih versinya |
+| Composer | 2 | [getcomposer.org](https://getcomposer.org/download/) (installer Windows) |
+| MySQL | 8.4 (8.0 juga bisa) | Bawaan Laragon/WampServer, atau [MySQL Installer](https://dev.mysql.com/downloads/installer/) |
+| Node.js | **26** | [nodejs.org](https://nodejs.org) atau `winget install OpenJS.NodeJS` |
+
+Periksa di PowerShell: `php -v` (harus 8.5), `composer -V`, `node -v` (harus v26), `mysql --version`.
+
+Di `php.ini` (menu Laragon/Herd/Wamp → PHP → php.ini), aktifkan ekstensi berikut dengan menghapus tanda `;` di depannya: `curl`, `fileinfo`, `gd`, `intl`, `mbstring`, `openssl`, `pdo_mysql`, `zip`, `bcmath`, `exif`. Cek dengan `php -m`.
+
+**1. Buat database** (lewat HeidiSQL/phpMyAdmin, atau perintah ini):
+
+```powershell
+mysql -u root -p -e "CREATE DATABASE sigap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+```
+
+**2. Backend** (PowerShell, dari folder repo):
+
+```powershell
+cd backend
+composer install
+Copy-Item .env.example .env       # lalu buka .env, isi DB_USERNAME dan DB_PASSWORD MySQL Anda
+php artisan key:generate
+php artisan webpush:vapid         # kunci notifikasi push (sekali saja)
+php artisan migrate --seed        # tabel + peran/izin + akun & data contoh
+php artisan serve                 # API di http://127.0.0.1:8000 (biarkan jendela ini terbuka)
+```
+
+Buka **dua jendela PowerShell lagi** di folder `backend` untuk antrean dan scheduler:
+
+```powershell
+php artisan queue:listen --tries=1 --timeout=0   # push ke perangkat, impor Excel
+php artisan schedule:work                        # Tempat Sampah, notifikasi pagi
+```
+
+**3. Frontend** (jendela PowerShell baru, dari folder repo):
+
+```powershell
+cd frontend
+npm install
+npm run dev                       # buka http://localhost:5173
+```
+
+### Cara C — Linux tanpa Docker
+
+Contoh untuk Ubuntu/Debian. Distribusi lain: sesuaikan nama paketnya.
+
+**1. Pasang program**
+
+```bash
+# PHP 8.5 + ekstensi (Ubuntu belum menyediakan 8.5 di repo bawaan, jadi pakai PPA ondrej/php)
+sudo add-apt-repository ppa:ondrej/php && sudo apt update
+sudo apt install php8.5-cli php8.5-mysql php8.5-zip php8.5-intl php8.5-gd php8.5-bcmath \
+  php8.5-mbstring php8.5-xml php8.5-curl unzip
+
+# Composer 2
+curl -sS https://getcomposer.org/installer | php && sudo mv composer.phar /usr/local/bin/composer
+
+# Node.js 26 lewat nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source ~/.bashrc && nvm install 26
+
+# MySQL
+sudo apt install mysql-server
+```
+
+**2. Buat database dan user.** MySQL bawaan Ubuntu tidak mengizinkan `root` masuk dengan kata sandi, jadi buat user khusus:
+
+```bash
+sudo mysql -e "CREATE DATABASE sigap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CREATE USER 'sigap'@'localhost' IDENTIFIED BY 'sigap';
+  GRANT ALL ON sigap.* TO 'sigap'@'localhost';"
+```
+
+**3. Backend** (dari folder repo):
+
+```bash
+cd backend
+composer install
+cp .env.example .env              # isi DB_USERNAME=sigap dan DB_PASSWORD=sigap
+php artisan key:generate
+php artisan webpush:vapid
+php artisan migrate --seed
+php artisan serve                 # http://127.0.0.1:8000
+```
+
+Di dua terminal lain (folder `backend`): `php artisan queue:listen --tries=1 --timeout=0` dan `php artisan schedule:work`.
+
+**4. Frontend** (terminal baru):
+
+```bash
+cd frontend
+npm install
+npm run dev                       # http://localhost:5173
+```
+
+### Cara D — Linux: backend di Docker, MySQL sendiri
+
+Untuk yang sudah punya MySQL (di laptop atau container lain dengan port terbuka) dan tidak ingin memasang PHP. Memakai [`backend/compose.yaml`](backend/compose.yaml) dengan `network_mode: host`, yang hanya berjalan penuh di Linux. Alasannya ada di [ADR 0003](docs/adr/0003-opsi-docker-backend-lokal.md).
 
 ```bash
 cd backend
 cp .env.example .env        # isi DB_HOST=127.0.0.1, DB_PORT (mis. 3307 bila MySQL di container), DB_*
-docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah (terakhir: mysqldump untuk backup)
+docker compose build        # sekali, atau saat backend/docker/dev.Dockerfile berubah
 docker compose run --rm app composer install
 docker compose run --rm app php artisan key:generate
 docker compose run --rm app php artisan webpush:vapid
 docker compose run --rm app php artisan migrate --seed
-docker compose up -d        # API di http://127.0.0.1:8000 + pekerja antrean + scheduler
-docker compose logs -f app  # lihat log; perintah lain: docker compose exec app php artisan …
+docker compose up -d        # API di http://127.0.0.1:8000 + antrean + scheduler
+docker compose logs -f app
 ```
 
-Tanpa `webpush:vapid`, notifikasi tetap muncul di lonceng aplikasi; hanya push ke perangkat yang dilewati. Tanpa pekerja antrean, push tidak terkirim. Tanpa scheduler, Tempat Sampah tidak dibersihkan dan notifikasi pagi (ED dekat, tagihan jatuh tempo) tidak dikirim.
+Frontend dijalankan langsung: `cd frontend && npm install && npm run dev`.
 
-Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend tersambung ke MySQL bawaan Ubuntu, yang menolak login `root` dengan kata sandi. Arahkan `DB_PORT` ke MySQL yang dimaksud, atau buat user khusus untuk database proyek.
+### Akun contoh
 
-**Akun contoh** (data fiktif, hanya dibuat di luar produksi). Kata sandi semuanya `sigap123`. Masuk bisa dengan username atau nomor HP.
+Dibuat otomatis oleh `--seed` (data fiktif, hanya di luar produksi). Kata sandi semuanya **`sigap123`**. Masuk bisa dengan username atau nomor HP.
 
 | Username | Nomor HP | Peran | Setelah masuk |
 | --- | --- | --- | --- |
@@ -164,7 +313,40 @@ Bila muncul `Access denied for user 'root'@'localhost'` (error 1698), backend te
 | `sales1` | 081100000004 | Sales | Area lapangan (HP) |
 | `sales2` | 081100000005 | Sales | Area lapangan (HP) |
 
-### Menjalankan di server
+Layar sales paling enak dicoba dengan mode HP di browser: tekan `F12`, lalu `Ctrl+Shift+M`.
+
+### Pemeriksaan sebelum membuka Pull Request
+
+Sama dengan CI ([09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md) §5). Di Cara A, awali dengan `docker compose exec backend` atau `docker compose exec frontend`.
+
+```bash
+# backend/
+vendor/bin/pint --test && vendor/bin/phpstan analyse && vendor/bin/pest
+
+# frontend/
+npm run lint && npm run typecheck && npm run test && npm run build
+```
+
+Tes end-to-end (`npm run test:e2e`) butuh backend berjalan dengan data contoh, dan sekali per laptop `npx playwright install chromium`.
+
+### Masalah umum
+
+| Gejala | Penyebab dan jalan keluar |
+| --- | --- |
+| `port is already allocated` / `address already in use` saat `docker compose up` | Port 3307, 8000, atau 5173 sudah dipakai program lain (mis. `php artisan serve` atau `npm run dev` yang masih hidup). Matikan programnya, lalu ulangi |
+| Docker: `error during connect` / `cannot find the file specified` | Docker Desktop belum berjalan. Buka Docker Desktop, tunggu sampai siap, lalu ulangi |
+| Layar masuk menampilkan "Server sedang bermasalah" | Backend belum siap atau mati. Lihat `docker compose logs backend` (Cara A) atau jendela `php artisan serve` |
+| `SQLSTATE[HY000] [2002] Connection refused` | MySQL belum hidup, atau `DB_HOST`/`DB_PORT` di `backend/.env` salah |
+| `Access denied for user 'root'@'localhost'` (1698) | MySQL bawaan Ubuntu menolak `root` dengan kata sandi. Pakai user khusus seperti di Cara C langkah 2 |
+| `Your Composer dependencies require a PHP version ">= 8.5"` | PHP yang aktif masih versi lama. Pilih PHP 8.5 di Laragon/Herd/Wamp, lalu buka ulang terminal; cek `php -v` |
+| `could not find driver` | Ekstensi `pdo_mysql` belum aktif di `php.ini` |
+| `Permission denied` pada `storage/logs` atau `bootstrap/cache` (Linux) | Folder pernah dibuat oleh root. Jalankan `sudo chown -R $USER backend/storage backend/bootstrap/cache` |
+| Frontend tidak memuat ulang setelah file diubah (Docker di Windows) | Sudah ditangani dengan polling (`VITE_USE_POLLING`). Bila masih, `docker compose restart frontend` |
+| `npm ERR! engine` / Vite tidak mau jalan | Node.js masih versi lama. Pasang Node.js 26, cek `node -v` |
+
+Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md), dan [10 · Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md). Singkatnya: **kode dan nama tabel berbahasa Inggris, tampilan berbahasa Indonesia**, dan tabel satu kelompok memakai prefix yang sama (`auth_`, `crm_`, `inv_`, `sls_`, …).
+
+## 🖥️ Menjalankan di server
 
 **Cara cepat: Docker + HTTPS otomatis** (`infra/docker/`). Butuh server Linux dengan Docker, dan domain yang mengarah ke server itu (port 80 dan 443 terbuka). Caddy mengambil dan memperbarui sertifikat HTTPS sendiri, sehingga PWA bisa dipasang dan notifikasi push berjalan.
 
@@ -187,8 +369,6 @@ Isinya: `web` (Caddy: PWA + HTTPS), `app` (PHP-FPM), `queue`, `scheduler` (backu
 3. **Cron scheduler** setiap menit: `* * * * * cd /path/ke/backend && php artisan schedule:run >> /dev/null 2>&1`. Scheduler juga menjalankan **backup harian** pukul 01.30 (database + foto/unggahan, `config/backup.php`), jadi server butuh `mysqldump` (paket `mysql-client`). Arahkan `BACKUP_DISK` ke disk di luar server (mis. S3) dan isi `BACKUP_NOTIFY_EMAIL` agar kegagalan backup terkirim ke email.
 
 Notifikasi push hanya jalan lewat HTTPS (kecuali `localhost`), dan di iPhone hanya setelah SIGAP dipasang di layar utama (iOS 16.4+).
-
-Sebelum menulis kode, baca [07 · Pedoman UI/UX](docs/pengembangan/07_Pedoman_UI_UX.md), [08 · Struktur Folder](docs/pengembangan/08_Struktur_Folder.md), [09 · Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md), dan [10 · Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md). Singkatnya: **kode dan nama tabel berbahasa Inggris, tampilan berbahasa Indonesia**, dan tabel satu kelompok memakai prefix yang sama (`auth_`, `crm_`, `inv_`, `sls_`, …).
 
 ## 📅 Jadwal
 

@@ -20,3 +20,7 @@ ENV COMPOSER_HOME=/tmp/composer \
     HOME=/tmp
 
 WORKDIR /app
+
+# compose.yaml (repo root) keeps vendor/ in a volume; a new volume copies this
+# folder's owner, so Composer can write to it as UID 1000 (the usual Linux user)
+RUN mkdir -p /app/vendor && chown 1000:1000 /app/vendor

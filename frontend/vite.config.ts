@@ -47,9 +47,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Laravel backend: php artisan serve (port 8000)
-      '/api': 'http://127.0.0.1:8000',
+      // Laravel backend: php artisan serve (port 8000). In the Docker setup (compose.yaml) it is http://backend:8000
+      '/api': process.env.VITE_API_PROXY ?? 'http://127.0.0.1:8000',
     },
+    // Docker Desktop on Windows/macOS does not pass file-change events into the container
+    watch: process.env.VITE_USE_POLLING ? { usePolling: true, interval: 300 } : undefined,
   },
   test: {
     // tests/e2e belongs to Playwright (npm run test:e2e), not Vitest

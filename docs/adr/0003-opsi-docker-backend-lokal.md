@@ -29,3 +29,12 @@ Menambahkan **opsi** menjalankan backend lewat Docker Compose untuk pengembangan
 - `network_mode: host` hanya berlaku penuh di Linux. Pengguna Docker Desktop (Windows/macOS) sebaiknya tetap memakai Herd/Laragon/WampServer sesuai ADR 0001. Kalau nanti dibutuhkan, compose bisa ditambah varian dengan pemetaan port dan `host.docker.internal`.
 - Compose ini khusus pengembangan, bukan untuk produksi.
 - README bagian "Memulai pengembangan" ditambah langkah opsi Docker.
+
+## Pembaruan 2026-11-23
+
+Varian yang disebut di bagian Akibat sudah dibuat: [`compose.yaml`](../../compose.yaml) di root repo menjalankan MySQL 8.4, backend, antrean, scheduler, dan frontend dengan pemetaan port biasa, sehingga berjalan di Windows, macOS, dan Linux hanya dengan Docker. Catatannya:
+
+- Persiapan pertama (`.env`, Composer, kunci, migrasi, data contoh) dilakukan oleh `backend/docker/dev-entrypoint.sh`, dan aman diulang setiap start.
+- Backend memakai server bawaan PHP (`php -S`) langsung, karena `php artisan serve` membuang variabel `DB_*` dari compose sehingga Laravel kembali membaca `backend/.env`.
+- `vendor/` dan `node_modules/` disimpan di volume Docker agar cepat di Docker Desktop. Vite memakai polling (`VITE_USE_POLLING`) karena perubahan file di Windows tidak diteruskan ke container.
+- `backend/compose.yaml` (MySQL sendiri, Linux) tetap ada sebagai Cara D di README.
