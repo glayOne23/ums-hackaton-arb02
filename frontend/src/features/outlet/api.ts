@@ -3,7 +3,16 @@ import { api } from '@/lib/api/client'
 import { toQueryString } from '@/lib/api/query'
 import type { AssignmentFormInput, OutletFormInput } from './schemas'
 import { toOutletPayload } from './schemas'
-import type { Assignee, Outlet, OutletFilters, OutletOverview, OutletProposal, Paginated, Reference } from './types'
+import type {
+  Assignee,
+  Outlet,
+  OutletFilters,
+  OutletOverview,
+  OutletProposal,
+  OutletSalesSummary,
+  Paginated,
+  Reference,
+} from './types'
 
 export const outletKeys = {
   all: ['outlets'] as const,
@@ -24,6 +33,18 @@ export function useOutlets(filters: OutletFilters & { per_page?: number }) {
     queryKey: outletKeys.list(filters),
     queryFn: ({ signal }) => api<Paginated<Outlet>>(`/outlets${query({ ...filters })}`, { signal }),
     placeholderData: keepPreviousData,
+  })
+}
+
+/** How many outlets each sales holds, and how many have none, under the list filters (outlet.view_all). */
+export function useOutletSalesSummary(filters: OutletFilters, enabled: boolean) {
+  const { sales_user_id: _sales, page: _page, ...rest } = filters
+  return useQuery({
+    queryKey: [...outletKeys.all, 'sales-summary', rest] as const,
+    queryFn: ({ signal }) =>
+      api<{ data: OutletSalesSummary }>(`/outlets/sales-summary${query({ ...rest })}`, { signal }).then((r) => r.data),
+    placeholderData: (previous) => previous,
+    enabled,
   })
 }
 

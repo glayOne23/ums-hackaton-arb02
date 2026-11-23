@@ -15,6 +15,8 @@ export const productFormSchema = z.object({
     .max(30, 'Kode terlalu panjang (maks. 30 huruf).')
     .regex(/^[A-Za-z0-9._-]+$/, 'Kode hanya boleh huruf, angka, titik, garis bawah, atau tanda minus, tanpa spasi.'),
   name: z.string().trim().min(1, 'Nama produk wajib diisi.').max(150, 'Nama produk terlalu panjang (maks. 150 huruf).'),
+  /** Optional: ingredients, use, packaging */
+  description: z.string().max(2000, 'Deskripsi terlalu panjang (maks. 2.000 huruf).'),
   category_id: z.string().min(1, 'Kategori wajib dipilih.'),
   bpom_number: z
     .string()
@@ -45,6 +47,7 @@ export function toProductPayload(input: ProductFormInput) {
   return {
     ...input,
     code: input.code.toUpperCase(),
+    description: input.description.trim() || null,
     selling_price: parseRupiah(input.selling_price),
     min_stock_qty: input.min_stock_qty === '' ? 0 : Number(input.min_stock_qty),
     aliases: input.aliases

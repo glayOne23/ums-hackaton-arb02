@@ -18,6 +18,8 @@ function parseFilters(search: Record<string, unknown>): OutletFilters {
     region_id: text('region_id'),
     outlet_type_id: text('outlet_type_id'),
     sale_mode: SALE_MODES.find((mode) => mode === search.sale_mode),
+    // "none" = outlets without sales; otherwise a user id (numbers come back from the URL as numbers)
+    sales_user_id: /^(none|\d+)$/.test(String(search.sales_user_id ?? '')) ? String(search.sales_user_id) : undefined,
     status: STATUSES.find((status) => status === search.status),
     page: Number.isInteger(page) && page > 1 ? page : undefined,
   }

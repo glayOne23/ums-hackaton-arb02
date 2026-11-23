@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property string $id
  * @property string $code
  * @property string $name
+ * @property string|null $description
  * @property string $category_id
  * @property string|null $bpom_number
  * @property string $unit
@@ -31,7 +32,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $deleted_at
  * @property string|null $merged_into_id the outlet/product this duplicate was merged into (KR-08)
  */
-#[Fillable(['code', 'name', 'category_id', 'bpom_number', 'unit', 'selling_price', 'min_stock_qty', 'is_active', 'custom_fields'])]
+#[Fillable(['code', 'name', 'description', 'category_id', 'bpom_number', 'unit', 'selling_price', 'min_stock_qty', 'is_active', 'custom_fields'])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */

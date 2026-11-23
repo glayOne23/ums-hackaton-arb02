@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils'
 import { usePermission } from '@/stores/session'
 import { useInvoice, useRecordPayment, useVoidPayment } from '../api'
 import type { Invoice, Payment, PaymentMethodValue } from '../types'
+import { InvoiceContacts } from './InvoiceContacts'
 
 /** One invoice: what is owed, its payments, record a payment (TG-02), void a wrong one (KR-06). */
 export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
@@ -82,6 +83,8 @@ function Detail({ invoice }: { invoice: Invoice }) {
         </dl>
         {canManage && open && <PaymentForm invoice={invoice} />}
       </div>
+
+      <InvoiceContacts invoice={invoice} open={open} />
 
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Pembayaran</h2>

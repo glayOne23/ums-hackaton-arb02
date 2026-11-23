@@ -34,8 +34,12 @@ export interface Invoice {
     district: string
     region: string | null
     whatsapp_number: string | null
+    /** "Titip jual" · "Beli langsung" · "Tempo" */
+    sale_mode: string
+    /** Only on the invoice page */
+    outlet_type: string | null
   }
-  sales?: { id: number; name: string } | null
+  sales?: { id: number; name: string; phone: string | null } | null
   invoice_date: string
   due_date: string
   amount: number

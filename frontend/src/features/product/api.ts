@@ -6,11 +6,13 @@ import { toDiscountPayload, toProductPayload } from './schemas'
 import type {
   Category,
   Discount,
-  DiscountStatusFilter,
+  DiscountFilters,
   Paginated,
   PriceList,
   Product,
   ProductFilters,
+  ProductStockBreakdown,
+  ProductStockTotals,
   Ref,
 } from './types'
 
@@ -20,15 +22,31 @@ export const productKeys = {
   detail: (id: string) => ['products', 'detail', id] as const,
   categories: ['product-categories'] as const,
   discounts: ['discounts'] as const,
-  discountList: (status: DiscountStatusFilter) => ['discounts', 'list', status] as const,
+  discountList: (filters: DiscountFilters) => ['discounts', 'list', filters] as const,
+  stock: (id: string) => ['products', 'stock', id] as const,
   priceList: (outletTypeId: string, date: string) => ['price-list', outletTypeId, date] as const,
 }
 
 export function useProducts(filters: ProductFilters & { per_page?: number }) {
   return useQuery({
     queryKey: productKeys.list(filters),
-    queryFn: ({ signal }) => api<Paginated<Product>>(`/products${toQueryString({ ...filters })}`, { signal }),
+    // "stock" (product_id => totals) comes only for product.manage / inventory.view
+    queryFn: ({ signal }) =>
+      api<Paginated<Product> & { stock?: Record<string, ProductStockTotals> }>(
+        `/products${toQueryString({ ...filters })}`,
+        { signal },
+      ),
     placeholderData: keepPreviousData,
+  })
+}
+
+/** Where the product is now: warehouse batches, outlets holding it, sales carrying it. */
+export function useProductStock(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: productKeys.stock(id),
+    queryFn: ({ signal }) =>
+      api<{ data: ProductStockBreakdown }>(`/products/${id}/stock`, { signal }).then((r) => r.data),
+    enabled,
   })
 }
 
@@ -96,15 +114,38 @@ export function useOutletOptions(enabled: boolean) {
   })
 }
 
+/**
+ * What to do with the photo after saving: a Blob = upload it, null = remove it,
+ * undefined = leave it. The photo is a separate request (PR-01), so a failed
+ * upload does not lose the product data: it comes back as photoError.
+ */
+export type PhotoChange = Blob | null | undefined
+
 export function useSaveProduct(id?: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: ProductFormInput) =>
-      api<{ data: Product }>(id ? `/products/${id}` : '/products', {
+    mutationFn: async ({ input, photo }: { input: ProductFormInput; photo?: PhotoChange }) => {
+      const product = await api<{ data: Product }>(id ? `/products/${id}` : '/products', {
         method: id ? 'PATCH' : 'POST',
         body: toProductPayload(input),
-      }).then((r) => r.data),
+      }).then((r) => r.data)
+
+      let photoError: string | null = null
+      try {
+        if (photo) {
+          const body = new FormData()
+          body.append('photo', photo, 'produk.jpg')
+          await api(`/products/${product.id}/photo`, { method: 'POST', body })
+        } else if (photo === null && product.has_photo) {
+          await api(`/products/${product.id}/photo`, { method: 'DELETE' })
+        }
+      } catch (error) {
+        photoError = error instanceof Error ? error.message : 'Foto tidak bisa disimpan.'
+      }
+
+      return { product, photoError }
+    },
     networkMode: 'always',
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.all })
@@ -141,11 +182,21 @@ export function useRestoreProduct() {
   })
 }
 
-export function useDiscounts(status: DiscountStatusFilter) {
+export function useDiscounts(filters: DiscountFilters) {
   return useQuery({
-    queryKey: productKeys.discountList(status),
+    queryKey: productKeys.discountList(filters),
     queryFn: ({ signal }) =>
-      api<Paginated<Discount>>(`/discounts${toQueryString({ status, per_page: 200 })}`, { signal }).then((r) => r.data),
+      api<Paginated<Discount>>(
+        `/discounts${toQueryString({
+          status: filters.status ?? 'current',
+          outlet_id: filters.outlet_id,
+          product_id: filters.product_id,
+          outlet_type_id: filters.outlet_type_id,
+          per_page: 200,
+        })}`,
+        { signal },
+      ).then((r) => r.data),
+    placeholderData: (previous) => previous,
   })
 }
 

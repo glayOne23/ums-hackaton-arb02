@@ -22,6 +22,8 @@ export interface Product {
   custom_fields?: CustomFieldValues
   code: string
   name: string
+  /** PR-01: optional, shown on the product page */
+  description: string | null
   category?: Ref
   bpom_number: string | null
   unit: string
@@ -92,3 +94,35 @@ export interface ProductFilters {
 }
 
 export type DiscountStatusFilter = 'current' | DiscountStatusValue | 'all'
+
+export interface DiscountFilters {
+  status?: DiscountStatusFilter
+  outlet_id?: string
+  product_id?: string
+  outlet_type_id?: string
+}
+
+/** Stock of one product per kind of place (App\Modules\Inventory\Queries\ProductStock) */
+export interface ProductStockTotals {
+  warehouse_qty: number
+  outlet_qty: number
+  sales_qty: number
+  /** Outlets holding this product (consigned) */
+  outlet_count: number
+}
+
+export interface ProductStockBreakdown {
+  totals: ProductStockTotals
+  warehouse: { batch_number: string; expiry_date: string; qty: number }[]
+  outlets: {
+    id: string
+    code: string
+    name: string
+    district: string
+    region: string | null
+    qty: number
+    nearest_expiry: string
+    near_expiry_qty: number
+  }[]
+  sales: { id: number; name: string; qty: number }[]
+}

@@ -4,6 +4,7 @@ namespace App\Modules\Product\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Inventory\Queries\ProductStockOverview;
 use App\Modules\Product\Actions\DeleteProduct;
 use App\Modules\Product\Actions\RestoreProduct;
 use App\Modules\Product\Actions\SaveProduct;
@@ -22,11 +23,15 @@ class ProductController extends Controller
 
     private const MAX_PER_PAGE = 500;
 
+    /** Stock per location (warehouse, outlets, sales) is office data: not for a sales with only product.view. */
+    public const STOCK_PERMISSIONS = ['product.manage', 'inventory.view'];
+
     /**
      * W4 product list. Filters: search (name, code, alias, BPOM), category_id,
      * status (active|inactive|all|deleted), sort, per_page. status=deleted needs product.manage.
+     * Holders of STOCK_PERMISSIONS also get "stock": product_id => totals (warehouse, outlets, sales).
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request, ProductStockOverview $stock): AnonymousResourceCollection
     {
         $status = $request->string('status', 'active')->toString();
 
@@ -61,12 +66,33 @@ class ProductController extends Controller
 
         $perPage = min(max($request->integer('per_page', 25), 1), self::MAX_PER_PAGE);
 
-        return ProductResource::collection($query->paginate($perPage)->withQueryString());
+        $page = $query->paginate($perPage)->withQueryString();
+        // Read the ids first: the resource collection replaces the models with resources
+        $ids = $page->getCollection()->map(fn (Product $product) => (string) $product->id)->values()->all();
+        $collection = ProductResource::collection($page);
+
+        if ($status !== 'deleted' && $request->user()?->canAny(self::STOCK_PERMISSIONS)) {
+            $collection->additional(['stock' => (object) $stock->totals($ids)]);
+        }
+
+        return $collection;
     }
 
     public function show(Product $product): ProductResource
     {
         return new ProductResource($product->load(['category', 'aliases']));
+    }
+
+    /** Where the product is now: warehouse batches, outlets holding it, sales carrying it. */
+    public function stock(Request $request, Product $product, ProductStockOverview $stock): JsonResponse
+    {
+        abort_unless(
+            $request->user()?->canAny(self::STOCK_PERMISSIONS),
+            403,
+            'Rincian stok hanya untuk admin kantor, gudang, dan pimpinan.',
+        );
+
+        return response()->json(['data' => $stock->breakdown($product)]);
     }
 
     public function store(SaveProductRequest $request, SaveProduct $save): JsonResponse

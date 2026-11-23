@@ -13,6 +13,7 @@ import { formatCurrency, formatNumber } from '@/lib/format'
 import { useFeature, usePermission } from '@/stores/session'
 import { productKeys, useDeleteProduct, useProduct } from '../api'
 import { ProductPhoto } from './ProductPhoto'
+import { ProductStockPanel } from './ProductStockPanel'
 import type { Product } from '../types'
 import { HistoryPanel } from '@/features/correction/components/HistoryPanel'
 import { MergeDuplicateButton } from '@/features/correction/components/MergeDuplicateButton'
@@ -43,6 +44,8 @@ function Content({ product }: { product: Product }) {
   // FP-07: rolled out step by step
   const photoFeature = useFeature('product_photo')
   const canSeeStock = usePermission('inventory.view')
+  // Stock per place: same permissions as the API (product.manage or inventory.view)
+  const canSeeStockSpread = canManage || canSeeStock
 
   return (
     <article className="flex flex-col gap-6">
@@ -86,7 +89,15 @@ function Content({ product }: { product: Product }) {
         <Info label="Stok minimum gudang" value={`${formatNumber(product.min_stock_qty)} ${product.unit}`} />
         <Info label="Nama lain di Excel lama" value={product.aliases?.join(', ') || null} />
         <CustomFieldList entity="product" values={product.custom_fields} />
+        {product.description && (
+          <div className="flex flex-col gap-0.5 sm:col-span-2">
+            <span className="text-sm text-muted-foreground">Deskripsi</span>
+            <p className="whitespace-pre-line">{product.description}</p>
+          </div>
+        )}
       </section>
+
+      {canSeeStockSpread && <ProductStockPanel product={product} />}
 
       {photoFeature && <ProductPhoto product={product} canManage={canManage} />}
 

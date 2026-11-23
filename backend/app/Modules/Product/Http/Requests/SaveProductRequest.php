@@ -43,6 +43,7 @@ class SaveProductRequest extends FormRequest
             // Unique among deleted products too, so a code always points to one product
             'code' => [$required, 'string', 'max:30', 'regex:/^[A-Z0-9._-]+$/', Rule::unique('prd_products', 'code')->ignore($product?->getKey())],
             'name' => [$required, 'string', 'max:150'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:2000'],
             'category_id' => [$required, 'string', Rule::exists('prd_categories', 'id')],
             'bpom_number' => [$required, 'string', 'max:50'],
             'unit' => [$required, 'string', 'max:20'],
@@ -69,6 +70,7 @@ class SaveProductRequest extends FormRequest
             'code.max' => 'Kode terlalu panjang (maks. 30 huruf).',
             'name.required' => 'Nama produk wajib diisi.',
             'name.max' => 'Nama produk terlalu panjang (maks. 150 huruf).',
+            'description.max' => 'Deskripsi terlalu panjang (maks. 2.000 huruf).',
             'category_id.required' => 'Kategori wajib dipilih.',
             'category_id.exists' => 'Kategori tidak ada. Pilih dari daftar.',
             'bpom_number.required' => 'Nomor BPOM wajib diisi.',

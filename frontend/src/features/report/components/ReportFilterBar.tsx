@@ -1,7 +1,7 @@
+import { MonthPicker } from '@/components/common/MonthPicker'
 import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
-import { useReportOptions } from '../api'
+import { currentMonth, useReportOptions } from '../api'
 import type { FilterKey, ReportFilters } from '../types'
 
 /** Month, sales, region, and outlet type, in one row above the report (SRS 3.6). */
@@ -20,16 +20,15 @@ export function ReportFilterBar({
   return (
     <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-end print:hidden">
       {show.includes('month') && (
-        <div className="col-span-2 flex flex-col gap-1.5 sm:w-44">
+        <div className="col-span-2 flex flex-col gap-1.5 sm:w-72">
           <Label htmlFor="filter-month" className="text-base">
             Bulan
           </Label>
-          <Input
+          <MonthPicker
             id="filter-month"
-            type="month"
             value={filters.month}
-            max="2099-12"
-            onChange={(e) => e.target.value && set({ month: e.target.value })}
+            current={currentMonth()}
+            onChange={(month) => set({ month })}
           />
         </div>
       )}

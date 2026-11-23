@@ -33,8 +33,15 @@ class InvoiceResource extends JsonResource
                 'district' => $this->outlet->district,
                 'region' => $this->outlet->region?->name,
                 'whatsapp_number' => $this->outlet->whatsapp_number,
+                'sale_mode' => $this->outlet->sale_mode->label(),
+                'outlet_type' => $this->outlet->relationLoaded('outletType') ? $this->outlet->outletType?->name : null,
             ]),
-            'sales' => $this->whenLoaded('salesUser', fn () => $this->salesUser ? ['id' => $this->salesUser->id, 'name' => $this->salesUser->name] : null),
+            // The sales' phone lets the office send a WhatsApp reminder from the invoice
+            'sales' => $this->whenLoaded('salesUser', fn () => $this->salesUser ? [
+                'id' => $this->salesUser->id,
+                'name' => $this->salesUser->name,
+                'phone' => $this->salesUser->phone,
+            ] : null),
             'invoice_date' => $this->invoice_date->toDateString(),
             'due_date' => $this->due_date->toDateString(),
             'amount' => (float) $this->amount,

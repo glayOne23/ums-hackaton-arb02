@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleAlert, LoaderCircle } from 'lucide-react'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import { FieldError } from '@/components/common/FieldError'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +10,9 @@ import { Label } from '@/components/ui/label'
 import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { ApiError } from '@/lib/api/client'
-import { useCategories, useSaveProduct } from '../api'
+import { type PhotoChange, useCategories, useSaveProduct } from '../api'
+import { PhotoField } from './ProductPhotoField'
+import { useFeature } from '@/stores/session'
 import { type ProductFormInput, productFormSchema } from '../schemas'
 import type { Product } from '../types'
 import { CustomFieldInputs } from '@/features/setting/components/CustomFields'
@@ -25,6 +29,7 @@ function defaults(product?: Product): ProductFormInput {
   return {
     code: product?.code ?? '',
     name: product?.name ?? '',
+    description: product?.description ?? '',
     category_id: product?.category?.id ?? '',
     bpom_number: product?.bpom_number ?? '',
     unit: product?.unit ?? 'pcs',
@@ -45,6 +50,9 @@ function formField(apiField: string): keyof ProductFormInput {
 export function ProductForm({ product, onSaved, onCancel }: Props) {
   const categories = useCategories()
   const save = useSaveProduct(product?.id)
+  // FP-07: the photo field follows the same rollout as the photo card
+  const photoFeature = useFeature('product_photo')
+  const [photo, setPhoto] = useState<PhotoChange>(undefined)
   const {
     register,
     handleSubmit,
@@ -60,8 +68,13 @@ export function ProductForm({ product, onSaved, onCancel }: Props) {
   const isActive = useWatch({ control, name: 'is_active' })
 
   const submit = handleSubmit((input) =>
-    save.mutate(input, {
-      onSuccess: onSaved,
+    save.mutate(
+      { input, photo },
+      {
+      onSuccess: ({ product: saved, photoError }) => {
+        if (photoError) toast.error(`Data produk tersimpan, tetapi fotonya belum: ${photoError}`)
+        onSaved(saved)
+      },
       onError: (error) => {
         if (!(error instanceof ApiError)) return
         for (const [field, messages] of Object.entries(error.fieldErrors)) {
@@ -73,7 +86,8 @@ export function ProductForm({ product, onSaved, onCancel }: Props) {
           if (name in input) setError(name, { message: messages[0] })
         }
       },
-    }),
+      },
+    ),
   )
 
   const hasFieldErrors = save.error instanceof ApiError && Object.keys(save.error.fieldErrors).length > 0
@@ -117,6 +131,26 @@ export function ProductForm({ product, onSaved, onCancel }: Props) {
           <FieldError id="name-error" message={errors.name?.message} />
         </div>
       </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="description" className="text-base">
+          Deskripsi (opsional)
+        </Label>
+        <p id="description-help" className="text-sm text-muted-foreground">
+          Misalnya bahan, manfaat, isi kemasan, atau cara pakai.
+        </p>
+        <Textarea
+          id="description"
+          rows={3}
+          maxLength={2000}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? 'description-error' : 'description-help'}
+          {...register('description')}
+        />
+        <FieldError id="description-error" message={errors.description?.message} />
+      </div>
+
+      {photoFeature && <PhotoField product={product} photo={photo} onChange={setPhoto} />}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-2">

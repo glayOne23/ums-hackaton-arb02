@@ -70,6 +70,7 @@ class InvoiceController extends Controller
     {
         return new InvoiceResource($invoice->load([
             ...self::RELATIONS,
+            'outlet.outletType',
             'payments' => fn ($query) => $query->orderBy('paid_at')->orderBy('created_at'),
             'payments.receiver',
             'payments.voider',

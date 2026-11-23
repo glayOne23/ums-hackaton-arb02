@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->middleware('can:product.view');
         Route::post('/', [ProductController::class, 'store'])->middleware('can:product.manage');
         Route::get('{product}', [ProductController::class, 'show'])->middleware('can:product.view')->whereUlid('product');
+        // Stock per location; the controller also checks product.manage or inventory.view
+        Route::get('{product}/stock', [ProductController::class, 'stock'])->middleware('can:product.view')->whereUlid('product');
         Route::patch('{product}', [ProductController::class, 'update'])->middleware('can:product.manage')->whereUlid('product');
         // PR-01: optional product photo
         Route::get('{product}/photo', [ProductPhotoController::class, 'show'])->middleware('can:product.view')->whereUlid('product');

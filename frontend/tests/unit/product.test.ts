@@ -11,6 +11,7 @@ import { formatDiscountPercent } from '@/lib/format'
 const product = {
   code: 'mdk02',
   name: 'Madu Daun Kelor',
+  description: '  ',
   category_id: '01JCAT',
   bpom_number: 'TR-CONTOH-017',
   unit: 'botol',
@@ -34,6 +35,8 @@ describe('product form', () => {
       selling_price: 60000,
       min_stock_qty: 0,
       aliases: ['MADU KELOR', 'MDK 250'],
+      // An empty description is sent as null, so the server clears it
+      description: null,
     })
   })
 

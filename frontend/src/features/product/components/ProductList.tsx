@@ -8,12 +8,11 @@ import {
   Package,
   Pencil,
   Plus,
-  ReceiptText,
   RotateCcw,
   Search,
   Trash2,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { ErrorState } from '@/components/common/ErrorState'
 import { PageHeader } from '@/components/common/PageHeader'
@@ -28,7 +27,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { formatCurrency, formatNumber, formatTableDate } from '@/lib/format'
 import { usePermission } from '@/stores/session'
 import { useCategories, useProducts, useRestoreProduct } from '../api'
-import type { Product, ProductFilters, ProductStatusFilter } from '../types'
+import type { Product, ProductFilters, ProductStatusFilter, ProductStockTotals } from '../types'
 import { DeleteProductButton } from './ProductDetail'
 
 const PER_PAGE = 25
@@ -36,7 +35,48 @@ const PER_PAGE = 25
 const features = tableFeatures({})
 const helper = createColumnHelper<typeof features, Product>()
 
-const columns = helper.columns([
+type StockMap = Record<string, ProductStockTotals>
+
+/** A stock number in a table cell; "—" when the API sent no stock (no permission) */
+function StockCell({ value }: { value: number | undefined }) {
+  return (
+    <span className={`block text-right tabular-nums ${value ? 'font-medium' : 'text-muted-foreground'}`}>
+      {value === undefined ? '—' : formatNumber(value)}
+    </span>
+  )
+}
+
+/**
+ * Stock per place for the office (product.manage / inventory.view): how many
+ * outlets hold the product, and how much is in the warehouse, at outlets, and with sales.
+ */
+function stockColumns(stock: StockMap) {
+  const at = (id: string) => stock[id]
+  return [
+    helper.display({
+      id: 'outlet_count',
+      header: () => <span className="block text-right">Outlet</span>,
+      cell: (info) => <StockCell value={at(info.row.original.id)?.outlet_count} />,
+    }),
+    helper.display({
+      id: 'warehouse_qty',
+      header: () => <span className="block text-right">Stok gudang</span>,
+      cell: (info) => <StockCell value={at(info.row.original.id)?.warehouse_qty} />,
+    }),
+    helper.display({
+      id: 'outlet_qty',
+      header: () => <span className="block text-right">Stok di outlet</span>,
+      cell: (info) => <StockCell value={at(info.row.original.id)?.outlet_qty} />,
+    }),
+    helper.display({
+      id: 'sales_qty',
+      header: () => <span className="block text-right">Dibawa sales</span>,
+      cell: (info) => <StockCell value={at(info.row.original.id)?.sales_qty} />,
+    }),
+  ]
+}
+
+const baseColumns = helper.columns([
   helper.accessor('code', {
     header: 'Kode',
     cell: (info) => <span className="whitespace-nowrap text-muted-foreground tabular-nums">{info.getValue()}</span>,
@@ -75,12 +115,13 @@ const columns = helper.columns([
       <span className="block text-right whitespace-nowrap tabular-nums">{formatCurrency(info.getValue())}</span>
     ),
   }),
-  helper.display({
-    id: 'actions',
-    header: () => <RowActionsHeader />,
-    cell: (info) => <ProductRowActions product={info.row.original} />,
-  }),
 ])
+
+const actionsColumn = helper.display({
+  id: 'actions',
+  header: () => <RowActionsHeader />,
+  cell: (info) => <ProductRowActions product={info.row.original} />,
+})
 
 /** Detail · Ubah · Hapus, the same pages and dialog as the product page (UI guide §7.4). */
 function ProductRowActions({ product }: { product: Product }) {
@@ -119,8 +160,15 @@ function ProductRowActions({ product }: { product: Product }) {
   )
 }
 
-/** Columns hidden below 1024 px */
-const DESKTOP_ONLY = new Set(['code', 'bpom_number', 'unit'])
+/** Columns hidden below 1024 px; the stock numbers stay visible on tablets */
+const DESKTOP_ONLY = new Set(['code', 'category', 'bpom_number', 'unit'])
+/** With the four stock columns the table only fits BPOM and unit from 1536 px (both stay on the product page) */
+const WIDE_ONLY = new Set(['bpom_number', 'unit'])
+
+function columnClass(id: string, withStock: boolean): string {
+  if (withStock && WIDE_ONLY.has(id)) return 'hidden 2xl:table-cell'
+  return DESKTOP_ONLY.has(id) ? 'hidden lg:table-cell' : ''
+}
 
 interface Props {
   filters: ProductFilters
@@ -133,6 +181,12 @@ export function ProductList({ filters, onFiltersChange }: Props) {
   const categories = useCategories()
   const products = useProducts({ ...filters, per_page: PER_PAGE })
   const meta = products.data?.meta
+  const stock = products.data?.stock
+  // Stable while the same "stock" object is shown, so the table does not rebuild on every render
+  const columns = useMemo(
+    () => (stock ? [...baseColumns, ...stockColumns(stock), actionsColumn] : [...baseColumns, actionsColumn]),
+    [stock],
+  )
   const table = useTable({ features, columns, data: products.data?.data ?? [] })
 
   const [search, setSearch] = useState(filters.search ?? '')
@@ -159,12 +213,6 @@ export function ProductList({ filters, onFiltersChange }: Props) {
         actions={
           <>
             <ExportButton type="products" title="Produk" />
-            <Button variant="outline" asChild>
-              <Link to="/office/price-list">
-                <ReceiptText aria-hidden />
-                Daftar harga
-              </Link>
-            </Button>
             {canManage && (
               <Button asChild className="hidden sm:inline-flex">
                 <Link to="/office/products/new">
@@ -265,7 +313,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
                       <th
                         key={header.id}
                         scope="col"
-                        className={`h-11 px-4 text-sm font-semibold ${DESKTOP_ONLY.has(header.column.id) ? 'hidden lg:table-cell' : ''}`}
+                        className={`h-11 px-4 text-sm font-semibold ${columnClass(header.column.id, Boolean(stock))}`}
                       >
                         <table.FlexRender header={header} />
                       </th>
@@ -279,7 +327,7 @@ export function ProductList({ filters, onFiltersChange }: Props) {
                     {row.getAllCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={`h-12 px-4 py-2 ${DESKTOP_ONLY.has(cell.column.id) ? 'hidden lg:table-cell' : ''}`}
+                        className={`h-12 px-4 py-2 ${columnClass(cell.column.id, Boolean(stock))}`}
                       >
                         <table.FlexRender cell={cell} />
                       </td>
@@ -308,6 +356,13 @@ export function ProductList({ filters, onFiltersChange }: Props) {
                     <span className="text-muted-foreground">
                       {product.code} · {product.category?.name} · {product.unit}
                     </span>
+                    {stock?.[product.id] && (
+                      <span className="text-sm tabular-nums">
+                        Gudang {formatNumber(stock[product.id].warehouse_qty)} · Outlet{' '}
+                        {formatNumber(stock[product.id].outlet_qty)} ({formatNumber(stock[product.id].outlet_count)}{' '}
+                        outlet) · Sales {formatNumber(stock[product.id].sales_qty)}
+                      </span>
+                    )}
                     {!product.is_active && (
                       <StatusChip variant="neutral" icon={CirclePause} className="w-fit">
                         Nonaktif

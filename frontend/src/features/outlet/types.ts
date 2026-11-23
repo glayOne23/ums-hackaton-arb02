@@ -74,8 +74,17 @@ export interface OutletFilters {
   region_id?: string
   outlet_type_id?: string
   sale_mode?: SaleModeValue
+  /** A sales user id, or "none" = outlets with no sales yet */
+  sales_user_id?: string
   status?: OutletStatusFilter
   page?: number
+}
+
+/** OT-04: outlets per sales under the current filters (GET /outlets/sales-summary) */
+export interface OutletSalesSummary {
+  total: number
+  without_sales: number
+  sales: { id: number; name: string; is_active: boolean; outlet_count: number }[]
 }
 
 /** Labels match App\Modules\Outlet\Enums\SaleMode::label() */

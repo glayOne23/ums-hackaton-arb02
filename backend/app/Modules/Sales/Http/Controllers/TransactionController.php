@@ -5,6 +5,7 @@ namespace App\Modules\Sales\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Sales\Actions\RecordTransaction;
+use App\Modules\Sales\Enums\TransactionStatus;
 use App\Modules\Sales\Enums\TransactionType;
 use App\Modules\Sales\Http\Requests\RecordTransactionRequest;
 use App\Modules\Sales\Http\Resources\TransactionResource;
@@ -34,6 +35,8 @@ class TransactionController extends Controller
             'sales_user_id' => ['nullable', 'integer'],
             'outlet_id' => ['nullable', 'string'],
             'type' => ['nullable', Rule::enum(TransactionType::class)],
+            'status' => ['nullable', Rule::enum(TransactionStatus::class)],
+            'search' => ['nullable', 'string', 'max:100'],
             'needs_review' => ['nullable', 'boolean'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
@@ -54,6 +57,13 @@ class TransactionController extends Controller
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('transacted_at', '<=', now()->parse($to)->endOfDay()))
             ->when($filters['outlet_id'] ?? null, fn ($q, $outletId) => $q->where('outlet_id', $outletId))
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))
+            ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
+            // Receipt number or outlet name/code
+            ->when(trim((string) ($filters['search'] ?? '')), fn ($q, $search) => $q->where(fn ($match) => $match
+                ->where('number', 'like', "%{$search}%")
+                ->orWhereHas('outlet', fn ($outlet) => $outlet
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%"))))
             ->when($request->boolean('needs_review'), fn ($q) => $q->where('needs_review', true)->where('status', 'active'));
 
         return TransactionResource::collection($query->paginate($filters['per_page'] ?? 25));

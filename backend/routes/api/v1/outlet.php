@@ -33,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('outlets')->group(function () {
         Route::get('similar', [OutletController::class, 'similar'])->middleware('can:outlet.manage');
         Route::get('assignees', [OutletAssignmentController::class, 'assignees'])->middleware('can:outlet.manage');
+        // OT-04: outlets per sales and outlets without sales, for the list filter
+        Route::get('sales-summary', [OutletController::class, 'salesSummary'])->middleware('can:outlet.view_all');
 
         Route::get('/', [OutletController::class, 'index'])->middleware('can:outlet.view');
         Route::post('/', [OutletController::class, 'store'])->middleware('can:outlet.manage');

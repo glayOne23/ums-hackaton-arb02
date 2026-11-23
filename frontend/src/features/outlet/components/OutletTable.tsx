@@ -1,6 +1,6 @@
 import { createColumnHelper, tableFeatures, useTable } from '@tanstack/react-table'
 import { Link } from '@tanstack/react-router'
-import { ChevronRight, CirclePause, Eye, Pencil } from 'lucide-react'
+import { ChevronRight, CirclePause, Eye, Pencil, UserX } from 'lucide-react'
 import { ROW_ACTION, RowActionLabel, RowActions, RowActionsHeader } from '@/components/common/RowActions'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,15 @@ const helper = createColumnHelper<typeof features, Outlet>()
 
 /** Columns hidden below 1024 px (tablet shows the important ones only, UI guide §5) */
 const DESKTOP_ONLY = new Set(['code', 'outlet_type', 'sales'])
+
+/** An outlet nobody visits yet stands out in the list (OT-04) */
+function NoSalesChip() {
+  return (
+    <StatusChip variant="warning" icon={UserX}>
+      Belum ada sales
+    </StatusChip>
+  )
+}
 
 const columns = helper.columns([
   helper.accessor('code', {
@@ -57,7 +66,7 @@ const columns = helper.columns([
   helper.accessor((row) => row.sales?.map((s) => s.name).join(', ') ?? '', {
     id: 'sales',
     header: 'Sales',
-    cell: (info) => info.getValue() || <span className="text-muted-foreground">Belum ada</span>,
+    cell: (info) => info.getValue() || <NoSalesChip />,
   }),
   helper.display({
     id: 'actions',
@@ -170,9 +179,9 @@ export function OutletCards({ outlets }: { outlets: Outlet[] }) {
               <span className="text-muted-foreground">
                 {outlet.outlet_type?.name} · {outlet.region?.name} · {outlet.district}
               </span>
-              <span className="text-muted-foreground">
+              <span className="flex flex-wrap items-center gap-x-1 gap-y-1.5 text-muted-foreground">
                 {outlet.sale_mode.label} ·{' '}
-                {outlet.sales?.length ? outlet.sales.map((s) => s.name).join(', ') : 'Belum ada sales'}
+                {outlet.sales?.length ? outlet.sales.map((s) => s.name).join(', ') : <NoSalesChip />}
               </span>
             </span>
             {/* "This opens": every tappable card ends with a chevron (UI guide §7.3) */}

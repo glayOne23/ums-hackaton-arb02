@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 final class SaveProduct
 {
     private const LABELS = [
-        'code' => 'Kode', 'name' => 'Nama', 'category_id' => 'Kategori', 'bpom_number' => 'No. BPOM',
+        'code' => 'Kode', 'name' => 'Nama', 'description' => 'Deskripsi', 'category_id' => 'Kategori', 'bpom_number' => 'No. BPOM',
         'unit' => 'Satuan', 'selling_price' => 'Harga jual', 'min_stock_qty' => 'Batas stok gudang',
         'is_active' => 'Aktif', 'aliases' => 'Nama lain',
     ];

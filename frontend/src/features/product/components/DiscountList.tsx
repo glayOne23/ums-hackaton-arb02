@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Ban, Check, CircleCheck, CircleX, Hourglass, type LucideIcon, Percent, Plus, ReceiptText } from 'lucide-react'
+import { Ban, Check, CircleCheck, CircleX, Hourglass, type LucideIcon, Percent, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -14,8 +14,8 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Textarea } from '@/components/ui/textarea'
 import { formatDiscountPercent, formatTableDate } from '@/lib/format'
 import { usePermission } from '@/stores/session'
-import { useDiscountAction, useDiscounts } from '../api'
-import type { Discount, DiscountStatusFilter, DiscountStatusValue } from '../types'
+import { useDiscountAction, useDiscounts, useOutletOptions, useOutletTypeOptions, useProducts } from '../api'
+import type { Discount, DiscountFilters, DiscountStatusFilter, DiscountStatusValue } from '../types'
 
 /** UI guide §2.4: fixed status → look mapping */
 const STATUS_LOOK: Record<
@@ -42,16 +42,22 @@ const FILTERS: { value: DiscountStatusFilter; label: string }[] = [
  * the manager approves or rejects pending ones (BR-05).
  */
 export function DiscountList({
-  status,
-  onStatusChange,
+  filters,
+  onFiltersChange,
 }: {
-  status: DiscountStatusFilter
-  onStatusChange: (status: DiscountStatusFilter) => void
+  filters: DiscountFilters
+  onFiltersChange: (filters: DiscountFilters) => void
 }) {
   const canManage = usePermission('product.manage')
-  const discounts = useDiscounts(status)
+  const status = filters.status ?? 'current'
+  const discounts = useDiscounts(filters)
+  const outlets = useOutletOptions(true)
+  const products = useProducts({ per_page: 500, status: 'all' })
+  const outletTypes = useOutletTypeOptions()
   const paged = usePagedItems(discounts.data)
   const pendingCount = discounts.data?.filter((d) => d.status.value === 'pending').length ?? 0
+  const set = (patch: Partial<DiscountFilters>) => onFiltersChange({ ...filters, ...patch })
+  const narrowed = Boolean(filters.outlet_id || filters.product_id || filters.outlet_type_id)
 
   return (
     <section className="flex flex-col gap-5 pb-24 sm:pb-0">
@@ -60,32 +66,27 @@ export function DiscountList({
         title="Potongan"
         description="Yang paling khusus berlaku: outlet + produk, outlet, jenis outlet + produk, produk, lalu jenis outlet."
         actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link to="/office/price-list">
-                <ReceiptText aria-hidden />
-                Daftar harga
+          canManage && (
+            <Button asChild className="hidden sm:inline-flex">
+              <Link to="/office/discounts/new">
+                <Plus aria-hidden />
+                Tambah potongan
               </Link>
             </Button>
-            {canManage && (
-              <Button asChild className="hidden sm:inline-flex">
-                <Link to="/office/discounts/new">
-                  <Plus aria-hidden />
-                  Tambah potongan
-                </Link>
-              </Button>
-            )}
-          </>
+          )
         }
       />
 
-      <FilterBar>
-        <div className="flex w-full flex-col gap-1.5 sm:max-w-xs">
+      <FilterBar className="lg:items-end">
+        <div className="flex w-full flex-col gap-1.5 lg:w-56">
           <Label htmlFor="discount-status">Tampilkan</Label>
           <NativeSelect
             id="discount-status"
             value={status}
-            onChange={(event) => onStatusChange(event.target.value as DiscountStatusFilter)}
+            onChange={(event) => {
+              const next = event.target.value as DiscountStatusFilter
+              set({ status: next === 'current' ? undefined : next })
+            }}
           >
             {FILTERS.map((filter) => (
               <option key={filter.value} value={filter.value}>
@@ -94,7 +95,64 @@ export function DiscountList({
             ))}
           </NativeSelect>
         </div>
+        <div className="flex w-full flex-col gap-1.5 lg:w-64">
+          <Label htmlFor="discount-outlet">Outlet</Label>
+          <NativeSelect
+            id="discount-outlet"
+            value={filters.outlet_id ?? ''}
+            onChange={(event) => set({ outlet_id: event.target.value || undefined })}
+          >
+            <option value="">Semua outlet</option>
+            {outlets.data?.map((outlet) => (
+              <option key={outlet.id} value={outlet.id}>
+                {outlet.name} · {outlet.district}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="flex w-full flex-col gap-1.5 lg:w-64">
+          <Label htmlFor="discount-product">Produk</Label>
+          <NativeSelect
+            id="discount-product"
+            value={filters.product_id ?? ''}
+            onChange={(event) => set({ product_id: event.target.value || undefined })}
+          >
+            <option value="">Semua produk</option>
+            {products.data?.data.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name} ({product.code})
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="flex w-full flex-col gap-1.5 lg:w-52">
+          <Label htmlFor="discount-type">Jenis outlet</Label>
+          <NativeSelect
+            id="discount-type"
+            value={filters.outlet_type_id ?? ''}
+            onChange={(event) => set({ outlet_type_id: event.target.value || undefined })}
+          >
+            <option value="">Semua jenis</option>
+            {outletTypes.data?.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+        {(narrowed || filters.status) && (
+          <Button variant="ghost" onClick={() => onFiltersChange({})}>
+            <X aria-hidden />
+            Hapus filter
+          </Button>
+        )}
       </FilterBar>
+
+      {narrowed && (
+        <p className="text-sm text-muted-foreground">
+          Menampilkan potongan yang dibuat khusus untuk pilihan di atas. Harga akhir per outlet ada di menu Daftar harga.
+        </p>
+      )}
 
       {pendingCount > 0 && status === 'current' && (
         <p role="status" className="flex items-center gap-2 rounded-md bg-info-soft px-4 py-3 text-info-text">

@@ -8,6 +8,7 @@ import {
   type LucideIcon,
   Package,
   Percent,
+  ReceiptText,
   Settings,
   Store,
   Users,
@@ -26,6 +27,7 @@ export interface NavItem {
     | '/office/billing'
     | '/office/products'
     | '/office/discounts'
+    | '/office/price-list'
     | '/office/inventory'
     | '/office/settings'
     | '/office/imports'
@@ -107,6 +109,13 @@ const ITEMS: NavItem[] = [
     group: 'stock',
     permissions: ['product.view'],
     badges: ['discounts.pending'],
+  },
+  {
+    to: '/office/price-list',
+    label: t('nav.items.priceList'),
+    icon: ReceiptText,
+    group: 'stock',
+    permissions: ['product.view'],
   },
   {
     to: '/office/inventory',

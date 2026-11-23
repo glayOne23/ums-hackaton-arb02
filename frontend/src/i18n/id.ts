@@ -30,6 +30,7 @@ export const id = {
       billing: 'Tagihan',
       products: 'Produk',
       discounts: 'Potongan',
+      priceList: 'Daftar harga',
       inventory: 'Gudang',
       corrections: 'Koreksi',
       imports: 'Impor Excel',

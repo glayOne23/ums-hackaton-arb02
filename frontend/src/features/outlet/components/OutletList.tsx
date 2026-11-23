@@ -11,6 +11,7 @@ import { useOutlets } from '../api'
 import type { OutletFilters } from '../types'
 import { DeletedOutletList } from './DeletedOutletList'
 import { OutletFilterBar } from './OutletFilterBar'
+import { OutletSalesSummary } from './OutletSalesSummary'
 import { OutletCards, OutletTable } from './OutletTable'
 import { ProposalReview } from './ProposalReview'
 
@@ -24,9 +25,15 @@ interface Props {
 /** W3 — outlet list for the office: search, filter, table (cards on phones), pages. */
 export function OutletList({ filters, onFiltersChange }: Props) {
   const canManage = usePermission('outlet.manage')
+  const canViewAll = usePermission('outlet.view_all')
   const outlets = useOutlets({ ...filters, per_page: PER_PAGE })
   const hasFilters = Boolean(
-    filters.search || filters.region_id || filters.outlet_type_id || filters.sale_mode || filters.status,
+    filters.search ||
+      filters.region_id ||
+      filters.outlet_type_id ||
+      filters.sale_mode ||
+      filters.sales_user_id ||
+      filters.status,
   )
   const meta = outlets.data?.meta
 
@@ -54,6 +61,8 @@ export function OutletList({ filters, onFiltersChange }: Props) {
       <ProposalReview />
 
       <OutletFilterBar filters={filters} onChange={onFiltersChange} />
+
+      {canViewAll && <OutletSalesSummary filters={filters} onChange={onFiltersChange} />}
 
       {outlets.isPending ? (
         <ListSkeleton />

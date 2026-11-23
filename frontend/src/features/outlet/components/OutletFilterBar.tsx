@@ -1,5 +1,6 @@
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { SalesSelect } from '@/components/common/SalesSelect'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,6 +18,8 @@ interface Props {
 /** Search + filters above the outlet table. Every change goes back to page 1. */
 export function OutletFilterBar({ filters, onChange }: Props) {
   const canManage = usePermission('outlet.manage')
+  // Sales only see their own outlets, so the sales filter is for the office
+  const canViewAll = usePermission('outlet.view_all')
   const regions = useRegions()
   const outletTypes = useOutletTypes()
   const [search, setSearch] = useState(filters.search ?? '')
@@ -39,13 +42,17 @@ export function OutletFilterBar({ filters, onChange }: Props) {
 
   // Phones: the four filters fold away behind one button so the list starts on the first screen
   const [showFilters, setShowFilters] = useState(false)
-  const activeCount = [filters.region_id, filters.outlet_type_id, filters.sale_mode, filters.status].filter(
-    Boolean,
-  ).length
+  const activeCount = [
+    filters.region_id,
+    filters.outlet_type_id,
+    filters.sale_mode,
+    filters.sales_user_id,
+    filters.status,
+  ].filter(Boolean).length
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-      <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-3 xl:col-span-1">
         <Label htmlFor="outlet-search">Cari</Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -128,6 +135,18 @@ export function OutletFilterBar({ filters, onChange }: Props) {
             ))}
           </NativeSelect>
         </div>
+
+        {canViewAll && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="filter-sales">Sales</Label>
+            <SalesSelect
+              id="filter-sales"
+              withNone
+              value={filters.sales_user_id ?? ''}
+              onChange={(sales) => set({ sales_user_id: sales || undefined })}
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="filter-status">Status</Label>

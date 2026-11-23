@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { CircleAlert, ClipboardList } from 'lucide-react'
-import { useState } from 'react'
+import { CircleAlert, ClipboardList, Search, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { SalesSelect } from '@/components/common/SalesSelect'
+import { NativeSelect } from '@/components/ui/native-select'
 import { ErrorState } from '@/components/common/ErrorState'
 import { EmptyState, FilterBar, PageHeader } from '@/components/common/PageHeader'
 import { Pagination } from '@/components/common/Pagination'
@@ -13,13 +15,58 @@ import { Label } from '@/components/ui/label'
 import { formatCurrency, formatTableDate, formatTime } from '@/lib/format'
 import { useTransactions } from '../api'
 
+/** Labels match App\Modules\Sales\Enums\TransactionType / TransactionStatus */
+const TYPES = [
+  { value: 'consignment_visit', label: 'Kunjungan titip jual' },
+  { value: 'direct_sale', label: 'Beli langsung' },
+]
+const STATUSES = [
+  { value: 'active', label: 'Berlaku' },
+  { value: 'corrected', label: 'Sudah dikoreksi' },
+  { value: 'void', label: 'Dibatalkan' },
+]
+
 /** Office: every visit and direct sale, newest first; "Perlu dicek" shows offline conflicts (KR-11). */
 export function VisitList() {
   const [page, setPage] = useState(1)
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [needsReview, setNeedsReview] = useState(false)
-  const list = useTransactions({ page, from, to, needs_review: needsReview })
+  const [salesUserId, setSalesUserId] = useState('')
+  const [type, setType] = useState('')
+  const [status, setStatus] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+  const list = useTransactions({
+    page,
+    from,
+    to,
+    needs_review: needsReview,
+    sales_user_id: salesUserId,
+    type,
+    status,
+    search,
+  })
+
+  // Ask the server once typing pauses
+  useEffect(() => {
+    if (searchInput.trim() === search) return
+    const timer = setTimeout(() => (setSearch(searchInput.trim()), setPage(1)), 300)
+    return () => clearTimeout(timer)
+  }, [searchInput, search])
+
+  const hasFilters = Boolean(from || to || needsReview || salesUserId || type || status || search)
+  const clearFilters = () => {
+    setFrom('')
+    setTo('')
+    setNeedsReview(false)
+    setSalesUserId('')
+    setType('')
+    setStatus('')
+    setSearchInput('')
+    setSearch('')
+    setPage(1)
+  }
 
   return (
     <section className="flex flex-col gap-5 pb-8">
@@ -30,6 +77,49 @@ export function VisitList() {
       />
 
       <FilterBar className="lg:items-end">
+        <div className="flex flex-col gap-1 lg:w-64">
+          <Label htmlFor="visit-search">Cari</Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="visit-search"
+              type="search"
+              className="pl-9"
+              placeholder="Nama outlet atau no. nota"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 lg:w-52">
+          <Label htmlFor="visit-sales">Sales</Label>
+          <SalesSelect id="visit-sales" value={salesUserId} onChange={(v) => (setSalesUserId(v), setPage(1))} />
+        </div>
+        <div className="flex flex-col gap-1 lg:w-52">
+          <Label htmlFor="visit-type">Jenis</Label>
+          <NativeSelect id="visit-type" value={type} onChange={(e) => (setType(e.target.value), setPage(1))}>
+            <option value="">Semua jenis</option>
+            {TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="flex flex-col gap-1 lg:w-44">
+          <Label htmlFor="visit-status">Status nota</Label>
+          <NativeSelect id="visit-status" value={status} onChange={(e) => (setStatus(e.target.value), setPage(1))}>
+            <option value="">Semua status</option>
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </NativeSelect>
+        </div>
         <div className="flex flex-col gap-1">
           <Label htmlFor="visit-from">Dari tanggal</Label>
           <Input id="visit-from" type="date" value={from} onChange={(e) => (setFrom(e.target.value), setPage(1))} />
@@ -46,6 +136,12 @@ export function VisitList() {
           <CircleAlert aria-hidden />
           Perlu dicek saja
         </Button>
+        {hasFilters && (
+          <Button variant="ghost" onClick={clearFilters}>
+            <X aria-hidden />
+            Hapus filter
+          </Button>
+        )}
       </FilterBar>
 
       {list.isPending ? (

@@ -72,6 +72,11 @@ export interface TransactionFilters {
   to?: string
   needs_review?: boolean
   type?: string
+  /** Office filters */
+  sales_user_id?: string
+  status?: string
+  /** Receipt number or outlet name/code */
+  search?: string
 }
 
 export function useTransactions(filters: TransactionFilters) {
@@ -79,7 +84,16 @@ export function useTransactions(filters: TransactionFilters) {
     queryKey: salesKeys.transactions(filters),
     queryFn: ({ signal }) =>
       api<Paginated<Transaction>>(
-        `/sales/transactions${toQueryString({ page: filters.page, from: filters.from, to: filters.to, type: filters.type, needs_review: filters.needs_review ? 1 : undefined })}`,
+        `/sales/transactions${toQueryString({
+          page: filters.page,
+          from: filters.from,
+          to: filters.to,
+          type: filters.type,
+          sales_user_id: filters.sales_user_id,
+          status: filters.status,
+          search: filters.search,
+          needs_review: filters.needs_review ? 1 : undefined,
+        })}`,
         { signal },
       ),
     placeholderData: keepPreviousData,
