@@ -34,6 +34,7 @@ import {
 import type { TrashItem } from '../types'
 import { PendingCorrectionCard } from './PendingCorrectionCard'
 import { PendingVoidCard } from './PendingVoidCard'
+import { NavBadge } from '@/components/layout/OfficeNav'
 
 /**
  * W13: everything that needs fixing or can be brought back — notas marked
@@ -68,6 +69,7 @@ export function CorrectionCenter({ tab }: { tab: CorrectionTab }) {
                   }
                 >
                   {t.label}
+                  {t.badge && <NavBadge keys={[t.badge]} className="ml-2" />}
                 </Link>
               </li>
             ))}

@@ -1,10 +1,22 @@
 import { Link } from '@tanstack/react-router'
+import { NavBadge } from '@/components/layout/OfficeNav'
+import type { BadgeKey } from '@/features/badges/api'
 import { useSession } from '@/stores/session'
 
-const TABS = [
+const TABS: {
+  to: '/office/billing' | '/office/billing/remittances'
+  label: string
+  permission: string
+  badge?: BadgeKey
+}[] = [
   { to: '/office/billing', label: 'Belum dibayar', permission: 'invoice.view' },
-  { to: '/office/billing/remittances', label: 'Setoran sales', permission: 'invoice.view' },
-] as const
+  {
+    to: '/office/billing/remittances',
+    label: 'Setoran sales',
+    permission: 'invoice.view',
+    badge: 'billing.remittances',
+  },
+]
 
 /** Sub-menu of the billing pages (W6). */
 export function BillingTabs() {
@@ -24,6 +36,7 @@ export function BillingTabs() {
               activeProps={{ className: 'choice-on' }}
             >
               {tab.label}
+              {tab.badge && <NavBadge keys={[tab.badge]} className="ml-2" />}
             </Link>
           </li>
         ))}

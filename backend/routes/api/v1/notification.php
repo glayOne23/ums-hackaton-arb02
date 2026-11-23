@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Http\Controllers\BadgeController;
 use App\Core\Http\Controllers\HelpController;
 use App\Core\Http\Controllers\NotificationController;
 use App\Core\Http\Controllers\PushSubscriptionController;
@@ -17,3 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 /* UX-09: the admin's WhatsApp for the "Bantuan" button */
 Route::middleware('auth:sanctum')->get('help', HelpController::class);
+
+/* Number badges on the menu and tabs: what waits for the signed-in person */
+Route::middleware('auth:sanctum')->get('badges', BadgeController::class);

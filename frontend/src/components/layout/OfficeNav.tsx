@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Ellipsis } from 'lucide-react'
+import { CountBadge } from '@/components/common/CountBadge'
+import { type BadgeKey, useBadgeCount } from '@/features/badges/api'
 import { HelpButton } from '@/features/help/components/HelpSheet'
 import { useNavGroups, useNavItems } from './nav-items'
 
@@ -19,7 +21,7 @@ export function OfficeSideNav() {
               {group.label}
             </h2>
             <ul className="flex flex-col gap-0.5">
-              {group.items.map(({ to, label, icon: Icon, exact }) => (
+              {group.items.map(({ to, label, icon: Icon, exact, badges }) => (
                 <li key={to}>
                   <Link
                     to={to}
@@ -28,7 +30,8 @@ export function OfficeSideNav() {
                     activeProps={{ className: SIDE_LINK_ACTIVE }}
                   >
                     <Icon className="size-5 text-slate-500 group-data-[status=active]:text-leaf-700" aria-hidden />
-                    {label}
+                    <span className="flex-1">{label}</span>
+                    <NavBadge keys={badges} />
                   </Link>
                 </li>
               ))}
@@ -42,6 +45,11 @@ export function OfficeSideNav() {
       </div>
     </nav>
   )
+}
+
+/** Waiting work on a menu item (features/badges). */
+export function NavBadge({ keys, className }: { keys?: BadgeKey[]; className?: string }) {
+  return <CountBadge count={useBadgeCount(keys)} className={className} />
 }
 
 const SIDE_LINK =
@@ -65,6 +73,8 @@ export function OfficeBottomNav() {
   // "Lainnya" also holds Bantuan (UX-09), so it shows once a fourth slot is needed
   const overflow = all.length >= BOTTOM_LIMIT
   const items = overflow ? all.slice(0, BOTTOM_LIMIT - 1) : all
+  // "Lainnya" carries the waiting work of everything under it
+  const hiddenKeys = overflow ? all.slice(BOTTOM_LIMIT - 1).flatMap((item) => item.badges ?? []) : []
   const linkClass = 'group flex h-16 flex-col items-center justify-center gap-0.5 text-sm text-muted-foreground'
   const activeClass = 'font-semibold text-leaf-800'
 
@@ -74,7 +84,7 @@ export function OfficeBottomNav() {
       className="sticky bottom-0 z-10 border-t border-border bg-card shadow-[0_-1px_3px_rgb(20_40_24/0.08)] lg:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-xl">
-        {items.map(({ to, label, icon: Icon, exact }) => (
+        {items.map(({ to, label, icon: Icon, exact, badges }) => (
           <li key={to} className="flex-1">
             <Link
               to={to}
@@ -82,8 +92,9 @@ export function OfficeBottomNav() {
               className={linkClass}
               activeProps={{ className: activeClass }}
             >
-              <span className="grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
+              <span className="relative grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
                 <Icon className="size-6" aria-hidden />
+                <NavBadge keys={badges} className="absolute -top-1 right-1" />
               </span>
               {label}
             </Link>
@@ -92,8 +103,9 @@ export function OfficeBottomNav() {
         {overflow ? (
           <li className="flex-1">
             <Link to="/office/menu" className={linkClass} activeProps={{ className: activeClass }}>
-              <span className="grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
+              <span className="relative grid h-8 w-14 place-items-center rounded-full transition-colors group-data-[status=active]:bg-tile-brand">
                 <Ellipsis className="size-6" aria-hidden />
+                <NavBadge keys={hiddenKeys} className="absolute -top-1 right-1" />
               </span>
               Lainnya
             </Link>
