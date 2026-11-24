@@ -6,7 +6,7 @@
 #   app  PHP-FPM 8.5 with the Laravel API (also runs the queue worker and the scheduler)
 #   web  Caddy: serves the PWA and passes /api to app, with automatic HTTPS
 
-# ---------- PHP base: the extensions SIGAP needs (same list as backend/docker/dev.Dockerfile) ----------
+# ---------- PHP base: the extensions SIGAP needs (same list as backend/docker/dev.Dockerfile; OPcache is built into PHP 8.5) ----------
 FROM php:8.5-fpm AS php-base
 
 # default-mysql-client: mysqldump for the daily backup (NF-06, spatie/laravel-backup)
@@ -15,7 +15,7 @@ RUN apt-get update \
         unzip libzip-dev libicu-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
         default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" pdo_mysql zip intl gd bcmath pcntl exif opcache \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql zip intl gd bcmath pcntl exif \
     && rm -rf /var/lib/apt/lists/*
 
 COPY infra/docker/php.ini /usr/local/etc/php/conf.d/zz-sigap.ini

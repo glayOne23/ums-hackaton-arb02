@@ -70,6 +70,9 @@ services:
       MYSQL_USER: ${DB_USERNAME:-sigap}
       MYSQL_PASSWORD: ${DB_PASSWORD:?Isi DB_PASSWORD di infra/docker/.env}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Isi DB_ROOT_PASSWORD di infra/docker/.env}
+    # Only on the server itself, never public: reach it with an SSH tunnel (Navicat, DBeaver)
+    ports:
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql:/var/lib/mysql
     healthcheck:
