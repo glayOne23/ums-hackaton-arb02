@@ -16,6 +16,10 @@ db.sqlite3
 # Data mitra asli jangan di-commit
 data-mitra/
 
+# Hasil demo (video, rekaman) tidak di-commit. File yang sudah dilacak
+# (NASKAH_DEMO.md dan CSV untuk npm run test:demo) tetap ikut repo.
+docs/demo/
+
 # Backend Laravel
 backend/vendor/
 backend/.env
