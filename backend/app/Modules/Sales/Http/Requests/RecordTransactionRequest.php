@@ -31,7 +31,8 @@ class RecordTransactionRequest extends FormRequest
             'type' => ['required', Rule::enum(TransactionType::class)],
             'outlet_id' => ['required', 'string', Rule::exists('crm_outlets', 'id')],
             'transacted_at' => ['required', 'date', 'after:-30 days'],
-            'items' => [$direct ? 'required' : 'present', 'array', 'max:300'],
+            // A direct-sale outlet may be visited only to collect what it owes (payment, no items)
+            'items' => ['present', 'array', 'max:300'],
             'items.*.product_id' => ['required', 'string', 'distinct', Rule::exists('prd_products', 'id')],
             'items.*.opening_qty' => ['nullable', 'integer', 'min:0'],
             'items.*.remaining_qty' => [$direct ? 'nullable' : 'required', 'integer', 'min:0'],
@@ -58,8 +59,9 @@ class RecordTransactionRequest extends FormRequest
                 return;
             }
             $total = collect((array) $this->input('items', []))->sum(fn ($item) => (int) ($item['sold_qty'] ?? 0));
-            if ($total < 1) {
-                $validator->errors()->add('items', 'Isi jumlah minimal satu produk yang dibeli.');
+            $collecting = (float) ($this->input('payment.amount') ?? 0) > 0;
+            if ($total < 1 && ! $collecting) {
+                $validator->errors()->add('items', 'Isi jumlah minimal satu produk yang dibeli, atau catat pembayaran tagihan.');
             }
         }];
     }

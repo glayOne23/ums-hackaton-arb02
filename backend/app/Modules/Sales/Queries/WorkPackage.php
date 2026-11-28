@@ -76,6 +76,7 @@ final class WorkPackage
         $months = $this->stock->expiryMonths([...$outletLocations->values()->all(), (string) $salesLocation->id]);
         $checks = $this->expiryChecks($outletLocations, $months, $cutoff);
         $unpaid = $this->balances->unpaidByOutlet($outletIds);
+        $openInvoices = $this->balances->openInvoicesByOutlet($outletIds);
 
         $lastVisits = Transaction::query()
             ->whereIn('outlet_id', $outletIds)
@@ -121,7 +122,7 @@ final class WorkPackage
                 ...$row,
                 'expiry' => $months[(string) $salesLocation->id][$productId] ?? [],
             ])->values(),
-            'outlets' => $outlets->map(function (Outlet $outlet) use ($stockByOutlet, $carried, $products, $candidates, $unpaid, $lastVisits, $targets, $outletLocations, $months, $checks) {
+            'outlets' => $outlets->map(function (Outlet $outlet) use ($stockByOutlet, $carried, $products, $candidates, $unpaid, $lastVisits, $targets, $outletLocations, $months, $checks, $openInvoices) {
                 $stock = $stockByOutlet[$outlet->id] ?? [];
                 $shelf = $months[$outletLocations[$outlet->id] ?? ''] ?? [];
                 $priced = array_unique([...array_keys($stock), ...array_keys($carried)]);
@@ -139,6 +140,8 @@ final class WorkPackage
                     'visit_cycle_days' => $outlet->visit_cycle_days ?? Setting::int('visit_cycle_days'),
                     'last_visit_at' => isset($lastVisits[$outlet->id]) ? now()->parse($lastVisits[$outlet->id])->toIso8601String() : null,
                     'unpaid' => ($unpaid[$outlet->id] ?? 0) / 100,
+                    // What is owed, nota by nota: collected on any visit, also with nothing sold
+                    'invoices' => $openInvoices[$outlet->id] ?? [],
                     'stock' => collect($stock)->map(fn (array $row, string $productId) => [
                         'product_id' => $productId,
                         ...$row,

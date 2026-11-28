@@ -22,6 +22,7 @@ import { expiryLabel, isNear, otherMonths, shelfRows } from '@/lib/expiry'
 import type { ReceiptLine } from '../offline/db'
 import { buildReceipt } from '../receipt'
 import type { PackageOutlet, WorkPackage } from '../types'
+import { OpenInvoices } from './OpenInvoices'
 import { type Payment, PaymentSheet } from './PaymentSheet'
 
 /**
@@ -50,6 +51,8 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
   const [inputs, setInputs] = useState<Record<string, LineInput>>({})
   const [showOthers, setShowOthers] = useState(shelf.length === 0)
   const [sheetOpen, setSheetOpen] = useState(false)
+  // "Tidak ada yang laku" through the sheet: saved with no inputs, the bill is only the old one
+  const [quick, setQuick] = useState(false)
   const [savingQuick, setSavingQuick] = useState(false)
 
   const shelfResults = shelf.map((line) => computeLine(line, inputs[line.productId]))
@@ -101,11 +104,16 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
     await navigate({ to: '/field/receipt/$clientUuid', params: { clientUuid: receipt.client_uuid }, replace: true })
   }
 
-  // KS-03: three taps from the outlet list (doc 05 §3)
+  const openSheet = (nothing: boolean) => {
+    setQuick(nothing)
+    setSheetOpen(true)
+  }
+
+  // KS-03: three taps from the outlet list (doc 05 §3). With an old bill
+  // the sheet opens, so the sales records what the outlet pays now.
   const nothingSold = async () => {
-    if (pkg.settings.form_photo_required) {
-      setInputs({})
-      setSheetOpen(true)
+    if (pkg.settings.form_photo_required || outlet.unpaid > 0) {
+      openSheet(true)
       return
     }
     setSavingQuick(true)
@@ -120,12 +128,14 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
     <section className="flex flex-col gap-4 pb-40">
       <VisitHeader outlet={outlet} />
 
+      <OpenInvoices outlet={outlet} onCollect={() => openSheet(true)} />
+
       {outlet.expiry_check && shelf.some((line) => line.checkExpiry) && (
         <p role="note" className="flex items-start gap-2 rounded-md bg-info-soft px-4 py-3 text-info-text">
           <CalendarCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
           <span>
-            <strong>Cek ED kunjungan ini</strong> ({outlet.expiry_check.label}). Hitung sisa di rak per ED
-            untuk produk bertanda <strong>Cek ED</strong>; ubah hanya yang berbeda.
+            <strong>Cek ED kunjungan ini</strong> ({outlet.expiry_check.label}). Hitung sisa di rak per ED untuk produk
+            bertanda <strong>Cek ED</strong>; ubah hanya yang berbeda.
           </span>
         </p>
       )}
@@ -200,7 +210,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
           <span>Laku {sold}</span>
           <span className="font-semibold tabular-nums">{formatCurrency(total)}</span>
         </p>
-        <Button size="cta" disabled={invalid} onClick={() => setSheetOpen(true)}>
+        <Button size="cta" disabled={invalid} onClick={() => openSheet(false)}>
           {invalid ? 'Perbaiki angka yang merah' : 'Lanjut'}
         </Button>
       </div>
@@ -208,11 +218,12 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
       <PaymentSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        total={total}
+        total={quick ? 0 : total}
         previousUnpaid={outlet.unpaid}
-        hint={sold > 0 ? hint : null}
+        hint={!quick && sold > 0 ? hint : null}
         photoRequired={pkg.settings.form_photo_required}
-        onSave={(payment) => save(payment)}
+        collecting={quick && outlet.unpaid > 0 ? 'visit' : undefined}
+        onSave={(payment) => (quick ? save(payment, emptyInputs) : save(payment))}
       />
     </section>
   )
@@ -252,7 +263,12 @@ function ShelfLine({
       </div>
 
       {line.checkExpiry ? (
-        <ExpiryCount line={line} result={result} counted={input.byExpiry} onChange={(byExpiry) => onChange({ byExpiry })} />
+        <ExpiryCount
+          line={line}
+          result={result}
+          counted={input.byExpiry}
+          onChange={(byExpiry) => onChange({ byExpiry })}
+        />
       ) : (
         <StepperRow label="Sisa di rak" hint={`dari ${line.opening}`}>
           <NumberStepper
@@ -312,7 +328,8 @@ function ShelfLine({
           >
             {carriedMonths.map((m) => (
               <option key={m.month} value={m.month}>
-                {expiryLabel(m.month)} (bawa {m.qty}){line.cutoffMonth && isNear(m.month, line.cutoffMonth) ? ' · dekat ED' : ''}
+                {expiryLabel(m.month)} (bawa {m.qty})
+                {line.cutoffMonth && isNear(m.month, line.cutoffMonth) ? ' · dekat ED' : ''}
               </option>
             ))}
           </NativeSelect>

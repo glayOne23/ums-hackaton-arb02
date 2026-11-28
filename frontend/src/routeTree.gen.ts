@@ -34,6 +34,7 @@ import { Route as OfficeDiscountsIndexRouteImport } from './routes/office/discou
 import { Route as OfficeDiscountsNewRouteImport } from './routes/office/discounts/new'
 import { Route as OfficeInventoryIndexRouteImport } from './routes/office/inventory/index'
 import { Route as OfficeInventoryCountRouteImport } from './routes/office/inventory/count'
+import { Route as OfficeInventoryMovementsRouteImport } from './routes/office/inventory/movements'
 import { Route as OfficeInventoryRequestsRouteImport } from './routes/office/inventory/requests'
 import { Route as OfficeOutletsIndexRouteImport } from './routes/office/outlets/index'
 import { Route as OfficeOutletsNewRouteImport } from './routes/office/outlets/new'
@@ -182,6 +183,12 @@ const OfficeInventoryCountRoute = OfficeInventoryCountRouteImport.update({
   path: '/inventory/count',
   getParentRoute: () => OfficeRouteRoute,
 } as any)
+const OfficeInventoryMovementsRoute =
+  OfficeInventoryMovementsRouteImport.update({
+    id: '/inventory/movements',
+    path: '/inventory/movements',
+    getParentRoute: () => OfficeRouteRoute,
+  } as any)
 const OfficeInventoryRequestsRoute = OfficeInventoryRequestsRouteImport.update({
   id: '/inventory/requests',
   path: '/inventory/requests',
@@ -322,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/office/billing/remittances': typeof OfficeBillingRemittancesRoute
   '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/inventory/count': typeof OfficeInventoryCountRoute
+  '/office/inventory/movements': typeof OfficeInventoryMovementsRoute
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
@@ -368,6 +376,7 @@ export interface FileRoutesByTo {
   '/office/billing/remittances': typeof OfficeBillingRemittancesRoute
   '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/inventory/count': typeof OfficeInventoryCountRoute
+  '/office/inventory/movements': typeof OfficeInventoryMovementsRoute
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
@@ -417,6 +426,7 @@ export interface FileRoutesById {
   '/office/billing/remittances': typeof OfficeBillingRemittancesRoute
   '/office/discounts/new': typeof OfficeDiscountsNewRoute
   '/office/inventory/count': typeof OfficeInventoryCountRoute
+  '/office/inventory/movements': typeof OfficeInventoryMovementsRoute
   '/office/inventory/requests': typeof OfficeInventoryRequestsRoute
   '/office/outlets/new': typeof OfficeOutletsNewRoute
   '/office/products/new': typeof OfficeProductsNewRoute
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/office/billing/remittances'
     | '/office/discounts/new'
     | '/office/inventory/count'
+    | '/office/inventory/movements'
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/office/billing/remittances'
     | '/office/discounts/new'
     | '/office/inventory/count'
+    | '/office/inventory/movements'
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
@@ -561,6 +573,7 @@ export interface FileRouteTypes {
     | '/office/billing/remittances'
     | '/office/discounts/new'
     | '/office/inventory/count'
+    | '/office/inventory/movements'
     | '/office/inventory/requests'
     | '/office/outlets/new'
     | '/office/products/new'
@@ -771,6 +784,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfficeInventoryCountRouteImport
       parentRoute: typeof OfficeRouteRoute
     }
+    '/office/inventory/movements': {
+      id: '/office/inventory/movements'
+      path: '/inventory/movements'
+      fullPath: '/office/inventory/movements'
+      preLoaderRoute: typeof OfficeInventoryMovementsRouteImport
+      parentRoute: typeof OfficeRouteRoute
+    }
     '/office/inventory/requests': {
       id: '/office/inventory/requests'
       path: '/inventory/requests'
@@ -959,6 +979,7 @@ interface OfficeRouteRouteChildren {
   OfficeBillingRemittancesRoute: typeof OfficeBillingRemittancesRoute
   OfficeDiscountsNewRoute: typeof OfficeDiscountsNewRoute
   OfficeInventoryCountRoute: typeof OfficeInventoryCountRoute
+  OfficeInventoryMovementsRoute: typeof OfficeInventoryMovementsRoute
   OfficeInventoryRequestsRoute: typeof OfficeInventoryRequestsRoute
   OfficeOutletsNewRoute: typeof OfficeOutletsNewRoute
   OfficeProductsNewRoute: typeof OfficeProductsNewRoute
@@ -995,6 +1016,7 @@ const OfficeRouteRouteChildren: OfficeRouteRouteChildren = {
   OfficeBillingRemittancesRoute: OfficeBillingRemittancesRoute,
   OfficeDiscountsNewRoute: OfficeDiscountsNewRoute,
   OfficeInventoryCountRoute: OfficeInventoryCountRoute,
+  OfficeInventoryMovementsRoute: OfficeInventoryMovementsRoute,
   OfficeInventoryRequestsRoute: OfficeInventoryRequestsRoute,
   OfficeOutletsNewRoute: OfficeOutletsNewRoute,
   OfficeProductsNewRoute: OfficeProductsNewRoute,

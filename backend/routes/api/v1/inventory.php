@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
     Route::get('stock', [StockController::class, 'warehouse'])->middleware('can:inventory.view');
     Route::get('stock-card', [StockController::class, 'card'])->middleware('can:inventory.view');
+    // Stock in and out of the warehouse, an outlet, or a bag (permission checked in the controller)
+    Route::get('movements', [StockController::class, 'movements']);
+    Route::get('movement-options', [StockController::class, 'movementOptions']);
     Route::get('sales-stock', [StockController::class, 'sales']);
     Route::get('sales-users', [StockController::class, 'salesUsers'])->middleware('can:inventory.manage');
     // Doc 11: a sales counts their bag per ED (visit.create checked in the controller)

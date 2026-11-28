@@ -80,7 +80,14 @@ async function reportQueue(userId: number): Promise<void> {
 async function sendTransaction(receipt: Receipt): Promise<Receipt | 'failed' | 'stop'> {
   try {
     const { data } = await api<{ data: Transaction }>('/sales/transactions', { method: 'POST', body: receipt.input })
-    const changes = { status: 'sent' as const, transaction: data, error: null, sent_at: new Date().toISOString() }
+    // The server's clock, like the work package's generated_at: a package made in the
+    // same second already holds this visit, so it must not be applied twice
+    const changes = {
+      status: 'sent' as const,
+      transaction: data,
+      error: null,
+      sent_at: data.created_at,
+    }
     await salesDb.receipts.update(receipt.client_uuid, changes)
     return { ...receipt, ...changes }
   } catch (error) {

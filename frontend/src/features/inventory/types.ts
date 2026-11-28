@@ -183,3 +183,57 @@ export const RETURN_CONDITIONS: { value: ReturnConditionValue; label: string; hi
   { value: 'damaged', label: 'Rusak', hint: 'Ke retur untuk rework' },
   { value: 'expired', label: 'Kedaluwarsa', hint: 'Dimusnahkan' },
 ]
+
+/** Where stock in/out is looked at (GET /inventory/movements) */
+export type MovementPlace = 'warehouse' | 'outlet' | 'sales'
+export type MovementDocumentKind =
+  'visit' | 'stock_request' | 'goods_receipt' | 'return' | 'adjustment' | 'expiry_check'
+
+export interface MovementFilters {
+  place: MovementPlace
+  outlet_id?: string
+  sales_user_id?: number
+  product_id?: string
+  type?: string
+  from?: string
+  to?: string
+  page?: number
+}
+
+export interface MovementRow {
+  id: string
+  at: string
+  type: { value: string; label: string }
+  basis: { value: 'fefo' | 'confirmed'; label: string }
+  product: { id: string; name: string; unit: string }
+  batch_number: string
+  expiry_date: string
+  in: number
+  out: number
+  counterpart: string | null
+  document: { kind: MovementDocumentKind | null; id: string; number: string | null } | null
+  note: string | null
+  by: string | null
+}
+
+export interface LocationMovements {
+  place: { type: MovementPlace; name: string }
+  from: string
+  to: string
+  summary: { product: { id: string; code: string; name: string; unit: string }; in: number; out: number; now: number }[]
+  totals: { in: number; out: number }
+  rows: MovementRow[]
+  meta: {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+    from: number | null
+    to: number | null
+  }
+}
+
+export interface MovementOptions {
+  outlets: { id: string; code: string; name: string }[]
+  sales: UserOption[]
+}

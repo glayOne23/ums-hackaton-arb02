@@ -30,6 +30,17 @@ export interface OutletPrice {
   price: number
 }
 
+/** One nota the outlet still owes on, oldest first in the work package */
+export interface OpenInvoice {
+  number: string
+  invoice_date: string
+  due_date: string
+  owed: number
+  overdue: boolean
+  /** Made on this phone, not sent yet */
+  pending?: boolean
+}
+
 export interface PackageOutlet {
   id: string
   code: string
@@ -43,6 +54,8 @@ export interface PackageOutlet {
   visit_cycle_days: number
   last_visit_at: string | null
   unpaid: number
+  /** What is owed, nota by nota; shown on the visit screen also with nothing sold */
+  invoices?: OpenInvoice[]
   stock: ProductStock[]
   /** Optional stok standar per product (OT-07); missing = none */
   stock_targets?: Record<string, number>

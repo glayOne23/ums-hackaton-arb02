@@ -83,12 +83,28 @@ function StockTab({ outletId, data }: { outletId: string; data: OutletOverview }
     return (value === '' ? null : Number(value)) !== current
   })
 
+  const movements = (
+    <Link
+      to="/office/inventory/movements"
+      search={{ place: 'outlet', outlet_id: outletId }}
+      className="w-fit font-medium text-leaf-700 underline-offset-2 hover:underline"
+    >
+      Lihat keluar-masuk stok outlet ini
+    </Link>
+  )
+
   if (data.stock.length === 0) {
-    return <p className="text-muted-foreground">Belum ada barang titipan di outlet ini.</p>
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-muted-foreground">Belum ada barang titipan di outlet ini.</p>
+        {movements}
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col gap-3">
+      {movements}
       <ul className="flex flex-col divide-y divide-border">
         {data.stock.map((row) => {
           const inputId = `target-${row.product.id}`

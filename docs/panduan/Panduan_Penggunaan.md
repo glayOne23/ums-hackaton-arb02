@@ -71,6 +71,16 @@ Pakai saringan **Perlu dikunjungi** atau **Belum bayar** untuk mempersempit daft
 
 Tidak ada yang laku? Tekan **Tidak ada yang laku**. Kunjungan langsung tersimpan.
 
+### Menagih tagihan lama (juga saat tidak ada yang laku)
+
+Bila outlet masih punya tagihan, kotak kuning **Tagihan belum lunas** muncul paling atas saat outlet dibuka. Isinya total yang belum dibayar dan daftar notanya (tanggal, jatuh tempo, sisa, dan tanda **Lewat jatuh tempo**).
+
+1. Tekan **Catat pembayaran tagihan**, atau **Tidak ada yang laku** di outlet titip jual.
+2. Pilih **Tunai** atau **Transfer**, lalu **Dibayar semua** atau **Sebagian** (isi jumlahnya). Di outlet titip jual masih ada pilihan **Belum bayar** bila hanya mencatat kunjungan.
+3. Nota tersimpan. Uang yang dibayar melunasi nota paling lama lebih dulu, dan masuk ke uang yang Anda bawa hari ini.
+
+Di outlet **Beli langsung** atau **Tempo**, bila tidak ada barang yang dibeli, tombol bawah berubah menjadi **Tidak beli, catat pembayaran tagihan**. Stok bawaan tidak berubah.
+
 Angka merah berarti tidak masuk akal, misalnya sisa lebih banyak dari titipan. Perbaiki dulu angkanya; pesannya menjelaskan caranya.
 
 ### Penjualan langsung dan tempo
@@ -180,6 +190,18 @@ Menu **Gudang** punya tab **Stok**, **Permintaan sales**, **Barang masuk**, **Re
 ### Stok dan kartu stok
 
 **Stok** menampilkan stok per produk, dengan peringatan ED dekat dan stok di bawah minimum. Ketuk produk untuk melihat batch-nya, lalu **Lihat kartu stok** untuk riwayat keluar-masuk per batch.
+
+### Keluar-masuk stok
+
+Menu **Gudang → Keluar-masuk** menampilkan barang masuk dan keluar per tempat:
+
+- **Gudang**: barang masuk, keluar ke sales, retur, musnah, dan opname.
+- **Rak outlet**: isi ulang, laku, dan tarik di satu outlet.
+- **Bawaan sales**: barang dari gudang, isi ulang ke outlet, laku, dan retur seorang sales.
+
+Pilih tempat (lalu outlet atau sales), dan bila perlu produk, jenis kejadian, serta rentang tanggal (bawaan: bulan ini). Bagian atas berisi **ringkasan per produk** (masuk, keluar, stok kini). Di bawahnya ada rincian per kejadian, lengkap dengan batch, ED, asal atau tujuan, petugas, dan tautan ke nota atau dokumennya. Tekan **Cetak** untuk mencetak.
+
+Admin kantor membuka menu ini dari profil outlet (tab **Stok titipan → Lihat keluar-masuk stok outlet ini**).
 
 ---
 

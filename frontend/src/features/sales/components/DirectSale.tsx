@@ -12,6 +12,7 @@ import { lineTotal, sumMoney } from '../calc'
 import { buildReceipt } from '../receipt'
 import type { PackageOutlet, WorkPackage } from '../types'
 import { NotAssigned, VisitHeader } from './ConsignmentVisit'
+import { OpenInvoices } from './OpenInvoices'
 import { type Payment, PaymentSheet } from './PaymentSheet'
 
 /** M5 — Beli langsung / tempo (KS-07): the outlet buys from what the sales carries. */
@@ -34,6 +35,8 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
   const [qty, setQty] = useState<Record<string, number>>({})
   const [search, setSearch] = useState('')
   const [sheetOpen, setSheetOpen] = useState(false)
+  // Visited only to collect the old bill: nothing bought, nothing leaves the bag
+  const [collectOnly, setCollectOnly] = useState(false)
   const query = useDeferredValue(search.trim().toLowerCase())
 
   const names = new Map(pkg.products.map((p) => [p.id, p.name]))
@@ -49,13 +52,19 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
   const credit = outlet.sale_mode.value === 'credit'
   const [dueDate] = useState(() => new Date(Date.now() + pkg.settings.credit_term_days * 86_400_000))
 
+  const openSheet = (collect: boolean) => {
+    setCollectOnly(collect)
+    setSheetOpen(true)
+  }
+
   const save = async (payment: Payment) => {
+    const bought = collectOnly ? [] : chosen
     const receipt = buildReceipt({
       userId,
       outlet,
       type: 'direct_sale',
-      items: chosen.map((c) => ({ product_id: c.product_id, sold_qty: qty[c.product_id] })),
-      lines: chosen.map((c) => ({
+      items: bought.map((c) => ({ product_id: c.product_id, sold_qty: qty[c.product_id] })),
+      lines: bought.map((c) => ({
         productId: c.product_id,
         name: c.name,
         sold: qty[c.product_id],
@@ -80,6 +89,8 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
         outlet={outlet}
         extra={credit ? `Tempo ${pkg.settings.credit_term_days} hari` : outlet.sale_mode.label}
       />
+
+      <OpenInvoices outlet={outlet} onCollect={() => openSheet(true)} />
 
       {carried.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card shadow-card px-4 py-10 text-center">
@@ -140,20 +151,29 @@ function SaleForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet }) 
           <span>Total setelah potongan</span>
           <span className="font-semibold tabular-nums">{formatCurrency(total)}</span>
         </p>
-        <Button size="cta" disabled={chosen.length === 0 || tooMany} onClick={() => setSheetOpen(true)}>
-          {tooMany ? 'Perbaiki angka yang merah' : chosen.length === 0 ? 'Pilih jumlah barang' : 'Lanjut'}
-        </Button>
+        {chosen.length === 0 && outlet.unpaid > 0 ? (
+          <Button size="cta" onClick={() => openSheet(true)}>
+            Tidak beli, catat pembayaran tagihan
+          </Button>
+        ) : (
+          <Button size="cta" disabled={chosen.length === 0 || tooMany} onClick={() => openSheet(false)}>
+            {tooMany ? 'Perbaiki angka yang merah' : chosen.length === 0 ? 'Pilih jumlah barang' : 'Lanjut'}
+          </Button>
+        )}
       </div>
 
       <PaymentSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        total={total}
+        total={collectOnly ? 0 : total}
         previousUnpaid={outlet.unpaid}
+        collecting={collectOnly ? 'collect' : undefined}
         hint={
-          credit
-            ? { collectNow: false, text: `Tempo: jatuh tempo ${formatDate(dueDate)} bila belum dibayar.` }
-            : { collectNow: true, text: 'Beli langsung: sebaiknya dibayar sekarang.' }
+          collectOnly
+            ? null
+            : credit
+              ? { collectNow: false, text: `Tempo: jatuh tempo ${formatDate(dueDate)} bila belum dibayar.` }
+              : { collectNow: true, text: 'Beli langsung: sebaiknya dibayar sekarang.' }
         }
         photoRequired={pkg.settings.form_photo_required}
         onSave={save}

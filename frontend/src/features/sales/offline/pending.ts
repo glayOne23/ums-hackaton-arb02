@@ -1,3 +1,4 @@
+import { settleInvoices } from '../invoices'
 import type { WorkPackage } from '../types'
 import type { Receipt } from './db'
 
@@ -51,6 +52,7 @@ export function applyPending(pkg: WorkPackage, receipts: Receipt[]): WorkPackage
       outlet.stock = outlet.stock.filter((s) => s.qty > 0)
       outlet.last_visit_at = receipt.input.transacted_at
       outlet.unpaid = Math.max(0, Math.round((outlet.unpaid + receipt.total - receipt.paid) * 100) / 100)
+      outlet.invoices = settleInvoices(outlet.invoices ?? [], receipt.total, receipt.paid, receipt.input.transacted_at)
     }
     if (isToday(receipt.input.transacted_at)) {
       if (!next.today.visited_outlet_ids.includes(receipt.input.outlet_id)) {

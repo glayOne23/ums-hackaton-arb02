@@ -6,6 +6,9 @@ import { useSession } from '@/stores/session'
 import { toQueryString } from '@/lib/api/query'
 import type {
   GoodsReceipt,
+  LocationMovements,
+  MovementFilters,
+  MovementOptions,
   Paginated,
   ProductRef,
   ReturnConditionValue,
@@ -31,6 +34,25 @@ export const inventoryKeys = {
   returns: (page: number) => [...ROOT, 'returns', page] as const,
   adjustments: [...ROOT, 'adjustments'] as const,
   today: (batchIds: string[]) => [...ROOT, 'today', batchIds] as const,
+  movements: (filters: MovementFilters) => [...ROOT, 'movements', filters] as const,
+}
+
+/** Stock in and out of the warehouse, an outlet, or a bag over a period. */
+export function useLocationMovements(filters: MovementFilters, enabled = true) {
+  return useQuery({
+    queryKey: inventoryKeys.movements(filters),
+    queryFn: ({ signal }) => api<LocationMovements>(`/inventory/movements${toQueryString({ ...filters })}`, { signal }),
+    placeholderData: keepPreviousData,
+    enabled,
+  })
+}
+
+export function useMovementOptions() {
+  return useQuery({
+    queryKey: [...ROOT, 'movement-options'],
+    queryFn: ({ signal }) => api<MovementOptions>('/inventory/movement-options', { signal }),
+    staleTime: 5 * 60_000,
+  })
 }
 
 function useInvalidateInventory() {

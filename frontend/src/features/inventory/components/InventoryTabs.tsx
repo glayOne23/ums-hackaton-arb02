@@ -10,8 +10,10 @@ type InventoryPath =
   | '/office/inventory/requests'
   | '/office/inventory/returns'
   | '/office/inventory/count'
+  | '/office/inventory/movements'
 
-const TABS: { to: InventoryPath; label: string; permission: string; badge?: BadgeKey }[] = [
+/** A list of permissions: any one of them shows the tab */
+const TABS: { to: InventoryPath; label: string; permission: string | string[]; badge?: BadgeKey }[] = [
   { to: '/office/inventory', label: 'Stok', permission: 'inventory.view' },
   {
     to: '/office/inventory/requests',
@@ -22,12 +24,17 @@ const TABS: { to: InventoryPath; label: string; permission: string; badge?: Badg
   { to: '/office/inventory/receipts', label: 'Barang masuk', permission: 'inventory.view' },
   { to: '/office/inventory/returns', label: 'Retur', permission: 'inventory.view' },
   { to: '/office/inventory/count', label: 'Opname', permission: 'inventory.view', badge: 'inventory.count' },
+  {
+    to: '/office/inventory/movements',
+    label: 'Keluar-masuk',
+    permission: ['inventory.view', 'stock_request.view', 'outlet.view_all'],
+  },
 ]
 
 /** Sub-menu of the warehouse pages; scrolls sideways inside itself on phones, never the page. */
 export function InventoryTabs() {
   const permissions = useSession((s) => s.user?.permissions ?? [])
-  const tabs = TABS.filter((tab) => permissions.includes(tab.permission))
+  const tabs = TABS.filter((tab) => [tab.permission].flat().some((p) => permissions.includes(p)))
 
   if (tabs.length < 2) return <OutboxNotice />
 

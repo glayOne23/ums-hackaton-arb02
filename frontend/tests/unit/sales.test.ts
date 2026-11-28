@@ -166,6 +166,8 @@ describe('applyPending (NF-01: visits saved offline show at once)', () => {
     expect(applyPending(pkg, [receipt('sent', { sent_at: '2026-11-20T18:30:00Z' })])).not.toBe(pkg)
     // 17:30Z = 00:30 +07:00: before the package → already in it
     expect(applyPending(pkg, [receipt('sent', { sent_at: '2026-11-20T17:30:00Z' })])).toBe(pkg)
+    // Stored by the server in the same second the package was made → already in it, not counted twice
+    expect(applyPending(pkg, [receipt('sent', { sent_at: '2026-11-21T01:00:00+07:00' })])).toBe(pkg)
   })
 
   it('puts the company from Settings at the top of the WhatsApp nota (PG-09)', () => {

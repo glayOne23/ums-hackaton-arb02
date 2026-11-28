@@ -26,6 +26,12 @@ interface Props {
   hint: { text: string; collectNow: boolean } | null
   photoRequired: boolean
   onSave: (payment: Payment) => Promise<void>
+  /**
+   * Nothing sold this visit, only the old bill: "collect" when the visit
+   * has nothing else to save (beli langsung, so "Belum bayar" is hidden),
+   * "visit" when a titip jual visit with nothing sold is still saved.
+   */
+  collecting?: 'collect' | 'visit'
 }
 
 /**
@@ -33,7 +39,16 @@ interface Props {
  * "Sebagian…", or "Belum bayar". The amount settles earlier unpaid notas
  * first (oldest first), as the server does.
  */
-export function PaymentSheet({ open, onOpenChange, total, previousUnpaid, hint, photoRequired, onSave }: Props) {
+export function PaymentSheet({
+  open,
+  onOpenChange,
+  total,
+  previousUnpaid,
+  hint,
+  photoRequired,
+  onSave,
+  collecting,
+}: Props) {
   const owed = sumMoney([total, previousUnpaid])
   const [method, setMethod] = useState<PaymentMethodValue>('cash')
   const [partial, setPartial] = useState(false)
@@ -71,8 +86,12 @@ export function PaymentSheet({ open, onOpenChange, total, previousUnpaid, hint, 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
-        <SheetTitle>Bayar & simpan</SheetTitle>
-        <SheetDescription className="sr-only">Pilih pembayaran untuk menyimpan kunjungan.</SheetDescription>
+        <SheetTitle>{collecting ? 'Catat pembayaran tagihan' : 'Bayar & simpan'}</SheetTitle>
+        <SheetDescription className={collecting ? 'text-base' : 'sr-only'}>
+          {collecting
+            ? 'Tidak ada barang laku di kunjungan ini. Catat uang tagihan lama yang dibayar outlet.'
+            : 'Pilih pembayaran untuk menyimpan kunjungan.'}
+        </SheetDescription>
 
         <dl className="flex flex-col gap-1 text-lg">
           <div className="flex justify-between gap-3">
@@ -195,14 +214,20 @@ export function PaymentSheet({ open, onOpenChange, total, previousUnpaid, hint, 
               {saving && <LoaderCircle className="size-5 animate-spin" aria-hidden />}
               Dibayar semua
             </Button>
-            <div className="grid grid-cols-2 gap-2">
+            {collecting === 'collect' ? (
               <Button variant="outline" size="lg" disabled={blocked} onClick={() => setPartial(true)}>
                 Sebagian…
               </Button>
-              <Button variant="outline" size="lg" disabled={blocked} onClick={() => void save(0)}>
-                Belum bayar
-              </Button>
-            </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="lg" disabled={blocked} onClick={() => setPartial(true)}>
+                  Sebagian…
+                </Button>
+                <Button variant="outline" size="lg" disabled={blocked} onClick={() => void save(0)}>
+                  Belum bayar
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </SheetContent>
