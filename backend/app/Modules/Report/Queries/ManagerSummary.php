@@ -75,8 +75,24 @@ final class ManagerSummary
                 'below_minimum' => $belowMinimum,
                 'overdue_outlets' => $unpaid['overdue_outlets'],
                 'unvisited_outlets' => count($unvisited),
+                // Doc 11: how often the ED counts matched the ledger this month
+                'expiry_accuracy' => $this->expiryAccuracy($filters),
             ],
         ];
+    }
+
+    /** @return array{checks: int, matched: int, percent: float|null} */
+    private function expiryAccuracy(ReportFilters $filters): array
+    {
+        $row = DB::table('inv_expiry_checks')
+            ->whereBetween('checked_at', [$filters->from(), $filters->to()])
+            ->when($filters->salesUserId, fn ($q, int $id) => $q->where('checked_by', $id))
+            ->selectRaw('COUNT(*) as checks, SUM(CASE WHEN is_match THEN 1 ELSE 0 END) as matched')
+            ->first();
+        $checks = (int) ($row->checks ?? 0);
+        $matched = (int) ($row->matched ?? 0);
+
+        return ['checks' => $checks, 'matched' => $matched, 'percent' => $checks > 0 ? round($matched / $checks * 100, 1) : null];
     }
 
     /** @return array{outlets: int, amount: float, overdue_outlets: int} */

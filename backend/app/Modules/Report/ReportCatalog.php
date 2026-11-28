@@ -5,6 +5,7 @@ namespace App\Modules\Report;
 use App\Models\User;
 use App\Modules\Report\Reports\DailyStock;
 use App\Modules\Report\Reports\Expiry;
+use App\Modules\Report\Reports\ExpiryAccuracy;
 use App\Modules\Report\Reports\OutletDeposits;
 use App\Modules\Report\Reports\OutletStock;
 use App\Modules\Report\Reports\ProductSales;
@@ -37,6 +38,7 @@ final class ReportCatalog
         UnvisitedOutlets::class,
         DailyStock::class,
         Expiry::class,
+        ExpiryAccuracy::class,
     ];
 
     /** @return list<Report> */

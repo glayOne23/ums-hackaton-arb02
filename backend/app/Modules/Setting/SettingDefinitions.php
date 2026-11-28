@@ -57,6 +57,22 @@ final class SettingDefinitions
             'label' => 'Tandai untuk ditarik bila ED kurang dari',
             'help' => 'Juga batas peringatan ED di stok gudang.',
         ],
+        // Doc 11: when the visit asks the sales to count the shelf per ED
+        'expiry_check_multiple' => [
+            'section' => 'expiry', 'type' => 'bool', 'default' => true,
+            'label' => 'Minta cek ED bila satu produk punya lebih dari satu ED di outlet',
+            'help' => 'Sales menghitung sisa di rak per ED untuk produk itu saja, juga untuk produk yang ED-nya dekat.',
+        ],
+        'expiry_check_every_visits' => [
+            'section' => 'expiry', 'type' => 'int', 'default' => 4, 'min' => 0, 'max' => 52, 'suffix' => 'kunjungan',
+            'label' => 'Cek ED semua produk outlet setiap',
+            'help' => '0 = tidak ada cek berkala.',
+        ],
+        'expiry_check_min_accuracy' => [
+            'section' => 'expiry', 'type' => 'int', 'default' => 80, 'min' => 0, 'max' => 100, 'suffix' => '%',
+            'label' => 'Cek ED setiap kunjungan bila akurasi outlet di bawah',
+            'help' => 'Dari 5 cek ED terakhir di outlet itu. 0 = mati.',
+        ],
         'visit_cycle_days' => [
             'section' => 'visit', 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 365, 'suffix' => 'hari',
             'label' => 'Outlet perlu dikunjungi setiap',

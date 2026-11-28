@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $issued_qty
  * @property list<array{batch_id: string, qty: int}>|null $allocations
  */
-#[Fillable(['product_id', 'requested_qty', 'issued_qty', 'allocations'])]
+#[Fillable(['product_id', 'requested_qty', 'issued_qty', 'allocations', 'allocations_confirmed'])]
 class StockRequestItem extends Model
 {
     use HasUlids;
@@ -24,7 +24,7 @@ class StockRequestItem extends Model
 
     protected function casts(): array
     {
-        return ['requested_qty' => 'integer', 'issued_qty' => 'integer', 'allocations' => 'array'];
+        return ['requested_qty' => 'integer', 'issued_qty' => 'integer', 'allocations' => 'array', 'allocations_confirmed' => 'boolean'];
     }
 
     /** @return BelongsTo<StockRequest, $this> */

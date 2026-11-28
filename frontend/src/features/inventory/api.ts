@@ -38,10 +38,11 @@ function useInvalidateInventory() {
   return () => queryClient.invalidateQueries({ queryKey: ROOT })
 }
 
-export function useWarehouseStock() {
+export function useWarehouseStock(enabled = true) {
   return useQuery({
     queryKey: inventoryKeys.stock,
     queryFn: ({ signal }) => api<WarehouseStock>('/inventory/stock', { signal }),
+    enabled,
   })
 }
 
@@ -169,7 +170,15 @@ export function useSubmitStockRequest() {
 }
 
 type RequestAction =
-  | { id: string; action: 'prepare'; body: { note: string; items: { id: string; issued_qty: number }[] } }
+  | {
+      id: string
+      action: 'prepare'
+      body: {
+        note: string
+        // Doc 11: batches confirmed on the pick list; left out = nearest expiry
+        items: { id: string; issued_qty: number; allocations?: { batch_id: string; qty: number }[] }[]
+      }
+    }
   | { id: string; action: 'approve' }
   | { id: string; action: 'reject'; body: { note: string } }
   | { id: string; action: 'revert-status'; body: { reason: string } }
@@ -184,6 +193,32 @@ export function useStockRequestAction() {
       }).then((r) => r.data),
     networkMode: 'always',
     onSuccess: invalidate,
+  })
+}
+
+export interface ExpiryCheckResult {
+  id: string
+  number: string
+  is_match: boolean
+  corrected_qty: number
+}
+
+/** Doc 11: the sales counts their bag per ED (needs a signal); the batches follow the count. */
+export function useBagExpiryCheck() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: {
+      client_uuid: string
+      trigger: 'receipt' | 'manual'
+      stock_request_id?: string
+      items: { product_id: string; expiry: { month: string; qty: number }[] }[]
+    }) => api<{ data: ExpiryCheckResult }>('/inventory/expiry-checks', { method: 'POST', body }).then((r) => r.data),
+    networkMode: 'always',
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ROOT })
+      // The work package carries the bag per ED for the visit screen
+      void queryClient.invalidateQueries({ queryKey: ['offline', 'work-package'] })
+    },
   })
 }
 

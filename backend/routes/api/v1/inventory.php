@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Inventory\Http\Controllers\ExpiryCheckController;
 use App\Modules\Inventory\Http\Controllers\GoodsReceiptController;
 use App\Modules\Inventory\Http\Controllers\StockAdjustmentController;
 use App\Modules\Inventory\Http\Controllers\StockController;
@@ -16,6 +17,8 @@ Route::middleware('auth:sanctum')->prefix('inventory')->group(function () {
     Route::get('stock-card', [StockController::class, 'card'])->middleware('can:inventory.view');
     Route::get('sales-stock', [StockController::class, 'sales']);
     Route::get('sales-users', [StockController::class, 'salesUsers'])->middleware('can:inventory.manage');
+    // Doc 11: a sales counts their bag per ED (visit.create checked in the controller)
+    Route::post('expiry-checks', [ExpiryCheckController::class, 'store']);
 
     Route::get('goods-receipts', [GoodsReceiptController::class, 'index'])->middleware('can:inventory.view');
     Route::post('goods-receipts', [GoodsReceiptController::class, 'store'])->middleware('can:inventory.manage');

@@ -89,7 +89,7 @@ final class RevertStockRequestStatus
 
     private function unprepare(StockRequest $request): void
     {
-        $request->items->each(fn (StockRequestItem $item) => $item->forceFill(['issued_qty' => null, 'allocations' => null])->save());
+        $request->items->each(fn (StockRequestItem $item) => $item->forceFill(['issued_qty' => null, 'allocations' => null, 'allocations_confirmed' => false])->save());
         $request->forceFill(['prepared_by' => null, 'prepared_at' => null]);
     }
 }

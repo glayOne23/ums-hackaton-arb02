@@ -15,6 +15,8 @@ enum MovementType: string
     case Adjustment = 'adjustment';
     /** Undoes an earlier movement (reverses_id) when its document is corrected or voided (KR-03, KR-04) */
     case Correction = 'correction';
+    /** Same place, same total, another batch: an ED check found other expiry months (doc 11) */
+    case BatchCorrection = 'batch_correction';
 
     public function label(): string
     {
@@ -28,6 +30,7 @@ enum MovementType: string
             self::Disposal => 'Musnah',
             self::Adjustment => 'Opname',
             self::Correction => 'Koreksi',
+            self::BatchCorrection => 'Koreksi ED',
         };
     }
 }

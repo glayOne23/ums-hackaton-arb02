@@ -1,6 +1,7 @@
 /** Shapes of the Sales API (backend: App\Modules\Sales). */
 
 import type { CorrectionSummary } from '@/features/correction/types'
+import type { ExpiryMonth } from '@/lib/expiry'
 
 export type SaleModeValue = 'consignment' | 'cash' | 'credit'
 export type TransactionTypeValue = 'consignment_visit' | 'direct_sale'
@@ -11,6 +12,15 @@ export interface ProductStock {
   qty: number
   near_expiry_qty: number
   nearest_expiry: string
+  /** Doc 11: the same pieces per expiry month, oldest first */
+  expiry?: ExpiryMonth[]
+}
+
+/** Doc 11: the visit asks for an ED count; product_ids null = every product on the shelf */
+export interface ExpiryCheckRequest {
+  trigger: string
+  label: string
+  product_ids: string[] | null
 }
 
 export interface OutletPrice {
@@ -37,6 +47,7 @@ export interface PackageOutlet {
   /** Optional stok standar per product (OT-07); missing = none */
   stock_targets?: Record<string, number>
   prices: Record<string, OutletPrice>
+  expiry_check?: ExpiryCheckRequest | null
 }
 
 export interface PackageSettings {
@@ -73,6 +84,10 @@ export interface TransactionItemInput {
   withdrawn_qty?: number
   refill_qty?: number
   sold_qty?: number
+  /** Doc 11: the shelf counted per expiry month */
+  remaining_by_expiry?: ExpiryMonth[]
+  /** Doc 11: the month the refill was taken from, when the sales chose it */
+  refill_expiry_month?: string
 }
 
 /** What the phone sends (POST /sales/transactions). */
@@ -83,6 +98,7 @@ export interface TransactionInput {
   transacted_at: string
   items: TransactionItemInput[]
   payment: { amount: number; method: PaymentMethodValue }
+  expiry_check?: { trigger: string }
 }
 
 export interface TransactionItem {

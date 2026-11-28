@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Actions;
 
 use App\Models\User;
 use App\Modules\Inventory\Enums\AdjustmentStatus;
+use App\Modules\Inventory\Enums\MovementBasis;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\StockAdjustment;
 use App\Modules\Inventory\Models\StockAdjustmentItem;
@@ -41,6 +42,8 @@ final class ApplyStockAdjustment
                     $actor,
                     $adjustment,
                     $adjustment->reason,
+                    // Counted per batch by the warehouse
+                    MovementBasis::Confirmed,
                 );
             }
 

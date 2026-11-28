@@ -67,11 +67,13 @@ final class PrepareStockRequest
                 $reduced = $reduced || $qty < $item->requested_qty;
                 $total += $qty;
 
-                $allocations = isset($line['allocations']) && $line['allocations'] !== []
+                // Batches sent by the pick list were checked by the admin (doc 11); otherwise nearest expiry
+                $confirmed = isset($line['allocations']) && $line['allocations'] !== [];
+                $allocations = $confirmed
                     ? $this->checkChosen($item, $line['allocations'], $qty, $warehouse->id, $index)
                     : $this->allocate->handle($item->product, $warehouse, $qty, "items.{$index}.issued_qty");
 
-                $item->forceFill(['issued_qty' => $qty, 'allocations' => $allocations])->save();
+                $item->forceFill(['issued_qty' => $qty, 'allocations' => $allocations, 'allocations_confirmed' => $confirmed])->save();
             }
 
             if ($total === 0) {

@@ -56,6 +56,8 @@ final class Expiry extends Report
             'location' => ['label' => 'Lokasi', 'type' => 'text'],
             'region' => ['label' => 'Kabupaten/kota', 'type' => 'text'],
             'qty' => ['label' => 'Jumlah (pcs)', 'type' => 'int', 'total' => true],
+            // Doc 11: when someone last counted this product per ED at this place (outlet or bag)
+            'checked_at' => ['label' => 'Terakhir dicek ED', 'type' => 'date'],
         ];
     }
 
@@ -91,11 +93,17 @@ final class Expiry extends Report
         ];
         $regions = ReportQueries::regionNames();
         $today = now()->startOfDay();
+        $checked = DB::table('inv_expiry_checks as c')
+            ->join('inv_expiry_check_items as ci', 'ci.expiry_check_id', '=', 'c.id')
+            ->groupBy('c.location_id', 'ci.product_id')
+            ->selectRaw('c.location_id, ci.product_id, MAX(c.checked_at) as last_at')
+            ->get()
+            ->mapWithKeys(fn ($row) => [$row->location_id.'|'.$row->product_id => substr((string) $row->last_at, 0, 10)]);
 
         return $query
             ->orderBy('b.expiry_date')
             ->orderBy('p.name')
-            ->get(['p.name as product', 'b.batch_number', 'b.expiry_date', 'l.type', 'l.name as location', 'o.name as outlet', 'o.region_id', 'sb.qty'])
+            ->get(['p.id as product_id', 'p.name as product', 'b.batch_number', 'b.expiry_date', 'l.id as location_id', 'l.type', 'l.name as location', 'o.name as outlet', 'o.region_id', 'sb.qty'])
             ->map(fn ($row) => [
                 'product' => $row->product,
                 'batch' => $row->batch_number,
@@ -105,6 +113,7 @@ final class Expiry extends Report
                 'location' => $row->outlet ?? $row->location,
                 'region' => $row->region_id ? ($regions[$row->region_id] ?? '') : '',
                 'qty' => (int) $row->qty,
+                'checked_at' => $checked[$row->location_id.'|'.$row->product_id] ?? null,
             ])
             ->values()
             ->all();

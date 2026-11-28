@@ -20,6 +20,10 @@ final readonly class SaleLine
         public ?int $remaining = null,
         public int $withdrawn = 0,
         public int $refill = 0,
+        /** Doc 11: the shelf counted per expiry month ("YYYY-MM" => pieces); null = no ED check */
+        public ?array $remainingByExpiry = null,
+        /** Doc 11: the expiry month the refill was taken from, when the sales chose one */
+        public ?string $refillMonth = null,
     ) {}
 
     public function isConsignment(): bool

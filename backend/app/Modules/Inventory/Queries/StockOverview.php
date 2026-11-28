@@ -67,6 +67,11 @@ final class StockOverview
                 'nearest_expiry' => $nearest?->toDateString(),
                 'below_minimum' => $product->min_stock_qty > 0 && $qty < $product->min_stock_qty,
                 'near_expiry_qty' => (int) $rows->filter(fn (StockBalance $b) => $b->batch->expiry_date->lte($warning))->sum('qty'),
+                // Doc 11: per expiry month, what sales see instead of batches
+                'expiry' => $rows
+                    ->groupBy(fn (StockBalance $b) => $b->batch->expiry_date->format('Y-m'))
+                    ->map(fn ($group, $month) => ['month' => (string) $month, 'qty' => (int) $group->sum('qty')])
+                    ->values(),
                 'batches' => $withBatches ? $rows->map(fn (StockBalance $b) => [
                     'id' => $b->batch->id,
                     'batch_number' => $b->batch->batch_number,
@@ -111,6 +116,8 @@ final class StockOverview
                     'id' => $m->id,
                     'at' => $m->created_at,
                     'type' => ['value' => $m->type->value, 'label' => $m->type->label()],
+                    // Doc 11: whether someone saw the batch, or it follows the nearest-expiry rule
+                    'basis' => ['value' => $m->basis->value, 'label' => $m->basis->label()],
                     'document' => $m->source?->getAttribute('number'),
                     'batch_number' => $m->batch->batch_number,
                     'expiry_date' => $m->batch->expiry_date->toDateString(),

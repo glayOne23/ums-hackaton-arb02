@@ -3,6 +3,7 @@
 namespace App\Modules\Sales\Http\Requests;
 
 use App\Modules\Billing\Enums\PaymentMethod;
+use App\Modules\Inventory\Enums\ExpiryCheckTrigger;
 use App\Modules\Sales\Enums\TransactionType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -37,6 +38,13 @@ class RecordTransactionRequest extends FormRequest
             'items.*.withdrawn_qty' => ['nullable', 'integer', 'min:0'],
             'items.*.refill_qty' => ['nullable', 'integer', 'min:0'],
             'items.*.sold_qty' => [$direct ? 'required' : 'nullable', 'integer', 'min:0'],
+            // Doc 11: shelf counted per expiry month, and the month the refill came from
+            'items.*.remaining_by_expiry' => ['nullable', 'array', 'max:24'],
+            'items.*.remaining_by_expiry.*.month' => ['required', 'string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
+            'items.*.remaining_by_expiry.*.qty' => ['required', 'integer', 'min:0'],
+            'items.*.refill_expiry_month' => ['nullable', 'string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
+            'expiry_check' => ['nullable', 'array'],
+            'expiry_check.trigger' => ['nullable', Rule::enum(ExpiryCheckTrigger::class)],
             'payment' => ['nullable', 'array'],
             'payment.amount' => ['nullable', 'numeric', 'min:0', 'max:9999999999999'],
             'payment.method' => ['nullable', Rule::enum(PaymentMethod::class)],

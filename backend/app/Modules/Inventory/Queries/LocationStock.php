@@ -44,6 +44,47 @@ final class LocationStock
     }
 
     /**
+     * Stock per expiry month (doc 11): what sales see instead of batches.
+     * Batches of the same month count together.
+     *
+     * @param  list<string>  $locationIds
+     * @return array<string, array<string, list<array{month: string, qty: int}>>> location_id => product_id => months, oldest first
+     */
+    public function expiryMonths(array $locationIds): array
+    {
+        if ($locationIds === []) {
+            return [];
+        }
+
+        $rows = StockBalance::query()
+            ->join('inv_batches', 'inv_batches.id', '=', 'inv_stock_balances.batch_id')
+            ->whereIn('inv_stock_balances.location_id', $locationIds)
+            ->where('inv_stock_balances.qty', '>', 0)
+            ->groupBy('inv_stock_balances.location_id', 'inv_batches.product_id', 'inv_batches.expiry_date')
+            ->orderBy('inv_batches.expiry_date')
+            ->select('inv_stock_balances.location_id', 'inv_batches.product_id', 'inv_batches.expiry_date')
+            ->selectRaw('SUM(inv_stock_balances.qty) as qty')
+            ->toBase()
+            ->get();
+
+        $months = [];
+        foreach ($rows as $row) {
+            $month = substr((string) $row->expiry_date, 0, 7);
+            $place = (string) $row->location_id;
+            $product = (string) $row->product_id;
+            $months[$place][$product][$month] = ($months[$place][$product][$month] ?? 0) + (int) $row->qty;
+        }
+
+        return array_map(
+            fn (array $products) => array_map(
+                fn (array $byMonth) => array_map(fn ($month, $qty) => ['month' => (string) $month, 'qty' => $qty], array_keys($byMonth), $byMonth),
+                $products,
+            ),
+            $months,
+        );
+    }
+
+    /**
      * Consignment stock at many outlets at once (sales work package).
      *
      * @param  list<string>  $outletIds

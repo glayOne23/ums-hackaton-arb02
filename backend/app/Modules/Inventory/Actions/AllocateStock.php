@@ -6,6 +6,7 @@ use App\Modules\Inventory\Models\StockBalance;
 use App\Modules\Inventory\Models\StockLocation;
 use App\Modules\Product\Models\Product;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -27,6 +28,7 @@ final class AllocateStock
         int $qty,
         string $errorKey = 'stock',
         ?CarbonInterface $avoidExpiringBy = null,
+        ?string $preferMonth = null,
     ): array {
         if ($qty <= 0) {
             return [];
@@ -37,6 +39,11 @@ final class AllocateStock
             ->where('inv_stock_balances.location_id', $location->id)
             ->where('inv_batches.product_id', $product->id)
             ->where('inv_stock_balances.qty', '>', 0)
+            // Doc 11: the expiry month the sales says they took first ("YYYY-MM")
+            ->when($preferMonth, fn ($query) => $query->orderByRaw(
+                'CASE WHEN inv_batches.expiry_date BETWEEN ? AND ? THEN 0 ELSE 1 END',
+                [$preferMonth.'-01', Carbon::createFromFormat('Y-m-d', $preferMonth.'-01')->endOfMonth()->toDateString()],
+            ))
             ->when($avoidExpiringBy, fn ($query) => $query->orderByRaw(
                 'CASE WHEN inv_batches.expiry_date <= ? THEN 1 ELSE 0 END',
                 [$avoidExpiringBy?->toDateString()],

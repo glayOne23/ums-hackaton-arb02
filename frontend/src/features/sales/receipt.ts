@@ -20,6 +20,8 @@ interface Draft {
   method: PaymentMethodValue
   photo: Blob | null
   settings: PackageSettings
+  /** Doc 11: why this visit counted the shelf per ED */
+  expiryCheck?: { trigger: string } | null
 }
 
 /** A visit or sale as saved on the phone, ready to send (KS-11). */
@@ -35,6 +37,7 @@ export function buildReceipt(draft: Draft, now: Date = new Date()): Receipt {
       transacted_at: now.toISOString(),
       items: draft.items,
       payment: { amount: draft.paid, method: draft.method },
+      ...(draft.expiryCheck ? { expiry_check: draft.expiryCheck } : {}),
     },
     outlet: {
       id: draft.outlet.id,

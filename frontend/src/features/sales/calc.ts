@@ -3,6 +3,7 @@
  * Shown live so the sales never counts by hand (UX-05); the server recounts
  * everything when the visit arrives. Pure functions, unit tested.
  */
+import { cutoffMonth, nearQty, suggestRefillMonth, total, type ExpiryMonth } from '@/lib/expiry'
 import type { PackageOutlet, PackageSettings, WorkPackage } from './types'
 
 export interface VisitLine {
@@ -20,6 +21,14 @@ export interface VisitLine {
   carried: number
   /** Optional stok standar of this outlet (OT-07): refill up to it instead of back to the consignment */
   target?: number | null
+  /** Doc 11: the shelf per expiry month as the ledger has it */
+  shelfExpiry?: ExpiryMonth[]
+  /** Doc 11: what the sales carries per expiry month */
+  carriedExpiry?: ExpiryMonth[]
+  /** Doc 11: this visit asks the sales to count this product per ED */
+  checkExpiry?: boolean
+  /** Doc 11: expiry months up to this one ("YYYY-MM") are near */
+  cutoffMonth?: string
 }
 
 /** What the sales changed on one line; anything left out follows the suggestion. */
@@ -27,6 +36,10 @@ export interface LineInput {
   remaining?: number
   withdrawn?: number
   refill?: number
+  /** Doc 11: the shelf counted per expiry month; its total is the remaining */
+  byExpiry?: Record<string, number>
+  /** Doc 11: the expiry month the refill is taken from */
+  refillMonth?: string
 }
 
 export interface LineResult {
@@ -43,12 +56,18 @@ export interface LineResult {
   /** Refill suggested by the rules (KS-05) */
   suggestedRefill: number
   suggestedWithdrawal: number
+  /** Doc 11: the expiry month the refill comes from (chosen, or the suggestion) */
+  refillMonth: string | null
 }
 
 /** Products on the shelf, and the others the sales carries (to start consigning them). */
 export function visitLines(outlet: PackageOutlet, pkg: WorkPackage): { shelf: VisitLine[]; others: VisitLine[] } {
   const names = new Map(pkg.products.map((p) => [p.id, p]))
   const carried = new Map(pkg.carried.map((c) => [c.product_id, c.qty]))
+  const carriedExpiry = new Map(pkg.carried.map((c) => [c.product_id, c.expiry ?? []]))
+  const shelfExpiry = new Map(outlet.stock.map((s) => [s.product_id, s.expiry ?? []]))
+  const check = outlet.expiry_check
+  const cutoff = cutoffMonth(pkg.today.date, pkg.settings.expiry_withdrawal_months)
   const line = (
     productId: string,
     opening: number,
@@ -65,6 +84,10 @@ export function visitLines(outlet: PackageOutlet, pkg: WorkPackage): { shelf: Vi
     discountPercent: outlet.prices[productId]?.discount_percent ?? 0,
     carried: carried.get(productId) ?? 0,
     target: outlet.stock_targets?.[productId] ?? null,
+    shelfExpiry: shelfExpiry.get(productId) ?? [],
+    carriedExpiry: carriedExpiry.get(productId) ?? [],
+    checkExpiry: opening > 0 && !!check && (check.product_ids === null || check.product_ids.includes(productId)),
+    cutoffMonth: cutoff,
   })
 
   const shelf = outlet.stock
@@ -86,10 +109,13 @@ export function visitLines(outlet: PackageOutlet, pkg: WorkPackage): { shelf: Vi
  * sales carries (KS-05); closing = remaining − withdrawn + refill.
  */
 export function computeLine(line: VisitLine, input: LineInput = {}): LineResult {
-  const typed = input.remaining ?? line.opening
+  // Doc 11: with an ED count, the shelf is the sum of the months counted
+  const counted = line.checkExpiry ? input.byExpiry : undefined
+  const typed = counted ? total(counted) : (input.remaining ?? line.opening)
   const remaining = Math.min(typed, line.opening)
   const sold = line.opening - remaining
-  const suggestedWithdrawal = Math.min(line.nearExpiryQty, remaining)
+  const near = counted && line.cutoffMonth ? nearQty(counted, line.cutoffMonth) : line.nearExpiryQty
+  const suggestedWithdrawal = Math.min(near, remaining)
   const withdrawn = Math.min(input.withdrawn ?? suggestedWithdrawal, remaining)
   const level = line.target ?? line.opening
   const suggestedRefill = Math.min(Math.max(0, level - (remaining - withdrawn)), line.carried)
@@ -106,6 +132,7 @@ export function computeLine(line: VisitLine, input: LineInput = {}): LineResult 
     refillTooHigh: refill > line.carried + withdrawn,
     suggestedRefill,
     suggestedWithdrawal,
+    refillMonth: input.refillMonth ?? suggestRefillMonth(line.carriedExpiry ?? [], line.cutoffMonth),
   }
 }
 

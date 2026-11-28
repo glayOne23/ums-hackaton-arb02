@@ -1,5 +1,5 @@
 import { format, subDays } from 'date-fns'
-import { ArrowLeft, Printer } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Printer } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
@@ -121,6 +121,12 @@ export function StockCardView({ productId }: { productId: string }) {
                 >
                   <td className="px-3 py-2 sm:px-4">
                     <span className="block font-medium">{row.type.label}</span>
+                    {row.basis.value === 'confirmed' && (
+                      <span className="inline-flex items-center gap-1 text-sm text-success-text">
+                        <BadgeCheck className="size-4" aria-hidden />
+                        Batch dipastikan
+                      </span>
+                    )}
                     <span className="block text-sm text-muted-foreground">
                       {formatTableDate(new Date(row.at))} {formatTime(new Date(row.at))}
                       {row.document && ` · ${row.document}`}

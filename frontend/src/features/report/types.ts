@@ -82,6 +82,8 @@ export interface ManagerSummary {
     below_minimum: { product: string; qty: number; minimum: number }[]
     overdue_outlets: number
     unvisited_outlets: number
+    /** Doc 11: ED counts this month that matched the ledger */
+    expiry_accuracy: { checks: number; matched: number; percent: number | null }
   }
 }
 

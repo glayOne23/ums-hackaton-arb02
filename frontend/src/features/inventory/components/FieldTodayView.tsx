@@ -1,12 +1,16 @@
 import { Link } from '@tanstack/react-router'
-import { PackageOpen, Truck } from 'lucide-react'
+import { CalendarCheck, PackageOpen, Truck } from 'lucide-react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { Button } from '@/components/ui/button'
+import { expirySummary } from '@/lib/expiry'
 import { formatNumber, formatTableDate } from '@/lib/format'
 import { useSalesStock, useStockRequests } from '../api'
 import { StockRequestStatusChip } from './StockRequestStatusChip'
 
-/** M6 — what the sales carries and their requests to the warehouse (GD-02, GD-04). No batches on this screen. */
+/**
+ * M6 — what the sales carries and their requests to the warehouse (GD-02, GD-04).
+ * No batch numbers on this screen; expiry is shown as month/year (doc 11).
+ */
 export function FieldTodayView() {
   const stock = useSalesStock()
   const requests = useStockRequests('all')
@@ -15,7 +19,17 @@ export function FieldTodayView() {
   return (
     <section className="flex flex-col gap-6 pb-24">
       <div className="flex flex-col gap-3">
-        <h1 className="text-xl font-bold tracking-tight">Stok bawaan</h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-bold tracking-tight">Stok bawaan</h1>
+          {stock.data && stock.data.data.length > 0 && (
+            <Button asChild variant="outline" size="sm">
+              <Link to="/field/expiry-check">
+                <CalendarCheck aria-hidden />
+                Cek ED bawaan
+              </Link>
+            </Button>
+          )}
+        </div>
         {stock.isPending ? (
           <div className="h-32 animate-pulse rounded-lg bg-muted motion-reduce:animate-none" aria-busy="true" />
         ) : stock.isError ? (
@@ -29,7 +43,11 @@ export function FieldTodayView() {
           <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card shadow-card">
             {stock.data.data.map((row) => (
               <li key={row.product.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <span className="min-w-0 text-lg">{row.product.name}</span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-lg">{row.product.name}</span>
+                  {/* Doc 11: which ED the pieces have, so the oldest goes on the shelf first */}
+                  {row.expiry.length > 0 && <span className="text-sm text-muted-foreground">{expirySummary(row.expiry)}</span>}
+                </span>
                 {/* Number and unit stay on one line, right-aligned, so the column lines up */}
                 <span className="shrink-0 text-right text-xl font-semibold whitespace-nowrap tabular-nums">
                   {formatNumber(row.qty)}{' '}
@@ -60,18 +78,31 @@ export function FieldTodayView() {
                 </span>
                 <ul>
                   {request.items.map((item) => (
-                    <li key={item.id} className="flex justify-between gap-3">
-                      <span>{item.product.name}</span>
-                      <span className="tabular-nums">
-                        {item.issued_qty !== null && item.issued_qty !== item.requested_qty
-                          ? `${item.issued_qty} dari ${item.requested_qty}`
-                          : item.requested_qty}
+                    <li key={item.id} className="flex flex-col">
+                      <span className="flex justify-between gap-3">
+                        <span>{item.product.name}</span>
+                        <span className="tabular-nums">
+                          {item.issued_qty !== null && item.issued_qty !== item.requested_qty
+                            ? `${item.issued_qty} dari ${item.requested_qty}`
+                            : item.requested_qty}
+                        </span>
                       </span>
+                      {item.expiry.length > 0 && (
+                        <span className="text-sm text-muted-foreground">{expirySummary(item.expiry)}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
                 {request.warehouse_note && (
                   <p className="text-sm text-muted-foreground">Gudang: {request.warehouse_note}</p>
+                )}
+                {request.status.value === 'issued' && (
+                  <Button asChild variant="secondary" className="self-start">
+                    <Link to="/field/expiry-check" search={{ request: request.id }}>
+                      <CalendarCheck aria-hidden />
+                      Cocokkan ED
+                    </Link>
+                  </Button>
                 )}
               </li>
             ))}

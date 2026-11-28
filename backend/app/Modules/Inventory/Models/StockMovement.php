@@ -3,6 +3,7 @@
 namespace App\Modules\Inventory\Models;
 
 use App\Models\User;
+use App\Modules\Inventory\Enums\MovementBasis;
 use App\Modules\Inventory\Enums\MovementType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -20,12 +21,13 @@ use Illuminate\Support\Carbon;
  * @property string|null $to_location_id
  * @property int $qty
  * @property MovementType $type
+ * @property MovementBasis $basis
  * @property string|null $source_type
  * @property string|null $source_id
  * @property string|null $note
  * @property Carbon $created_at
  */
-#[Fillable(['batch_id', 'from_location_id', 'to_location_id', 'qty', 'type', 'source_type', 'source_id', 'reverses_id', 'note', 'created_by'])]
+#[Fillable(['batch_id', 'from_location_id', 'to_location_id', 'qty', 'type', 'basis', 'source_type', 'source_id', 'reverses_id', 'note', 'created_by'])]
 class StockMovement extends Model
 {
     use HasUlids;
@@ -34,7 +36,7 @@ class StockMovement extends Model
 
     protected function casts(): array
     {
-        return ['qty' => 'integer', 'type' => MovementType::class];
+        return ['qty' => 'integer', 'type' => MovementType::class, 'basis' => MovementBasis::class];
     }
 
     /** @return BelongsTo<Batch, $this> */

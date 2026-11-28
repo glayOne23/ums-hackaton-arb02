@@ -129,6 +129,13 @@ function SummaryBody({
       text: `${actions.unvisited_outlets} outlet lewat siklus kunjungan`,
       code: 'unvisited-outlets',
     },
+    actions.expiry_accuracy.checks > 0 &&
+      (actions.expiry_accuracy.percent ?? 100) < 100 && {
+        key: 'expiry-accuracy',
+        icon: CalendarCheck,
+        text: `Akurasi cek ED ${formatPercent(actions.expiry_accuracy.percent ?? 0)} dari ${actions.expiry_accuracy.checks} cek`,
+        code: 'expiry-accuracy',
+      },
     data.slow_products > 0 && {
       key: 'slow',
       icon: TrendingDown,

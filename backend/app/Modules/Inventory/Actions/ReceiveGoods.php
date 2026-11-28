@@ -6,6 +6,7 @@ use App\Core\Period\ClosedPeriods;
 use App\Core\Support\ClientUuid;
 use App\Core\Support\DocumentNumber;
 use App\Models\User;
+use App\Modules\Inventory\Enums\MovementBasis;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\Batch;
 use App\Modules\Inventory\Models\GoodsReceipt;
@@ -58,7 +59,8 @@ final class ReceiveGoods
             foreach ($data['items'] as $index => $line) {
                 $batch = $this->batch($line, $index);
                 $receipt->items()->create(['batch_id' => $batch->id, 'qty' => $line['qty']]);
-                $this->move->handle($batch, null, $warehouse, (int) $line['qty'], MovementType::Receipt, $actor, $receipt);
+                // The admin typed the batch and ED from the carton
+                $this->move->handle($batch, null, $warehouse, (int) $line['qty'], MovementType::Receipt, $actor, $receipt, basis: MovementBasis::Confirmed);
             }
 
             return $receipt;

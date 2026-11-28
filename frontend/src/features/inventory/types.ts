@@ -1,3 +1,4 @@
+import type { ExpiryMonth } from '@/lib/expiry'
 import type { VoidPendingInfo } from '@/lib/void-request'
 
 /** Shapes returned by the Inventory API (backend: App\Modules\Inventory). */
@@ -30,6 +31,8 @@ export interface ProductStock {
   near_expiry_qty: number
   /** null for sales (they never see batches) */
   batches: StockBatch[] | null
+  /** Doc 11: the same pieces per expiry month, oldest first (sales see these) */
+  expiry: ExpiryMonth[]
 }
 
 export interface WarehouseStock {
@@ -47,6 +50,8 @@ export interface StockCardRow {
   id: string
   at: string
   type: ValueLabel
+  /** Doc 11: confirmed = someone saw the batch; fefo = nearest-expiry estimate */
+  basis: ValueLabel<'fefo' | 'confirmed'>
   document: string | null
   batch_number: string
   expiry_date: string
@@ -90,6 +95,10 @@ export interface StockRequestItem {
   requested_qty: number
   issued_qty: number | null
   allocations: { batch_id: string; batch_number: string | null; expiry_date: string | null; qty: number }[] | null
+  /** Doc 11: the admin checked the batches on the pick list */
+  allocations_confirmed: boolean
+  /** Doc 11: what left the warehouse per expiry month (everyone sees this) */
+  expiry: ExpiryMonth[]
 }
 
 export interface StockRequest {

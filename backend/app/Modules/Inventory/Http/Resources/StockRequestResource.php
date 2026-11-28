@@ -23,7 +23,8 @@ class StockRequestResource extends JsonResource
     {
         $showBatches = (bool) $request->user()?->can('stock_request.view');
         $batchIds = $this->items->flatMap(fn (StockRequestItem $i) => array_column($i->allocations ?? [], 'batch_id'))->unique();
-        $batches = $showBatches ? Batch::query()->whereIn('id', $batchIds)->get()->keyBy('id') : collect();
+        // Expiry months go to everyone (doc 11: the sales matches what they got); batch numbers to the office only
+        $batches = Batch::query()->whereIn('id', $batchIds)->get()->keyBy('id');
 
         return [
             'id' => $this->id,
@@ -49,7 +50,15 @@ class StockRequestResource extends JsonResource
                     'batch_number' => $batches->get($a['batch_id'])?->batch_number,
                     'expiry_date' => $batches->get($a['batch_id'])?->expiry_date->toDateString(),
                     'qty' => $a['qty'],
-                ])->values() : null,
+                ])->values()->all() : null,
+                'allocations_confirmed' => $item->allocations_confirmed,
+                'expiry' => collect($item->allocations ?? [])
+                    ->groupBy(fn (array $a) => $batches->get($a['batch_id'])?->expiry_date->format('Y-m') ?? '')
+                    ->filter(fn ($rows, $month) => $month !== '')
+                    ->map(fn ($rows, $month) => ['month' => (string) $month, 'qty' => (int) collect($rows)->sum('qty')])
+                    ->sortKeys()
+                    ->values()
+                    ->all(),
             ])->values(),
         ];
     }

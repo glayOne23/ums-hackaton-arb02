@@ -5,6 +5,7 @@ namespace App\Modules\Inventory\Actions;
 use App\Core\Notify\Alert;
 use App\Core\Notify\Notifier;
 use App\Models\User;
+use App\Modules\Inventory\Enums\MovementBasis;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Enums\StockRequestStatus;
 use App\Modules\Inventory\Models\Batch;
@@ -42,7 +43,11 @@ final class IssueStockRequest
                 foreach ($request->items as $item) {
                     foreach ($item->allocations ?? [] as $allocation) {
                         $batch = Batch::query()->findOrFail($allocation['batch_id']);
-                        $this->move->handle($batch, $warehouse, $salesLocation, (int) $allocation['qty'], MovementType::Issue, $actor, $request);
+                        $this->move->handle(
+                            $batch, $warehouse, $salesLocation, (int) $allocation['qty'], MovementType::Issue, $actor, $request,
+                            // Confirmed when the admin checked the pick list against the cartons (doc 11)
+                            basis: $item->allocations_confirmed ? MovementBasis::Confirmed : MovementBasis::Fefo,
+                        );
                     }
                 }
             } catch (ValidationException $e) {

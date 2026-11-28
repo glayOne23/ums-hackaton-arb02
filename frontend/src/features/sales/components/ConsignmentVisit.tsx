@@ -1,10 +1,11 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronDown, ChevronLeft, CircleAlert, LoaderCircle, PackagePlus } from 'lucide-react'
+import { CalendarCheck, ChevronDown, ChevronLeft, CircleAlert, LoaderCircle, PackagePlus, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorState } from '@/components/common/ErrorState'
 import { NumberStepper } from '@/components/common/NumberStepper'
 import { StatusChip } from '@/components/common/StatusChip'
 import { Button } from '@/components/ui/button'
+import { NativeSelect } from '@/components/ui/native-select'
 import { formatCurrency, formatDiscountPercent, formatExpiry } from '@/lib/format'
 import { useSession } from '@/stores/session'
 import { useSaveReceipt, useWorkPackage } from '../api'
@@ -17,6 +18,7 @@ import {
   visitLines,
   type VisitLine,
 } from '../calc'
+import { expiryLabel, isNear, otherMonths, shelfRows } from '@/lib/expiry'
 import type { ReceiptLine } from '../offline/db'
 import { buildReceipt } from '../receipt'
 import type { PackageOutlet, WorkPackage } from '../types'
@@ -74,18 +76,26 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
       userId,
       outlet,
       type: 'consignment_visit',
-      items: kept.map(({ line, result }) => ({
-        product_id: line.productId,
-        opening_qty: line.opening,
-        remaining_qty: result.remaining,
-        withdrawn_qty: result.withdrawn,
-        refill_qty: result.refill,
-      })),
+      items: kept.map(({ line, result }) => {
+        const input = useInputs[line.productId] ?? {}
+        // Doc 11: a counted line sends its months; "Tidak ada yang laku" (no inputs) counts nothing
+        const counted = line.checkExpiry && useInputs !== emptyInputs
+        return {
+          product_id: line.productId,
+          opening_qty: line.opening,
+          remaining_qty: result.remaining,
+          withdrawn_qty: result.withdrawn,
+          refill_qty: result.refill,
+          ...(counted ? { remaining_by_expiry: shelfRows(line.shelfExpiry ?? [], input.byExpiry) } : {}),
+          ...(input.refillMonth && result.refill > 0 ? { refill_expiry_month: input.refillMonth } : {}),
+        }
+      }),
       lines: kept.map(({ line, result }): ReceiptLine => toReceiptLine(line, result)),
       paid: payment.amount,
       method: payment.method,
       photo: payment.photo,
       settings: pkg.settings,
+      expiryCheck: outlet.expiry_check && useInputs !== emptyInputs ? { trigger: outlet.expiry_check.trigger } : null,
     })
     await saveReceipt(receipt)
     await navigate({ to: '/field/receipt/$clientUuid', params: { clientUuid: receipt.client_uuid }, replace: true })
@@ -100,7 +110,7 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
     }
     setSavingQuick(true)
     try {
-      await save({ amount: 0, method: 'cash', photo: null }, {})
+      await save({ amount: 0, method: 'cash', photo: null }, emptyInputs)
     } finally {
       setSavingQuick(false)
     }
@@ -109,6 +119,16 @@ function VisitForm({ pkg, outlet }: { pkg: WorkPackage; outlet: PackageOutlet })
   return (
     <section className="flex flex-col gap-4 pb-40">
       <VisitHeader outlet={outlet} />
+
+      {outlet.expiry_check && shelf.some((line) => line.checkExpiry) && (
+        <p role="note" className="flex items-start gap-2 rounded-md bg-info-soft px-4 py-3 text-info-text">
+          <CalendarCheck className="mt-0.5 size-5 shrink-0" aria-hidden />
+          <span>
+            <strong>Cek ED kunjungan ini</strong> ({outlet.expiry_check.label}). Hitung sisa di rak per ED
+            untuk produk bertanda <strong>Cek ED</strong>; ubah hanya yang berbeda.
+          </span>
+        </p>
+      )}
 
       {shelf.length > 0 ? (
         <>
@@ -209,29 +229,41 @@ function ShelfLine({
   input: LineInput
   onChange: (change: LineInput) => void
 }) {
-  const showWithdraw = line.nearExpiryQty > 0 || result.withdrawn > 0
+  const showWithdraw = line.nearExpiryQty > 0 || result.suggestedWithdrawal > 0 || result.withdrawn > 0
   const showRefill = result.sold > 0 || result.withdrawn > 0 || result.refill > 0 || input.refill !== undefined
+  const carriedMonths = (line.carriedExpiry ?? []).filter((m) => m.qty > 0)
 
   return (
     <li className="flex flex-col gap-2 p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="text-lg font-semibold">{line.name}</p>
-        {line.nearExpiryQty > 0 && line.nearestExpiry && (
-          <StatusChip variant="danger" icon={CircleAlert}>
-            {formatExpiry(new Date(line.nearestExpiry))}
-          </StatusChip>
-        )}
+        <span className="flex flex-wrap gap-1.5">
+          {line.checkExpiry && (
+            <StatusChip variant="info" icon={CalendarCheck}>
+              Cek ED
+            </StatusChip>
+          )}
+          {line.nearExpiryQty > 0 && line.nearestExpiry && (
+            <StatusChip variant="danger" icon={CircleAlert}>
+              {formatExpiry(new Date(line.nearestExpiry))}
+            </StatusChip>
+          )}
+        </span>
       </div>
 
-      <StepperRow label="Sisa di rak" hint={`dari ${line.opening}`}>
-        <NumberStepper
-          id={`remaining-${line.productId}`}
-          label={`Sisa ${line.name}`}
-          value={input.remaining ?? line.opening}
-          initial={line.opening}
-          onChange={(n) => onChange({ remaining: n })}
-        />
-      </StepperRow>
+      {line.checkExpiry ? (
+        <ExpiryCount line={line} result={result} counted={input.byExpiry} onChange={(byExpiry) => onChange({ byExpiry })} />
+      ) : (
+        <StepperRow label="Sisa di rak" hint={`dari ${line.opening}`}>
+          <NumberStepper
+            id={`remaining-${line.productId}`}
+            label={`Sisa ${line.name}`}
+            value={input.remaining ?? line.opening}
+            initial={line.opening}
+            onChange={(n) => onChange({ remaining: n })}
+          />
+        </StepperRow>
+      )}
       {result.remainingTooHigh && <LineError>Sisa lebih dari titipan ({line.opening}). Hitung ulang?</LineError>}
 
       {result.sold > 0 && (
@@ -256,7 +288,10 @@ function ShelfLine({
       )}
 
       {showRefill && (
-        <StepperRow label="Isi" hint={`bawa ${line.carried}`}>
+        <StepperRow
+          label="Isi"
+          hint={`bawa ${line.carried}${result.refillMonth && result.refill > 0 ? ` · dari ${expiryLabel(result.refillMonth)}` : ''}`}
+        >
           <NumberStepper
             id={`refill-${line.productId}`}
             label={`Isi ${line.name}`}
@@ -266,10 +301,91 @@ function ShelfLine({
           />
         </StepperRow>
       )}
+      {/* Doc 11: when the bag holds more than one ED, the sales says which one went on the shelf */}
+      {showRefill && result.refill > 0 && carriedMonths.length > 1 && (
+        <label className="flex flex-col gap-1">
+          <span className="text-sm text-muted-foreground">Isi diambil dari</span>
+          <NativeSelect
+            aria-label={`ED isi ulang ${line.name}`}
+            value={result.refillMonth ?? ''}
+            onChange={(e) => onChange({ refillMonth: e.target.value })}
+          >
+            {carriedMonths.map((m) => (
+              <option key={m.month} value={m.month}>
+                {expiryLabel(m.month)} (bawa {m.qty}){line.cutoffMonth && isNear(m.month, line.cutoffMonth) ? ' · dekat ED' : ''}
+              </option>
+            ))}
+          </NativeSelect>
+        </label>
+      )}
       {result.refillTooHigh && <LineError>Stok bawaan hanya {line.carried + result.withdrawn}.</LineError>}
 
       <p className="text-muted-foreground">Stok akhir {result.closing}</p>
     </li>
+  )
+}
+
+/**
+ * Doc 11: "Sisa di rak" counted per ED. Each month starts at what the ledger
+ * expects, so only a different month is changed; an ED that is on the shelf
+ * but not in the ledger is added from the months the sales carries.
+ */
+function ExpiryCount({
+  line,
+  result,
+  counted,
+  onChange,
+}: {
+  line: VisitLine
+  result: LineResult
+  counted: Record<string, number> | undefined
+  onChange: (byExpiry: Record<string, number>) => void
+}) {
+  const rows = shelfRows(line.shelfExpiry ?? [], counted)
+  const extra = otherMonths(line.shelfExpiry ?? [], line.carriedExpiry ?? [], counted)
+  const current = () => Object.fromEntries(rows.map((r) => [r.month, r.qty]))
+
+  return (
+    <div className="flex flex-col gap-2 rounded-md border border-info/40 bg-info-soft/40 p-2">
+      <p className="flex justify-between text-base">
+        <span>Sisa di rak per ED</span>
+        <span className="text-sm text-muted-foreground">
+          {result.remaining} dari {line.opening}
+        </span>
+      </p>
+      {rows.map((row) => (
+        <StepperRow
+          key={row.month}
+          label={expiryLabel(row.month)}
+          hint={line.cutoffMonth && isNear(row.month, line.cutoffMonth) ? 'dekat ED' : undefined}
+        >
+          <NumberStepper
+            id={`remaining-${line.productId}-${row.month}`}
+            label={`Sisa ${line.name} ${expiryLabel(row.month)}`}
+            value={row.qty}
+            initial={(line.shelfExpiry ?? []).find((m) => m.month === row.month)?.qty ?? 0}
+            onChange={(n) => onChange({ ...current(), [row.month]: n })}
+          />
+        </StepperRow>
+      ))}
+      {extra.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">ED lain di rak:</span>
+          {extra.map((month) => (
+            <Button
+              key={month}
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => onChange({ ...current(), [month]: 0 })}
+            >
+              <Plus aria-hidden />
+              {expiryLabel(month)}
+            </Button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -329,6 +445,9 @@ export function NotAssigned() {
     </div>
   )
 }
+
+/** "Tidak ada yang laku": nothing changed and nothing counted per ED */
+const emptyInputs: Record<string, LineInput> = {}
 
 function billingHint(soldPerProduct: number[], pkg: WorkPackage) {
   const suggestion = billingSuggestion(soldPerProduct, pkg.settings)

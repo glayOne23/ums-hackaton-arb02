@@ -95,7 +95,7 @@ it('lists only the reports each role may open', function () {
         ->flatMap(fn (array $group) => array_column($group['items'], 'code'))->all();
 
     expect($codes($this->manager))->toContain('sales-performance', 'visits', 'daily-stock', 'expiry')
-        ->and($codes($this->warehouse))->toBe(['outlet-stock', 'daily-stock', 'expiry']);
+        ->and($codes($this->warehouse))->toBe(['outlet-stock', 'daily-stock', 'expiry', 'expiry-accuracy']);
 
     $this->actingAs($this->warehouse)->getJson('/api/v1/reports/visits')->assertForbidden();
     $this->actingAs($this->sales)->getJson('/api/v1/reports')->assertForbidden();

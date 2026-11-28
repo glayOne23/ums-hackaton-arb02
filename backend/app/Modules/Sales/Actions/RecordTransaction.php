@@ -11,10 +11,13 @@ use App\Modules\Billing\Actions\ApplyOutletPayment;
 use App\Modules\Billing\Actions\CreateSalesInvoice;
 use App\Modules\Billing\Enums\PaymentMethod;
 use App\Modules\Inventory\Actions\AllocateStock;
+use App\Modules\Inventory\Actions\RecordExpiryCheck;
 use App\Modules\Inventory\Actions\RecordStockMovement;
 use App\Modules\Inventory\Actions\StockLocations;
+use App\Modules\Inventory\Enums\ExpiryCheckTrigger;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\Batch;
+use App\Modules\Inventory\Models\ExpiryCheck;
 use App\Modules\Inventory\Models\StockLocation;
 use App\Modules\Inventory\Queries\LocationStock;
 use App\Modules\Outlet\Enums\SaleMode;
@@ -50,8 +53,11 @@ use Illuminate\Validation\ValidationException;
  * rules, except that numbers that do not fit are refused instead of noted:
  * the person correcting is at a screen and can fix them.
  *
- * @phpstan-type ItemInput array{product_id: string, opening_qty?: ?int, remaining_qty?: ?int, withdrawn_qty?: ?int, refill_qty?: ?int, sold_qty?: ?int}
- * @phpstan-type TransactionInput array{client_uuid: string, type: string, outlet_id: string, transacted_at: string, items: list<ItemInput>, payment?: array{amount?: int|float|string|null, method?: ?string}}
+ * Doc 11: a consignment line may carry the shelf counted per expiry month
+ * (an ED check); the batches at the outlet are then corrected to match it.
+ *
+ * @phpstan-type ItemInput array{product_id: string, opening_qty?: ?int, remaining_qty?: ?int, withdrawn_qty?: ?int, refill_qty?: ?int, sold_qty?: ?int, remaining_by_expiry?: ?list<array{month: string, qty: int}>, refill_expiry_month?: ?string}
+ * @phpstan-type TransactionInput array{client_uuid: string, type: string, outlet_id: string, transacted_at: string, items: list<ItemInput>, payment?: array{amount?: int|float|string|null, method?: ?string}, expiry_check?: ?array{trigger?: ?string}}
  */
 final class RecordTransaction
 {
@@ -66,6 +72,7 @@ final class RecordTransaction
         private readonly ResolveDiscount $discounts,
         private readonly CreateSalesInvoice $createInvoice,
         private readonly ApplyOutletPayment $applyPayment,
+        private readonly RecordExpiryCheck $expiryCheck,
     ) {}
 
     /**
@@ -196,12 +203,18 @@ final class RecordTransaction
 
         $subtotal = 0;
         $total = 0;
+        $check = null;
+        $trigger = ExpiryCheckTrigger::tryFrom((string) ($data['expiry_check']['trigger'] ?? '')) ?? ExpiryCheckTrigger::Manual;
         foreach ($lines as $line) {
             $transaction->items()->create($line->attributes());
             $subtotal += $line->sold * $line->quote->sellingPriceCents;
             $total += $line->totalCents();
 
-            $this->moveStock($line, $transaction, $actor, $outletLocation, $salesLocation, $expiryCutoff);
+            $check = $this->moveStock($line, $transaction, $actor, $outletLocation, $salesLocation, $expiryCutoff, $check, $trigger, $at, $notes);
+        }
+        // A check whose every product was refused holds nothing to count
+        if ($check && ! $check->items()->exists()) {
+            $check->delete();
         }
 
         if ($strict) {
@@ -357,6 +370,19 @@ final class RecordTransaction
                 $remaining = $opening;
             }
 
+            // Doc 11: the shelf per expiry month must add up to the shelf
+            $byExpiry = null;
+            if (! $strict && ! empty($item['remaining_by_expiry'])) {
+                $byExpiry = [];
+                foreach ($item['remaining_by_expiry'] as $row) {
+                    $byExpiry[(string) $row['month']] = ($byExpiry[(string) $row['month']] ?? 0) + (int) $row['qty'];
+                }
+                if (array_sum($byExpiry) !== $remaining) {
+                    $notes[] = sprintf('Sisa %s per ED (%d) tidak sama dengan sisa di rak (%d); cek ED produk ini tidak dicatat.', $product->name, array_sum($byExpiry), $remaining);
+                    $byExpiry = null;
+                }
+            }
+
             $withdrawn = (int) ($item['withdrawn_qty'] ?? 0);
             if ($withdrawn > $remaining) {
                 $this->capped($notes, $strict, "Tarik {$product->name} ({$withdrawn}) lebih dari sisa ({$remaining})", $remaining);
@@ -382,6 +408,8 @@ final class RecordTransaction
                 remaining: $remaining,
                 withdrawn: $withdrawn,
                 refill: $refill,
+                remainingByExpiry: $byExpiry,
+                refillMonth: isset($item['refill_expiry_month']) && $item['refill_expiry_month'] !== '' ? (string) $item['refill_expiry_month'] : null,
             );
         }
 
@@ -442,6 +470,12 @@ final class RecordTransaction
      * Withdraw first (nearest expiry, the batches that triggered BR-03), then
      * the sold goods leave the books, then the refill goes in from what the
      * sales carries, near-expiry batches last (SDD §4.3).
+     *
+     * With an ED check (doc 11) the sale goes first, then the shelf's batches
+     * are corrected to what the sales counted, so the withdrawal takes the
+     * expiry months that are really there.
+     *
+     * @param  list<string>  $notes
      */
     private function moveStock(
         SaleLine $line,
@@ -450,16 +484,40 @@ final class RecordTransaction
         StockLocation $outletLocation,
         StockLocation $salesLocation,
         CarbonInterface $expiryCutoff,
-    ): void {
-        if ($line->isConsignment()) {
-            $this->moveAll($line->product, $outletLocation, $salesLocation, $line->withdrawn, MovementType::Withdrawal, $transaction, $sales);
-            $this->moveAll($line->product, $outletLocation, null, $line->sold, MovementType::Sale, $transaction, $sales);
-            $this->moveAll($line->product, $salesLocation, $outletLocation, $line->refill, MovementType::Refill, $transaction, $sales, $expiryCutoff);
+        ?ExpiryCheck $check,
+        ExpiryCheckTrigger $trigger,
+        CarbonInterface $at,
+        array &$notes,
+    ): ?ExpiryCheck {
+        if (! $line->isConsignment()) {
+            $this->moveAll($line->product, $salesLocation, null, $line->sold, MovementType::Sale, $transaction, $sales);
 
-            return;
+            return $check;
         }
 
-        $this->moveAll($line->product, $salesLocation, null, $line->sold, MovementType::Sale, $transaction, $sales);
+        if ($line->remainingByExpiry === null) {
+            $this->moveAll($line->product, $outletLocation, $salesLocation, $line->withdrawn, MovementType::Withdrawal, $transaction, $sales);
+            $this->moveAll($line->product, $outletLocation, null, $line->sold, MovementType::Sale, $transaction, $sales);
+        } else {
+            $this->moveAll($line->product, $outletLocation, null, $line->sold, MovementType::Sale, $transaction, $sales);
+            $check ??= $this->expiryCheck->start($outletLocation, $trigger, $sales, $transaction, null, $at);
+            try {
+                $this->expiryCheck->apply(
+                    $check, $outletLocation, $line->product, $line->remainingByExpiry, $sales,
+                    [$salesLocation, $this->locations->warehouse()],
+                );
+            } catch (ValidationException $e) {
+                // The field is never blocked (KR-11): the visit is saved, the check is noted for the office
+                $notes[] = "Cek ED {$line->product->name}: ".collect($e->errors())->flatten()->first();
+            }
+            $this->moveAll($line->product, $outletLocation, $salesLocation, $line->withdrawn, MovementType::Withdrawal, $transaction, $sales);
+        }
+        $this->moveAll(
+            $line->product, $salesLocation, $outletLocation, $line->refill, MovementType::Refill, $transaction, $sales,
+            $expiryCutoff, $line->refillMonth,
+        );
+
+        return $check;
     }
 
     private function moveAll(
@@ -471,8 +529,9 @@ final class RecordTransaction
         Transaction $transaction,
         User $sales,
         ?CarbonInterface $avoidExpiringBy = null,
+        ?string $preferMonth = null,
     ): void {
-        foreach ($this->allocate->handle($product, $from, $qty, 'items', $avoidExpiringBy) as $allocation) {
+        foreach ($this->allocate->handle($product, $from, $qty, 'items', $avoidExpiringBy, $preferMonth) as $allocation) {
             $batch = Batch::query()->findOrFail($allocation['batch_id']);
             $this->move->handle($batch, $from, $to, $allocation['qty'], $type, $sales, $transaction);
         }

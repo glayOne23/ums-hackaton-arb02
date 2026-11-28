@@ -91,6 +91,7 @@ Semua rancangan ada di [`docs/pengembangan/`](docs/pengembangan/). Baca sesuai k
 | 08 | [Struktur Folder](docs/pengembangan/08_Struktur_Folder.md) | **Wajib untuk semua developer:** susunan kode per modul |
 | 09 | [Konvensi Kerja Tim](docs/pengembangan/09_Konvensi_Kerja_Tim.md) | **Wajib untuk semua developer:** branch, commit, Pull Request, definisi selesai |
 | 10 | [Arsitektur Basis Data](docs/pengembangan/10_Arsitektur_Basis_Data.md) | **Wajib untuk backend:** prefix tabel per kelompok, aturan nama, katalog tabel, glosarium istilah → kode |
+| 11 | [Pemantauan ED](docs/pengembangan/11_Pemantauan_ED.md) | Pelacakan batch/ED: daftar ambil gudang, cek ED di rak dan bawaan, koreksi batch, akurasi |
 
 Bahan pendukung ada di [`docs/referensi/`](docs/referensi/) (profil mitra, proposal, review Figma). Keputusan teknis baru dicatat di [`docs/adr/`](docs/adr/).
 
@@ -108,7 +109,7 @@ ums-hackaton-arb02/
 ├── infra/docker/   Docker produksi (Caddy + HTTPS)
 ├── compose.yaml    Semua bagian di Docker untuk pengembangan lokal (Cara A)
 └── docs/
-    ├── pengembangan/   Dokumen rancangan 01–10 (sumber kebenaran)
+    ├── pengembangan/   Dokumen rancangan 01–11 (sumber kebenaran)
     ├── referensi/      Bahan dari repo tim
     └── adr/            Catatan keputusan arsitektur
 ```

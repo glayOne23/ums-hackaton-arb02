@@ -85,6 +85,15 @@ Untuk outlet **Beli langsung** atau **Tempo**:
 
 Rekap hari ini: outlet yang sudah dikunjungi, uang yang Anda bawa, dan stok bawaan. Nota yang **gagal kirim** bisa dikirim lagi dari sini dengan **Kirim ulang**.
 
+### Cek ED (tanggal kedaluwarsa)
+
+SIGAP mencatat ED setiap barang sampai ke rak outlet. Supaya catatannya tetap benar:
+
+- **Isi rak dengan ED lama di depan**, barang baru di belakang. Susun bawaan di tas per ED.
+- Bila kunjungan menampilkan **Cek ED kunjungan ini**, produk bertanda **Cek ED** dihitung per ED: kolom **Sisa di rak per ED** sudah terisi sesuai catatan, jadi **ubah hanya yang berbeda**. Ada ED di rak yang belum tercatat? Tekan **ED lain di rak**.
+- Saat mengisi ulang, baris **Isi** menyebut ED yang diambil. Bila bawaan punya beberapa ED, pilih yang benar di **Isi diambil dari**.
+- Barang baru dari gudang: di **Hari ini**, tekan **Cocokkan ED** pada permintaan yang **Sudah keluar**, lalu cocokkan dengan kemasan. **Cek ED bawaan** bisa dipakai kapan saja (butuh sinyal).
+
 ### Minta barang ke gudang
 
 **Hari ini → Minta barang**. Pilih produk dan jumlahnya dengan − / +, lalu **Kirim**. Anda mendapat notifikasi saat barang sudah disiapkan atau sudah keluar. Sisa barang bawaan otomatis terbawa ke hari berikutnya.
@@ -158,7 +167,7 @@ Menu **Gudang** punya tab **Stok**, **Permintaan sales**, **Barang masuk**, **Re
 
 ### Menyiapkan permintaan sales
 
-**Permintaan sales**: batch dengan ED terdekat dipilih otomatis. Ubah jumlah bila stok kurang (isi catatan untuk sales), lalu **Siapkan & keluarkan**. Bila barang keluar perlu persetujuan, permintaan menunggu pemegang izin "Setujui barang keluar".
+**Permintaan sales**: daftar **Ambil dari batch** menyarankan ED terdekat. Ambil kardus sesuai daftar (atau ubah angkanya bila mengambil batch lain), centang **Batch sudah dicocokkan dengan kardus yang diambil**, lalu **Siapkan & keluarkan**. Ubah jumlah bila stok kurang (isi catatan untuk sales). **Cetak bukti keluar** untuk dibawa sales. Bila barang keluar perlu persetujuan, permintaan menunggu pemegang izin "Setujui barang keluar".
 
 ### Terima retur
 
@@ -177,6 +186,7 @@ Menu **Gudang** punya tab **Stok**, **Permintaan sales**, **Barang masuk**, **Re
 ## 5. Pimpinan
 
 - **Ringkasan:** omzet bulan ini, kunjungan dibanding target, outlet belum dikunjungi, produk ED dekat, dan tagihan belum dibayar. Ketuk angka untuk membuka laporannya.
+- **Akurasi cek ED** (Laporan → Gudang): seberapa sering catatan ED cocok dengan hitungan sales di rak dan di bawaan. Akurasi rendah berarti kebiasaan "ED lama di depan" perlu diingatkan.
 - **Laporan:** pilih laporan, atur saringan (bulan, sales, kabupaten, jenis outlet), lalu **Excel** atau **Cetak / PDF**.
 - **Persetujuan** (notifikasi lonceng dan menu **Koreksi → Menunggu persetujuan**): potongan baru, penyesuaian opname, koreksi dan pembatalan nota, serta pembatalan pembayaran dan dokumen gudang yang lewat batas waktu. Tekan **Setujui**, atau **Tolak** dengan catatan untuk pengaju.
 

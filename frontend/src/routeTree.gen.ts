@@ -14,6 +14,7 @@ import { Route as FieldRouteRouteImport } from './routes/field/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OfficeRouteRouteImport } from './routes/office/route'
 import { Route as FieldIndexRouteImport } from './routes/field/index'
+import { Route as FieldExpiryCheckRouteImport } from './routes/field/expiry-check'
 import { Route as FieldProposeRouteImport } from './routes/field/propose'
 import { Route as FieldRequestRouteImport } from './routes/field/request'
 import { Route as FieldTodayRouteImport } from './routes/field/today'
@@ -78,6 +79,11 @@ const OfficeRouteRoute = OfficeRouteRouteImport.update({
 const FieldIndexRoute = FieldIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => FieldRouteRoute,
+} as any)
+const FieldExpiryCheckRoute = FieldExpiryCheckRouteImport.update({
+  id: '/expiry-check',
+  path: '/expiry-check',
   getParentRoute: () => FieldRouteRoute,
 } as any)
 const FieldProposeRoute = FieldProposeRouteImport.update({
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/field/expiry-check': typeof FieldExpiryCheckRoute
   '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
@@ -343,6 +350,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/field/expiry-check': typeof FieldExpiryCheckRoute
   '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
@@ -391,6 +399,7 @@ export interface FileRoutesById {
   '/field': typeof FieldRouteRouteWithChildren
   '/office': typeof OfficeRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/field/expiry-check': typeof FieldExpiryCheckRoute
   '/field/propose': typeof FieldProposeRoute
   '/field/request': typeof FieldRequestRoute
   '/field/today': typeof FieldTodayRoute
@@ -440,6 +449,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/office'
     | '/login'
+    | '/field/expiry-check'
     | '/field/propose'
     | '/field/request'
     | '/field/today'
@@ -485,6 +495,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/field/expiry-check'
     | '/field/propose'
     | '/field/request'
     | '/field/today'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/field'
     | '/office'
     | '/login'
+    | '/field/expiry-check'
     | '/field/propose'
     | '/field/request'
     | '/field/today'
@@ -617,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/field/'
       preLoaderRoute: typeof FieldIndexRouteImport
+      parentRoute: typeof FieldRouteRoute
+    }
+    '/field/expiry-check': {
+      id: '/field/expiry-check'
+      path: '/expiry-check'
+      fullPath: '/field/expiry-check'
+      preLoaderRoute: typeof FieldExpiryCheckRouteImport
       parentRoute: typeof FieldRouteRoute
     }
     '/field/propose': {
@@ -903,6 +922,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface FieldRouteRouteChildren {
+  FieldExpiryCheckRoute: typeof FieldExpiryCheckRoute
   FieldProposeRoute: typeof FieldProposeRoute
   FieldRequestRoute: typeof FieldRequestRoute
   FieldTodayRoute: typeof FieldTodayRoute
@@ -914,6 +934,7 @@ interface FieldRouteRouteChildren {
 }
 
 const FieldRouteRouteChildren: FieldRouteRouteChildren = {
+  FieldExpiryCheckRoute: FieldExpiryCheckRoute,
   FieldProposeRoute: FieldProposeRoute,
   FieldRequestRoute: FieldRequestRoute,
   FieldTodayRoute: FieldTodayRoute,

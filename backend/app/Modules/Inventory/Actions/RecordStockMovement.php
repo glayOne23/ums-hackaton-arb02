@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Actions;
 
 use App\Core\Events\StockChanged;
 use App\Models\User;
+use App\Modules\Inventory\Enums\MovementBasis;
 use App\Modules\Inventory\Enums\MovementType;
 use App\Modules\Inventory\Models\Batch;
 use App\Modules\Inventory\Models\StockBalance;
@@ -31,6 +32,7 @@ final class RecordStockMovement
         User $actor,
         ?Model $source = null,
         ?string $note = null,
+        MovementBasis $basis = MovementBasis::Fefo,
     ): StockMovement {
         if ($qty <= 0) {
             throw new InvalidArgumentException('A stock movement needs a positive quantity.');
@@ -39,7 +41,7 @@ final class RecordStockMovement
             throw new InvalidArgumentException('A stock movement needs a location on at least one side.');
         }
 
-        return DB::transaction(function () use ($batch, $from, $to, $qty, $type, $actor, $source, $note) {
+        return DB::transaction(function () use ($batch, $from, $to, $qty, $type, $actor, $source, $note, $basis) {
             if ($from) {
                 $this->decrease($from, $batch, $qty);
             }
@@ -53,6 +55,7 @@ final class RecordStockMovement
                 'to_location_id' => $to?->id,
                 'qty' => $qty,
                 'type' => $type,
+                'basis' => $basis,
                 'source_type' => $source?->getMorphClass(),
                 'source_id' => $source?->getKey(),
                 'note' => $note,
